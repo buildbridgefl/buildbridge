@@ -213,16 +213,26 @@ function ContractorProfile({ contractor, reviews, onBack }) {
         {contractor.videoTitle && (
           <div style={{ background: `linear-gradient(135deg, #1a0a2e, #2d1b4e)`, border: `1px solid #7c3aed44`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 11, color: "#a855f7", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 10 }}>★ PREMIUM FEATURE — VIDEO COMMERCIAL</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#7c3aed33", border: "2px solid #7c3aed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, cursor: "pointer", flexShrink: 0 }}>▶</div>
+            {contractor.videoUrl ? (
               <div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: C.white }}>{contractor.videoTitle}</div>
+                <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 10, overflow: "hidden" }}>
+                  <iframe src={contractor.videoUrl} title={contractor.videoTitle} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allowFullScreen />
+                </div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: C.white, marginTop: 10 }}>{contractor.videoTitle}</div>
                 <div style={{ fontSize: 12, color: "#a855f7", marginTop: 4 }}>HD Project Walkthrough · Featured on BuildBridge</div>
               </div>
-            </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#7c3aed33", border: "2px solid #7c3aed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>▶</div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: C.white }}>{contractor.videoTitle}</div>
+                  <div style={{ fontSize: 12, color: "#a855f7", marginTop: 4 }}>Video coming soon</div>
+                </div>
+              </div>
+            )}
           </div>
         )}
-
+        
         {/* Tabs */}
         <div style={{ display: "flex", gap: 4, marginBottom: 16, background: C.panel, borderRadius: 10, padding: 4 }}>
           {["portfolio", "reviews", "contact"].map(tab => (

@@ -106,15 +106,24 @@ function FeedPost({ post, contractor, onProfile }) {
         {/* Image/video placeholder */}
         {(post.images.length > 0 || post.isVideo) && (
           <div style={{ background: C.panel, borderRadius: 12, padding: "20px", display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 12, border: `1px solid ${C.border}` }}>
-            {post.isVideo ? (
-              <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: 16 }}>
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${C.orange}22`, border: `2px solid ${C.orange}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, cursor: "pointer" }}>▶</div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: C.white }}>{contractor.videoTitle}</div>
-                  <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>Premium feature · HD walkthrough video</div>
+          {post.isVideo ? (
+              contractor.videoUrl ? (
+                <div style={{ width: "100%" }}>
+                  <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 10, overflow: "hidden" }}>
+                    <iframe src={contractor.videoUrl} title={contractor.videoTitle} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allowFullScreen />
+                  </div>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: C.white, marginTop: 8 }}>{contractor.videoTitle}</div>
                 </div>
-              </div>
-            ) : (
+              ) : (
+                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: 16 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${C.orange}22`, border: `2px solid ${C.orange}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>▶</div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: C.white }}>{contractor.videoTitle}</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>Video coming soon</div>
+                  </div>
+                </div>
+              )
+            ) : (  
               post.images.map((img, i) => (
                 <div key={i} style={{ width: 80, height: 80, borderRadius: 10, background: `${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>{img}</div>
               ))

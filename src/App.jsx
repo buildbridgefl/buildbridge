@@ -292,6 +292,8 @@ export default function BuildBridgeSocial() {
   const [postModal, setPostModal] = useState(false);
   const [newPost, setNewPost] = useState("");
   const [toast, setToast] = useState(null);
+  const [matchResults, setMatchResults] = useState([]);
+const [matchSearched, setMatchSearched] = useState(false);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
 
@@ -481,27 +483,84 @@ export default function BuildBridgeSocial() {
               ))}
             </div>
 
-          ) : view === "match" ? (
-            <div className="feed-scroll">
-              <div style={{ fontWeight: 800, fontSize: 18, color: C.white, marginBottom: 4 }}>AI Project Matching</div>
-              <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Describe your project — AI finds the right contractor instantly</div>
-              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
-                <textarea placeholder="Describe your project in detail — type of work, location, budget, timeline..." style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 14 }} />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
-                  {[["Budget", ["Under $5K","$5K–$15K","$15K–$50K","$50K+"]], ["Timeline", ["ASAP","1 Month","3 Months","Flexible"]]].map(([label, opts]) => (
-                    <div key={label}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 6 }}>{label.toUpperCase()}</div>
-                      <select style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
-                        <option value="">Select...</option>
-                        {opts.map(o => <option key={o}>{o}</option>)}
-                      </select>
-                    </div>
-                  ))}
+       } : view === "match" ? (
+    <div className="feed-scroll">
+      <div style={{ fontWeight: 800, fontSize: 18, color: C.white, marginBottom: 4 }}>AI Project Matching</div>
+      <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Describe your project — AI finds the right contractor instantly</div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
+        <textarea
+          id="match-input"
+          placeholder="Describe your project in detail — type of work, location, budget, timeline..."
+          style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 14 }}
+        />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+          {[["Budget", ["Under $5K","$5K–$15K","$15K–$50K","$50K+"]], ["Timeline", ["ASAP","1 Month","3 Months","Flexible"]]].map(([label, opts]) => (
+            <div key={label}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 6 }}>{label.toUpperCase()}</div>
+              <select id={`match-${label.toLowerCase()}`} style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
+                <option value="">Select...</option>
+                {opts.map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+          ))}
+        </div>
+        <button onClick={() => {
+          const input = document.getElementById("match-input").value.toLowerCase();
+          const keywords = {
+            "Roofing": ["roof","shingle","metal roof","leak","storm","flat roof"],
+            "Electrical": ["electric","panel","wiring","outlet","ev charging","breaker"],
+            "Plumbing": ["plumb","pipe","water heater","repipe","leak","drain","faucet"],
+            "Tile & Masonry": ["tile","stone","brick","masonry","grout","travertine","outdoor kitchen","patio"],
+            "General Contractor": ["addition","renovation","remodel","build","construction","kitchen","bathroom","home","room"],
+            "Project Management": ["manage","budget","permit","oversee","coordinate","project manager","inception","closeout"],
+          };
+          const scored = CONTRACTORS.map(c => {
+            const tradeKeys = keywords[c.trade] || [];
+            const score = tradeKeys.filter(k => input.includes(k)).length + (input.includes(c.trade.toLowerCase()) ? 2 : 0) + c.rating * 0.5;
+            const reasons = tradeKeys.filter(k => input.includes(k));
+            return { ...c, score, reasons };
+          }).filter(c => c.score > 0).sort((a, b) => b.score - a.score);
+          setMatchResults(scored.length > 0 ? scored : CONTRACTORS.sort((a,b) => b.rating - a.rating));
+          setMatchSearched(true);
+        }} style={{ width: "100%", background: C.orange, border: "none", borderRadius: 10, padding: "12px", color: C.bg, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+          🤖 Find Matching Contractors →
+        </button>
+      </div>
+
+      {matchSearched && (
+        <div>
+          <div style={{ fontSize: 13, color: C.orange, fontWeight: 700, marginBottom: 12 }}>🤖 AI MATCHED {matchResults.length} CONTRACTORS</div>
+          {matchResults.map((c, i) => (
+            <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${i === 0 ? C.orange : C.border}`, borderRadius: 16, padding: 18, marginBottom: 14 }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                <div style={{ position: "relative" }}>
+                  <Avatar initials={c.avatar} size={48} premium={c.premium} />
+                  {i === 0 && <div style={{ position: "absolute", top: -6, right: -6, background: C.orange, color: C.bg, fontSize: 9, fontWeight: 800, padding: "2px 5px", borderRadius: 6 }}>TOP</div>}
                 </div>
-                <button onClick={() => showToast("🤖 Finding your top matches...")} style={{ width: "100%", background: C.orange, border: "none", borderRadius: 10, padding: "12px", color: C.bg, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Find Matching Contractors →</button>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 15, color: C.white }}>{c.name}</div>
+                      <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
+                    </div>
+                    <StarRating rating={c.rating} />
+                  </div>
+                  <div style={{ fontSize: 13, color: "#94a3b8", margin: "8px 0" }}>{c.bio}</div>
+                  {c.reasons && c.reasons.length > 0 && (
+                    <div style={{ fontSize: 11, color: C.green, marginBottom: 8 }}>✓ Matched on: {c.reasons.join(", ")}</div>
+                  )}
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <button onClick={() => handleProfile(c)} style={{ background: C.orange, border: "none", borderRadius: 8, padding: "7px 16px", color: C.bg, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>View Profile</button>
+                    <button onClick={() => showToast(`✅ Message sent to ${c.name}!`)} style={{ background: "transparent", border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 16px", color: C.muted, fontSize: 12, cursor: "pointer" }}>Message</button>
+                  </div>
+                </div>
               </div>
             </div>
-          ) : null}
+          ))}
+        </div>
+      )}
+    </div>
+  ) : null}
         </div>
 
         {/* Right sidebar */}

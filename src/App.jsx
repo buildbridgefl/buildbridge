@@ -483,7 +483,7 @@ const [matchSearched, setMatchSearched] = useState(false);
               ))}
             </div>
 
-       } : view === "match" ? (
+       ) : view === "match" ? (
     <div className="feed-scroll">
       <div style={{ fontWeight: 800, fontSize: 18, color: C.white, marginBottom: 4 }}>AI Project Matching</div>
       <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Describe your project — AI finds the right contractor instantly</div>

@@ -1,27 +1,34 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BuildBridge — Citrus County's Construction Network
+   v2 rebuild: blueprint design system · mobile-first · real icons ·
+   smarter matching · accessibility · all v1 bugs fixed
+   ════════════════════════════════════════════════════════════════════════════ */
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const CONTRACTORS = [
-  { id: 1, name: "Marco Rivera", company: "Rivera & Sons Construction", trade: "General Contractor", location: "Homosassa Springs, FL", rating: 4.9, jobs: 87, followers: 312, following: 44, verified: true, premium: true, avatar: "MR", bio: "20 years building Citrus County. Custom homes, additions, full renovations. Family owned since 2004.", specialties: ["Custom Homes","Additions","Renovations"], license: "CGC1524891", reviews: 64, videoTitle: "2024 Kitchen Transformation — Crystal River" },
-  { id: 2, name: "Dana Marsh", company: "Coastal Electric LLC", trade: "Electrical", location: "Crystal River, FL", rating: 4.8, jobs: 134, followers: 198, following: 67, verified: true, premium: false, avatar: "DM", bio: "Licensed master electrician. Panel upgrades, new installs, EV charging stations, commercial work.", specialties: ["Panel Upgrades","EV Charging","Commercial"], license: "EC13007422", reviews: 98, videoTitle: null },
-  { id: 3, name: "Bill Tran", company: "SunState Roofing", trade: "Roofing", location: "Inverness, FL", rating: 4.7, jobs: 210, followers: 445, following: 23, verified: true, premium: true, avatar: "BT", bio: "Metal, shingle, flat roofs. Storm damage specialists. 25 years serving Central Florida.", specialties: ["Metal Roofing","Storm Repair","Flat Roof"], license: "CCC1332114", reviews: 156 },
-  { id: 4, name: "Pete Alonzo", company: "Gulf Plumbing Co.", trade: "Plumbing", location: "Homosassa, FL", rating: 4.9, jobs: 98, followers: 167, following: 89, verified: true, premium: false, avatar: "PA", bio: "Full-service plumbing for residential and commercial. New construction, repiping, water heaters.", specialties: ["Repiping","New Construction","Water Heaters"], license: "CFC1428833", reviews: 71, videoTitle: null },
-  { id: 5, name: "Carmen Ruiz", company: "Apex Tile & Stone", trade: "Tile & Masonry", location: "Crystal River, FL", rating: 5.0, jobs: 43, followers: 289, following: 112, verified: true, premium: true, avatar: "CR", bio: "Custom tile, natural stone, brick. Interior and exterior. Every job a masterpiece.", specialties: ["Natural Stone","Custom Tile","Outdoor Living"], license: "CBC1261098", reviews: 39, videoTitle: "Outdoor Kitchen & Stone Patio — Sugarmill Woods" },
-  { id: 6, name: "Alexis Sanchez", company: "BuildBridge LLC", trade: "Project Management", location: "Citrus County, FL", rating: 5.0, jobs: 0, followers: 0, following: 0, verified: false, premium: true, avatar: "AS", bio: "Project Management company for residential builds — overseeing your project from inception to completion. Single point of contact for budget planning, architect coordination, permit management, hiring and vetting builders, construction oversight, and move-in closeout.", specialties: ["Budget Planning","Permit Management","Construction Oversight"], license: "N/A", reviews: 0, videoTitle: "BuildBridge FL — Citrus County's Construction Network", videoUrl: "https://www.youtube.com/embed/dTcSJL5hhpY" },
+  { id: 1, name: "Marco Rivera", company: "Rivera & Sons Construction", trade: "General Contractor", location: "Homosassa Springs, FL", phone: "(352) 555-0141", rating: 4.9, jobs: 87, followers: 312, following: 44, verified: true, premium: true, avatar: "MR", bio: "20 years building Citrus County. Custom homes, additions, full renovations. Family owned since 2004.", specialties: ["Custom Homes", "Additions", "Renovations"], license: "CGC1524891", reviews: 64, videoTitle: "2024 Kitchen Transformation — Crystal River" },
+  { id: 2, name: "Dana Marsh", company: "Coastal Electric LLC", trade: "Electrical", location: "Crystal River, FL", phone: "(352) 555-0177", rating: 4.8, jobs: 134, followers: 198, following: 67, verified: true, premium: false, avatar: "DM", bio: "Licensed master electrician. Panel upgrades, new installs, EV charging stations, commercial work.", specialties: ["Panel Upgrades", "EV Charging", "Commercial"], license: "EC13007422", reviews: 98, videoTitle: null },
+  { id: 3, name: "Bill Tran", company: "SunState Roofing", trade: "Roofing", location: "Inverness, FL", phone: "(352) 555-0128", rating: 4.7, jobs: 210, followers: 445, following: 23, verified: true, premium: true, avatar: "BT", bio: "Metal, shingle, flat roofs. Storm damage specialists. 25 years serving Central Florida.", specialties: ["Metal Roofing", "Storm Repair", "Flat Roof"], license: "CCC1332114", reviews: 156 },
+  { id: 4, name: "Pete Alonzo", company: "Gulf Plumbing Co.", trade: "Plumbing", location: "Homosassa, FL", phone: "(352) 555-0163", rating: 4.9, jobs: 98, followers: 167, following: 89, verified: true, premium: false, avatar: "PA", bio: "Full-service plumbing for residential and commercial. New construction, repiping, water heaters.", specialties: ["Repiping", "New Construction", "Water Heaters"], license: "CFC1428833", reviews: 71, videoTitle: null },
+  { id: 5, name: "Carmen Ruiz", company: "Apex Tile & Stone", trade: "Tile & Masonry", location: "Crystal River, FL", phone: "(352) 555-0192", rating: 5.0, jobs: 43, followers: 289, following: 112, verified: true, premium: true, avatar: "CR", bio: "Custom tile, natural stone, brick. Interior and exterior. Every job a masterpiece.", specialties: ["Natural Stone", "Custom Tile", "Outdoor Living"], license: "CBC1261098", reviews: 39, videoTitle: "Outdoor Kitchen & Stone Patio — Sugarmill Woods" },
+  { id: 6, name: "Alexis Sanchez", company: "BuildBridge LLC", trade: "Project Management", location: "Citrus County, FL", phone: "(352) 555-0100", rating: 5.0, jobs: 0, followers: 0, following: 0, verified: false, premium: true, avatar: "AS", bio: "Project Management for residential builds — overseeing your project from inception to completion. Single point of contact for budget planning, architect coordination, permit management, hiring and vetting builders, construction oversight, and move-in closeout.", specialties: ["Budget Planning", "Permit Management", "Construction Oversight"], license: "N/A", reviews: 0, videoTitle: "BuildBridge FL — Citrus County's Construction Network", videoUrl: "https://www.youtube.com/embed/dTcSJL5hhpY" },
 ];
 
-const FEED_POSTS = [{ id: 6, contractorId: 6, type: "video", time: "Just now", title: "Welcome to BuildBridge FL — Citrus County's Construction Network", description: "BuildBridge is live and open for business in Citrus County. If you're a contractor, vendor, or homeowner — this is your platform. Free to join, built by someone with 25+ years in the trades. Let's build something great together.", images: ["🏗️"], likes: 0, comments: 0, saves: 0, tags: ["CitrusCounty","BuildBridge","Welcome"], isVideo: true },
-  { id: 1, contractorId: 3, type: "project", time: "2h ago", title: "Before & After: Full Roof Replacement", description: "48-hour turnaround on this storm-damaged home in Inverness. Architectural shingles with 30-year warranty. Homeowner had been dealing with leaks for 2 years — couldn't be happier with how it turned out.", images: ["🏠","✅"], likes: 47, comments: 12, saves: 8, tags: ["Roofing","StormRepair","Inverness"] },
-  { id: 2, contractorId: 5, type: "video", time: "5h ago", title: "Outdoor Kitchen Build — Start to Finish", description: "This one took 3 weeks but every stone was worth it. Custom outdoor kitchen with built-in grill, pizza oven, and travertine countertops in Sugarmill Woods. Video walkthrough below.", images: ["🎬"], likes: 134, comments: 28, saves: 41, tags: ["OutdoorLiving","CustomStone","PremiumBuild"], isVideo: true },
-  { id: 3, contractorId: 1, type: "project", time: "1d ago", title: "Kitchen Addition Complete — Crystal River", description: "580 sq ft addition including a brand new chef's kitchen, dining room bump-out, and French doors to the lanai. 11-week project, on time and under budget. Huge shoutout to the crew.", images: ["🍳","🏗️"], likes: 89, comments: 19, saves: 22, tags: ["Addition","KitchenRemodel","GC"] },
-  { id: 4, contractorId: 2, type: "job", time: "3h ago", title: "Looking for Work: Electrical Crew Available", description: "Full 3-man electrical crew available for new construction starts in July. Rough-in, trim, panel work. Currently booking July 15+. DM or call. References on request.", images: [], likes: 23, comments: 7, saves: 3, tags: ["Hiring","Electrical","NewConstruction"], isJob: true },
-  { id: 5, contractorId: 4, type: "project", time: "2d ago", title: "Whole-House Repipe — Homosassa Springs", description: "3-bed 2-bath full repipe with PEX-A and new water heater. Completed in one day with water restored same evening. No drywall damage thanks to our camera locating system.", images: ["🔧","💧"], likes: 56, comments: 9, saves: 14, tags: ["Plumbing","Repipe","Homosassa"] },
+const FEED_POSTS = [
+  { id: 6, contractorId: 6, type: "video", time: "Just now", title: "Welcome to BuildBridge FL — Citrus County's Construction Network", description: "BuildBridge is live and open for business in Citrus County. If you're a contractor, vendor, or homeowner — this is your platform. Free to join, built by someone with 25+ years in the trades. Let's build something great together.", likes: 0, comments: 0, saves: 0, tags: ["CitrusCounty", "BuildBridge", "Welcome"], isVideo: true },
+  { id: 1, contractorId: 3, type: "project", time: "2h ago", title: "Before & After: Full Roof Replacement", description: "48-hour turnaround on this storm-damaged home in Inverness. Architectural shingles with 30-year warranty. Homeowner had been dealing with leaks for 2 years — couldn't be happier with how it turned out.", likes: 47, comments: 12, saves: 8, tags: ["Roofing", "StormRepair", "Inverness"] },
+  { id: 2, contractorId: 5, type: "video", time: "5h ago", title: "Outdoor Kitchen Build — Start to Finish", description: "This one took 3 weeks but every stone was worth it. Custom outdoor kitchen with built-in grill, pizza oven, and travertine countertops in Sugarmill Woods. Video walkthrough below.", likes: 134, comments: 28, saves: 41, tags: ["OutdoorLiving", "CustomStone", "PremiumBuild"], isVideo: true },
+  { id: 3, contractorId: 1, type: "project", time: "1d ago", title: "Kitchen Addition Complete — Crystal River", description: "580 sq ft addition including a brand new chef's kitchen, dining room bump-out, and French doors to the lanai. 11-week project, on time and under budget. Huge shoutout to the crew.", likes: 89, comments: 19, saves: 22, tags: ["Addition", "KitchenRemodel", "GC"] },
+  { id: 4, contractorId: 2, type: "job", time: "3h ago", title: "Looking for Work: Electrical Crew Available", description: "Full 3-man electrical crew available for new construction starts in July. Rough-in, trim, panel work. Currently booking July 15+. DM or call. References on request.", likes: 23, comments: 7, saves: 3, tags: ["Hiring", "Electrical", "NewConstruction"], isJob: true },
+  { id: 5, contractorId: 4, type: "project", time: "2d ago", title: "Whole-House Repipe — Homosassa Springs", description: "3-bed 2-bath full repipe with PEX-A and new water heater. Completed in one day with water restored same evening. No drywall damage thanks to our camera locating system.", likes: 56, comments: 9, saves: 14, tags: ["Plumbing", "Repipe", "Homosassa"] },
 ];
 
 const REVIEWS = [
   { id: 1, contractorId: 1, author: "Susan H.", rating: 5, date: "May 2026", text: "Marco managed our entire addition from permits to punch list. One call, one person, zero headaches. The crew was respectful and the quality is outstanding.", project: "580 sq ft Kitchen Addition" },
-  { id: 2, contractorId: 3, rating: 5, author: "Tom B.", date: "April 2026", text: "Roof replaced in 2 days after the storm. Bill was on-site the whole time. Insurance handled, cleanup perfect. Can't ask for more.", project: "Full Roof Replacement" },
-  { id: 3, contractorId: 5, rating: 5, author: "Maria G.", date: "March 2026", text: "Carmen's tilework is genuinely art. The outdoor kitchen looks like something from a magazine. Worth every penny.", project: "Outdoor Kitchen & Patio" },
+  { id: 2, contractorId: 3, author: "Tom B.", rating: 5, date: "April 2026", text: "Roof replaced in 2 days after the storm. Bill was on-site the whole time. Insurance handled, cleanup perfect. Can't ask for more.", project: "Full Roof Replacement" },
+  { id: 3, contractorId: 5, author: "Maria G.", rating: 5, date: "March 2026", text: "Carmen's tilework is genuinely art. The outdoor kitchen looks like something from a magazine. Worth every penny.", project: "Outdoor Kitchen & Patio" },
 ];
 
 const PROJECTS = [
@@ -30,254 +37,396 @@ const PROJECTS = [
   { id: 3, owner: "Dev Group LLC", type: "Commercial Buildout", budget: "$150K+", location: "Inverness, FL", posted: "2d ago", description: "4,500 sq ft medical office buildout. Full GC needed. Plans available. Start date August 1.", bids: 2, urgent: false },
 ];
 
-// ── Colors ───────────────────────────────────────────────────────────────────
+const JOBS = [
+  { title: "Electrical Rough-In Crew Needed", company: "Rivera & Sons Construction", pay: "$28–$35/hr", type: "Subcontract", location: "Homosassa Springs", urgent: true, desc: "Need 2-man electrical rough-in crew for 2,400 sq ft new build. Starts July 15. Est. 3 weeks." },
+  { title: "Tile Setter — Master Bath Project", company: "Gulf Plumbing Co.", pay: "$22–$28/hr", type: "1099 Contract", location: "Crystal River", urgent: false, desc: "Experienced tile setter needed for master bath renovation. Shower, floor, backsplash. 5-day job." },
+  { title: "Framing Crew — Addition Project", company: "SunState Roofing", pay: "$26–$32/hr", type: "Subcontract", location: "Inverness", urgent: true, desc: "3-man framing crew needed for 580 sq ft addition. Plans ready. Start date flexible August 2026." },
+];
+
+// ── Matching engine (expanded plain-language keyword map) ────────────────────
+const TRADE_KEYWORDS = {
+  "Roofing": ["roof", "shingle", "metal roof", "leak", "leaking", "storm", "flat roof", "gutter", "soffit", "fascia", "hurricane", "hail", "tarp", "re-roof", "reroof", "drip edge", "attic"],
+  "Electrical": ["electric", "panel", "wiring", "wire", "outlet", "ev charg", "breaker", "generator", "lighting", "light fixture", "fan", "surge", "220", "240", "amp", "rewir", "smoke detector"],
+  "Plumbing": ["plumb", "pipe", "water heater", "repipe", "drain", "faucet", "toilet", "sink", "sewer", "septic", "clog", "garbage disposal", "shower valve", "tankless", "water softener", "well pump"],
+  "Tile & Masonry": ["tile", "stone", "brick", "masonry", "grout", "travertine", "paver", "outdoor kitchen", "patio", "backsplash", "marble", "granite", "stucco", "concrete", "fire pit", "retaining wall"],
+  "General Contractor": ["addition", "renovation", "remodel", "build", "construction", "kitchen", "bathroom", "bath", "home", "room", "garage", "lanai", "screen enclosure", "deck", "drywall", "flooring", "windows", "doors", "framing", "demo", "insurance claim"],
+  "Project Management": ["manage", "budget", "permit", "oversee", "coordinate", "project manager", "inception", "closeout", "architect", "new home", "custom home", "ground up", "vet", "hire a builder", "general oversight"],
+};
+
+function scoreContractors(input) {
+  const text = input.toLowerCase();
+  return CONTRACTORS
+    .map(c => {
+      const keys = TRADE_KEYWORDS[c.trade] || [];
+      const reasons = keys.filter(k => text.includes(k));
+      const tradeHit = text.includes(c.trade.toLowerCase()) ? 2 : 0;
+      const specialtyHits = c.specialties.filter(s => text.includes(s.toLowerCase())).length;
+      const score = reasons.length * 2 + tradeHit + specialtyHits * 1.5 + c.rating * 0.4 + (c.verified ? 0.3 : 0);
+      return { ...c, score, reasons: [...new Set(reasons)] };
+    })
+    .filter(c => c.reasons.length > 0 || text.includes(c.trade.toLowerCase()))
+    .sort((a, b) => b.score - a.score);
+}
+
+// ── Design tokens ────────────────────────────────────────────────────────────
 const C = {
-  bg: "#0a0d14", panel: "#111520", card: "#161c2a",
-  border: "#1e2640", orange: "#F5A623", blue: "#3B82F6",
-  green: "#22c55e", red: "#ef4444", text: "#e2e8f0",
-  muted: "#64748b", white: "#ffffff"
+  bg: "#0B1220",        // deep blueprint navy
+  panel: "#0F1729",
+  card: "#141E33",
+  border: "#22304F",
+  line: "#2E3D5F",      // blueprint grid line
+  orange: "#FF8A1E",    // safety orange
+  orangeDk: "#E06D00",
+  blue: "#5B9DFF",
+  green: "#34D178",
+  red: "#FF5C5C",
+  purple: "#A78BFA",
+  text: "#DCE4F2",
+  dim: "#93A3C0",
+  muted: "#5D6E8F",
+  white: "#FFFFFF",
 };
 
 const css = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: ${C.bg}; font-family: 'Inter', system-ui, sans-serif; color: ${C.text}; }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: ${C.bg}; }
-  ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 2px; }
-  .feed-scroll { overflow-y: auto; height: calc(100vh - 60px); padding: 20px 16px; }
-  .right-scroll { overflow-y: auto; height: calc(100vh - 60px); padding: 20px 16px; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:none; } }
+  html, body, #root { height: 100%; }
+  body {
+    background: ${C.bg};
+    background-image:
+      linear-gradient(${C.line}22 1px, transparent 1px),
+      linear-gradient(90deg, ${C.line}22 1px, transparent 1px);
+    background-size: 32px 32px;
+    font-family: 'Barlow', 'Inter', system-ui, -apple-system, sans-serif;
+    color: ${C.text};
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 3px; }
+
+  .display { font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif; text-transform: uppercase; letter-spacing: 0.06em; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: ${C.orange}; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .fade-in { animation: fadeIn 0.25s ease; }
-  .hover-card:hover { border-color: ${C.orange}44 !important; transition: border-color 0.2s; }
-  .nav-btn { transition: all 0.15s; }
-  .nav-btn:hover { background: rgba(245,166,35,0.1) !important; }
-  .action-btn:hover { opacity: 0.85; }
+  @media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } * { transition: none !important; } }
+
+  .hover-card { transition: border-color 0.18s, transform 0.18s; }
+  .hover-card:hover { border-color: ${C.orange}66 !important; }
+  button { font-family: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 2px solid ${C.orange}; outline-offset: 2px; border-radius: 6px;
+  }
+  .btn-primary { background: ${C.orange}; border: none; border-radius: 10px; color: #14100A; font-weight: 800; cursor: pointer; transition: background 0.15s; }
+  .btn-primary:hover { background: ${C.orangeDk}; }
+  .btn-ghost { background: transparent; border: 1px solid ${C.border}; border-radius: 10px; color: ${C.dim}; font-weight: 600; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .btn-ghost:hover { border-color: ${C.orange}88; color: ${C.text}; }
+  .nav-btn { transition: background 0.15s, color 0.15s; }
+  .nav-btn:hover { background: ${C.orange}14 !important; }
+
+  .app-shell { display: flex; flex: 1; max-width: 1140px; margin: 0 auto; width: 100%; }
+  .main-col { flex: 1; min-width: 0; border-right: 1px solid ${C.border}; }
+  .side-col { width: 300px; flex-shrink: 0; }
+  .scroll-col { overflow-y: auto; height: calc(100vh - 64px); padding: 20px 18px 90px; }
+  .top-nav { display: flex; gap: 2px; }
+  .bottom-nav { display: none; }
+
+  @media (max-width: 1000px) { .side-col { display: none; } .main-col { border-right: none; } }
+  @media (max-width: 760px) {
+    .top-nav { display: none; }
+    .bottom-nav {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: ${C.panel}F2; backdrop-filter: blur(10px);
+      border-top: 1px solid ${C.border};
+      padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+      justify-content: space-around;
+    }
+    .scroll-col { height: calc(100vh - 64px); padding: 14px 12px 110px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .portfolio-grid { grid-template-columns: 1fr !important; }
+    .hide-mobile { display: none !important; }
+  }
 `;
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-function Avatar({ initials, size = 40, color = C.orange, premium = false }) {
+// ── Icons (inline SVG — no dependency, consistent stroke style) ──────────────
+function Icon({ name, size = 18, color = "currentColor", style }) {
+  const P = { fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
+  const paths = {
+    home: <path {...P} d="M3 10.5 12 3l9 7.5M5 9.5V21h5v-6h4v6h5V9.5" />,
+    clipboard: <><rect {...P} x="5" y="4" width="14" height="17" rx="2" /><path {...P} d="M9 4V2.5h6V4M9 10h6M9 14h6M9 18h4" /></>,
+    users: <><circle {...P} cx="9" cy="8" r="3.2" /><path {...P} d="M2.5 20c.6-3.4 3.3-5.5 6.5-5.5S14.9 16.6 15.5 20M16 5.2a3.2 3.2 0 0 1 0 5.9M18 14.8c2 .8 3.2 2.6 3.5 5.2" /></>,
+    hammer: <path {...P} d="m14 6 3.5-3.5c1.5 0 4 2.5 4 4L18 10m-4-4-9.5 9.5a2.1 2.1 0 0 0 3 3L17 9m-3-3 4 4" />,
+    sparkles: <path {...P} d="M12 3v0l1.8 4.6L18.5 9.5l-4.7 1.9L12 16l-1.8-4.6L5.5 9.5l4.7-1.9L12 3ZM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15ZM5 14l.7 1.8L7.5 16.5l-1.8.7L5 19l-.7-1.8L2.5 16.5l1.8-.7L5 14Z" />,
+    heart: <path {...P} d="M12 20.5C7 16.5 3 13.3 3 9.2 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.7 0 4.1-4 7.3-9 11.3Z" />,
+    comment: <path {...P} d="M21 12a8 8 0 0 1-8 8H4l2.2-3.1A8 8 0 1 1 21 12Z" />,
+    bookmark: <path {...P} d="M6 3.5h12V21l-6-3.8L6 21V3.5Z" />,
+    share: <path {...P} d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v5.5h14V14" />,
+    phone: <path {...P} d="M5 4h4l1.5 4.5L8 10a12 12 0 0 0 6 6l1.5-2.5L20 15v4c0 1-1 2-2 2A16 16 0 0 1 3 6c0-1 1-2 2-2Z" />,
+    check: <path {...P} d="m4.5 12.5 5 5L19.5 7" />,
+    star: <path fill={color} stroke="none" d="m12 2.8 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17l-5.6 3 1.1-6.2L3 9.4l6.2-.9L12 2.8Z" />,
+    pin: <><path {...P} d="M12 21.5S5 14.7 5 9.7a7 7 0 0 1 14 0c0 5-7 11.8-7 11.8Z" /><circle {...P} cx="12" cy="9.5" r="2.4" /></>,
+    badge: <><path {...P} d="M12 2.5 14.5 5h3.6l.4 3.6L21 12l-2.5 3.4-.4 3.6h-3.6L12 21.5 9.5 19H5.9l-.4-3.6L3 12l2.5-3.4L5.9 5h3.6L12 2.5Z" /><path {...P} d="m9 12 2 2 4-4" /></>,
+    play: <path fill={color} stroke="none" d="M8 5.5v13l11-6.5L8 5.5Z" />,
+    plus: <path {...P} d="M12 5v14M5 12h14" />,
+    search: <><circle {...P} cx="10.5" cy="10.5" r="6.5" /><path {...P} d="m15.5 15.5 5 5" /></>,
+    dollar: <path {...P} d="M12 2.5v19M16.5 6.5c-.8-1.3-2.4-2-4.5-2-2.5 0-4.5 1.3-4.5 3.4 0 4.6 9 2.6 9 7.2 0 2.1-2 3.4-4.5 3.4-2.1 0-3.7-.7-4.5-2" />,
+    arrowRight: <path {...P} d="M4 12h16m0 0-6-6m6 6-6 6" />,
+    x: <path {...P} d="M6 6l12 12M18 6 6 18" />,
+  };
+  return <svg width={size} height={size} viewBox="0 0 24 24" style={{ flexShrink: 0, display: "block", ...style }} aria-hidden="true">{paths[name]}</svg>;
+}
+
+// ── Small components ─────────────────────────────────────────────────────────
+function Avatar({ initials, size = 40, premium = false }) {
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
-      <div style={{ width: size, height: size, borderRadius: "50%", background: `linear-gradient(135deg, ${color}33, ${color}66)`, border: `2px solid ${premium ? C.orange : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.35, fontWeight: 700, color: C.orange }}>
+      <div style={{ width: size, height: size, borderRadius: "50%", background: `linear-gradient(135deg, ${C.orange}2A, ${C.blue}22)`, border: `2px solid ${premium ? C.orange : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.34, fontWeight: 800, color: C.orange }} className="display">
         {initials}
       </div>
-      {premium && <div style={{ position: "absolute", bottom: -2, right: -2, width: 14, height: 14, background: C.orange, borderRadius: "50%", border: `2px solid ${C.bg}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 7 }}>★</div>}
+      {premium && (
+        <div style={{ position: "absolute", bottom: -3, right: -3, width: size * 0.36, height: size * 0.36, minWidth: 14, minHeight: 14, background: C.orange, borderRadius: "50%", border: `2px solid ${C.bg}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon name="star" size={size * 0.2} color="#14100A" />
+        </div>
+      )}
     </div>
   );
 }
 
-function Badge({ text, color = C.orange, bg }) {
-  return <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: bg || `${color}18`, color, letterSpacing: "0.4px" }}>{text}</span>;
+function Badge({ text, color = C.orange, icon }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 700, padding: "3px 8px", borderRadius: 20, background: `${color}1A`, color, letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+      {icon && <Icon name={icon} size={11} color={color} />}{text}
+    </span>
+  );
 }
 
-function StarRating({ rating }) {
-  return <span style={{ color: C.orange, fontSize: 12 }}>{"★".repeat(Math.floor(rating))}{"☆".repeat(5 - Math.floor(rating))} <span style={{ color: C.muted, fontSize: 11 }}>{rating}</span></span>;
+function Stars({ rating }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }} aria-label={`Rated ${rating} out of 5`}>
+      {[1, 2, 3, 4, 5].map(i => <Icon key={i} name="star" size={12} color={i <= Math.round(rating) ? C.orange : C.border} />)}
+      <span style={{ color: C.dim, fontSize: 12, marginLeft: 3, fontWeight: 700 }}>{rating.toFixed(1)}</span>
+    </span>
+  );
 }
 
-// ── Feed Post ─────────────────────────────────────────────────────────────────
+function SectionHead({ eyebrow, title, sub }) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div className="eyebrow" style={{ marginBottom: 4 }}>{eyebrow}</div>
+      <div className="display" style={{ fontWeight: 800, fontSize: 24, color: C.white, lineHeight: 1.1 }}>{title}</div>
+      {sub && <div style={{ fontSize: 13, color: C.dim, marginTop: 6 }}>{sub}</div>}
+    </div>
+  );
+}
+
+function VideoEmbed({ url, title }) {
+  return (
+    <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}` }}>
+      <iframe src={url} title={title} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }} allowFullScreen />
+    </div>
+  );
+}
+
+// ── Feed post ────────────────────────────────────────────────────────────────
 function FeedPost({ post, contractor, onProfile }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showComment, setShowComment] = useState(false);
 
   return (
-    <div className="hover-card fade-in" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, marginBottom: 16, overflow: "hidden" }}>
-      {/* Post header */}
+    <article className="hover-card fade-in" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, marginBottom: 16, overflow: "hidden" }}>
       <div style={{ padding: "16px 16px 12px", display: "flex", alignItems: "center", gap: 12 }}>
-        <div onClick={() => onProfile(contractor)} style={{ cursor: "pointer" }}>
+        <button onClick={() => onProfile(contractor)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label={`View ${contractor.name}'s profile`}>
           <Avatar initials={contractor.avatar} size={44} premium={contractor.premium} />
-        </div>
-        <div style={{ flex: 1 }}>
+        </button>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <span onClick={() => onProfile(contractor)} style={{ fontWeight: 700, fontSize: 14, color: C.white, cursor: "pointer" }}>{contractor.name}</span>
-            {contractor.verified && <Badge text="✓ Licensed" color={C.green} />}
-            {contractor.premium && <Badge text="★ Premium" color={C.orange} />}
+            <button onClick={() => onProfile(contractor)} style={{ background: "none", border: "none", fontWeight: 800, fontSize: 14, color: C.white, cursor: "pointer", padding: 0 }}>{contractor.name}</button>
+            {contractor.verified && <Badge text="Licensed" color={C.green} icon="badge" />}
+            {contractor.premium && <Badge text="Premium" color={C.orange} icon="star" />}
           </div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{contractor.company} · {contractor.trade} · {post.time}</div>
         </div>
-        {post.isJob && <Badge text="HIRING" color={C.blue} />}
-        {post.isVideo && <Badge text="▶ VIDEO" color="#a855f7" />}
+        {post.isJob && <Badge text="Hiring" color={C.blue} />}
+        {post.isVideo && <Badge text="Video" color={C.purple} icon="play" />}
       </div>
 
-      {/* Post content */}
       <div style={{ padding: "0 16px 14px" }}>
-        <div style={{ fontWeight: 700, fontSize: 15, color: C.white, marginBottom: 8 }}>{post.title}</div>
-        <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6, marginBottom: 12 }}>{post.description}</div>
+        <h3 style={{ fontWeight: 800, fontSize: 15.5, color: C.white, marginBottom: 8, lineHeight: 1.3 }}>{post.title}</h3>
+        <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6, marginBottom: 12 }}>{post.description}</p>
 
-        {/* Image/video placeholder */}
-        {(post.images.length > 0 || post.isVideo) && (
-          <div style={{ background: C.panel, borderRadius: 12, padding: "20px", display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 12, border: `1px solid ${C.border}` }}>
-          {post.isVideo ? (
-              contractor.videoUrl ? (
-                <div style={{ width: "100%" }}>
-                  <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 10, overflow: "hidden" }}>
-                    <iframe src={contractor.videoUrl} title={contractor.videoTitle} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allowFullScreen />
-                  </div>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: C.white, marginTop: 8 }}>{contractor.videoTitle}</div>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center", gap: 16 }}>
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${C.orange}22`, border: `2px solid ${C.orange}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>▶</div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: C.white }}>{contractor.videoTitle}</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>Video coming soon</div>
-                  </div>
-                </div>
-              )
-            ) : (  
-              post.images.map((img, i) => (
-                <div key={i} style={{ width: 80, height: 80, borderRadius: 10, background: `${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>{img}</div>
-              ))
-            )}
-          </div>
+        {post.isVideo && (
+          contractor.videoUrl ? (
+            <div style={{ marginBottom: 12 }}>
+              <VideoEmbed url={contractor.videoUrl} title={contractor.videoTitle} />
+              <div style={{ fontWeight: 700, fontSize: 13, color: C.white, marginTop: 8 }}>{contractor.videoTitle}</div>
+            </div>
+          ) : (
+            <div style={{ background: C.panel, borderRadius: 12, padding: 18, display: "flex", alignItems: "center", gap: 14, marginBottom: 12, border: `1px solid ${C.border}` }}>
+              <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${C.orange}1E`, border: `2px solid ${C.orange}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icon name="play" size={20} color={C.orange} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: C.white }}>{contractor.videoTitle}</div>
+                <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>Video coming soon</div>
+              </div>
+            </div>
+          )
         )}
 
-        {/* Tags */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-          {post.tags.map(t => <span key={t} style={{ fontSize: 11, color: C.blue, background: `${C.blue}15`, padding: "2px 8px", borderRadius: 20 }}>#{t}</span>)}
+          {post.tags.map(t => <span key={t} style={{ fontSize: 11, color: C.blue, background: `${C.blue}14`, padding: "3px 9px", borderRadius: 20, fontWeight: 600 }}>#{t}</span>)}
         </div>
 
-        {/* Actions */}
-        <div style={{ display: "flex", gap: 6, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
+        <div style={{ display: "flex", gap: 4, borderTop: `1px dashed ${C.line}`, paddingTop: 10 }}>
           {[
-            { icon: liked ? "❤️" : "🤍", label: `${post.likes + (liked ? 1 : 0)}`, action: () => setLiked(!liked), active: liked },
-            { icon: "💬", label: `${post.comments}`, action: () => setShowComment(!showComment) },
-            { icon: saved ? "🔖" : "📌", label: `${post.saves + (saved ? 1 : 0)}`, action: () => setSaved(!saved) },
-            { icon: "↗️", label: "Share" },
-          ].map(({ icon, label, action }) => (
-            <button key={label} onClick={action} className="action-btn" style={{ display: "flex", alignItems: "center", gap: 5, background: "transparent", border: "none", color: C.muted, fontSize: 12, cursor: "pointer", padding: "5px 10px", borderRadius: 8 }}>
-              <span>{icon}</span><span>{label}</span>
+            { icon: "heart", label: post.likes + (liked ? 1 : 0), on: liked, action: () => setLiked(v => !v), aria: "Like" },
+            { icon: "comment", label: post.comments, on: showComment, action: () => setShowComment(v => !v), aria: "Comment" },
+            { icon: "bookmark", label: post.saves + (saved ? 1 : 0), on: saved, action: () => setSaved(v => !v), aria: "Save" },
+            { icon: "share", label: "Share", action: () => {}, aria: "Share" },
+          ].map(({ icon, label, on, action, aria }) => (
+            <button key={aria} onClick={action} aria-label={aria} style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: on ? C.orange : C.muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", padding: "6px 10px", borderRadius: 8 }}>
+              <Icon name={icon} size={16} color={on ? C.orange : C.muted} /><span>{label}</span>
             </button>
           ))}
         </div>
 
         {showComment && (
           <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-            <input placeholder="Add a comment..." style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 12px", color: C.text, fontSize: 12, outline: "none" }} />
-            <button style={{ background: C.orange, border: "none", borderRadius: 8, padding: "8px 14px", color: C.bg, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Post</button>
+            <input placeholder="Add a comment…" aria-label="Add a comment" style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 12px", color: C.text, fontSize: 13, outline: "none" }} />
+            <button className="btn-primary" style={{ padding: "9px 16px", fontSize: 12 }}>Post</button>
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 }
 
-// ── Contractor Profile ────────────────────────────────────────────────────────
-function ContractorProfile({ contractor, reviews, onBack }) {
-  const [activeTab, setActiveTab] = useState("portfolio");
+// ── Contractor profile ───────────────────────────────────────────────────────
+function ContractorProfile({ contractor, reviews, onBack, onToast }) {
+  const [tab, setTab] = useState("portfolio");
   const myReviews = reviews.filter(r => r.contractorId === contractor.id);
+  const tel = contractor.phone?.replace(/\D/g, "");
 
   return (
-    <div className="fade-in" style={{ background: C.bg, minHeight: "100%" }}>
-      {/* Cover */}
-      <div style={{ background: `linear-gradient(135deg, ${C.panel}, #1a2340)`, height: 120, borderBottom: `1px solid ${C.border}`, position: "relative" }}>
-        <button onClick={onBack} style={{ position: "absolute", top: 16, left: 16, background: `${C.bg}cc`, border: `1px solid ${C.border}`, color: C.text, padding: "6px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>← Back</button>
-        <div style={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 8 }}>
-          {contractor.premium && <Badge text="★ PREMIUM PRO" color={C.orange} />}
-          {contractor.verified && <Badge text="✓ VERIFIED" color={C.green} />}
+    <div className="fade-in">
+      <div style={{ background: `linear-gradient(135deg, ${C.panel}, #16224066)`, height: 116, borderRadius: 16, border: `1px solid ${C.border}`, position: "relative", marginBottom: -30 }}>
+        <button onClick={onBack} className="btn-ghost" style={{ position: "absolute", top: 14, left: 14, padding: "6px 14px", fontSize: 13, background: `${C.bg}CC` }}>← Back</button>
+        <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 8 }}>
+          {contractor.premium && <Badge text="Premium Pro" color={C.orange} icon="star" />}
+          {contractor.verified && <Badge text="Verified" color={C.green} icon="badge" />}
         </div>
       </div>
 
-      <div style={{ padding: "0 20px 20px", maxWidth: 680, margin: "0 auto" }}>
-        {/* Profile header */}
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 16, marginTop: -28, marginBottom: 20 }}>
-          <Avatar initials={contractor.avatar} size={72} premium={contractor.premium} />
-          <div style={{ flex: 1, paddingBottom: 4 }}>
-            <div style={{ fontWeight: 800, fontSize: 20, color: C.white }}>{contractor.name}</div>
-            <div style={{ fontSize: 13, color: C.muted }}>{contractor.company} · {contractor.trade}</div>
+      <div style={{ padding: "0 6px" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginBottom: 18, paddingLeft: 12 }}>
+          <Avatar initials={contractor.avatar} size={76} premium={contractor.premium} />
+          <div style={{ flex: 1, paddingBottom: 4, minWidth: 0 }}>
+            <div className="display" style={{ fontWeight: 800, fontSize: 22, color: C.white }}>{contractor.name}</div>
+            <div style={{ fontSize: 13, color: C.dim }}>{contractor.company} · {contractor.trade}</div>
           </div>
-          <button style={{ background: C.orange, border: "none", borderRadius: 10, padding: "10px 20px", color: C.bg, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>+ Follow</button>
         </div>
 
-        {/* Stats row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
-          {[["⭐", contractor.rating, "Rating"], ["🔨", contractor.jobs, "Jobs Done"], ["👥", contractor.followers, "Followers"], ["📝", contractor.reviews, "Reviews"]].map(([icon, val, label]) => (
-            <div key={label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "14px 10px", textAlign: "center" }}>
-              <div style={{ fontSize: 18 }}>{icon}</div>
-              <div style={{ fontWeight: 800, fontSize: 18, color: C.orange, marginTop: 4 }}>{val}</div>
-              <div style={{ fontSize: 11, color: C.muted }}>{label}</div>
+        {/* Contact strip — the actions that make the phone ring */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
+          <a href={`tel:${tel}`} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>
+            <Icon name="phone" size={15} color="#14100A" /> Call {contractor.phone}
+          </a>
+          <button onClick={() => setTab("contact")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Message</button>
+          <button onClick={() => onToast(`Following ${contractor.name}`)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>+ Follow</button>
+        </div>
+
+        <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
+          {[["Rating", contractor.rating.toFixed(1)], ["Jobs done", contractor.jobs], ["Followers", contractor.followers], ["Reviews", contractor.reviews]].map(([label, val]) => (
+            <div key={label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
+              <div className="display" style={{ fontWeight: 800, fontSize: 20, color: C.orange }}>{val}</div>
+              <div style={{ fontSize: 10.5, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>{label}</div>
             </div>
           ))}
         </div>
 
-        {/* Bio */}
-        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: C.orange, fontWeight: 700, marginBottom: 8, letterSpacing: "0.5px" }}>ABOUT</div>
-          <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6, marginBottom: 12 }}>{contractor.bio}</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
+          <div className="eyebrow" style={{ marginBottom: 8 }}>About</div>
+          <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.65, marginBottom: 12 }}>{contractor.bio}</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
             {contractor.specialties.map(s => <Badge key={s} text={s} color={C.blue} />)}
           </div>
-          <div style={{ marginTop: 12, fontSize: 12, color: C.muted }}>📍 {contractor.location} · 🪪 License: {contractor.license}</div>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 12.5, color: C.dim }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Icon name="pin" size={14} color={C.muted} />{contractor.location}</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <Icon name="badge" size={14} color={C.muted} />
+              {contractor.license === "N/A" ? "License: N/A" : <>License <a href={`https://www.myfloridalicense.com/wl11.asp?mode=2&search=LicNbr&SID=&brd=&typ=&lic=${contractor.license}`} target="_blank" rel="noreferrer" style={{ color: C.blue, fontWeight: 700 }}>{contractor.license}</a> · verify at FL DBPR</>}
+            </span>
+          </div>
         </div>
 
-        {/* Video commercial slot */}
         {contractor.videoTitle && (
-          <div style={{ background: `linear-gradient(135deg, #1a0a2e, #2d1b4e)`, border: `1px solid #7c3aed44`, borderRadius: 12, padding: 16, marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: "#a855f7", fontWeight: 700, letterSpacing: "0.5px", marginBottom: 10 }}>★ PREMIUM FEATURE — VIDEO COMMERCIAL</div>
+          <div style={{ background: `linear-gradient(135deg, #1C1233, #241A45)`, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
+            <div className="eyebrow" style={{ color: C.purple, marginBottom: 10 }}>Premium feature — video commercial</div>
             {contractor.videoUrl ? (
-              <div>
-                <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 10, overflow: "hidden" }}>
-                  <iframe src={contractor.videoUrl} title={contractor.videoTitle} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allowFullScreen />
-                </div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: C.white, marginTop: 10 }}>{contractor.videoTitle}</div>
-                <div style={{ fontSize: 12, color: "#a855f7", marginTop: 4 }}>HD Project Walkthrough · Featured on BuildBridge</div>
-              </div>
+              <>
+                <VideoEmbed url={contractor.videoUrl} title={contractor.videoTitle} />
+                <div style={{ fontWeight: 800, fontSize: 14, color: C.white, marginTop: 10 }}>{contractor.videoTitle}</div>
+                <div style={{ fontSize: 12, color: C.purple, marginTop: 3 }}>HD project walkthrough · Featured on BuildBridge</div>
+              </>
             ) : (
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#7c3aed33", border: "2px solid #7c3aed", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>▶</div>
+                <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${C.purple}22`, border: `2px solid ${C.purple}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icon name="play" size={20} color={C.purple} />
+                </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: C.white }}>{contractor.videoTitle}</div>
-                  <div style={{ fontSize: 12, color: "#a855f7", marginTop: 4 }}>Video coming soon</div>
+                  <div style={{ fontWeight: 800, fontSize: 14, color: C.white }}>{contractor.videoTitle}</div>
+                  <div style={{ fontSize: 12, color: C.purple, marginTop: 3 }}>Video coming soon</div>
                 </div>
               </div>
             )}
           </div>
         )}
-        
-        {/* Tabs */}
-        <div style={{ display: "flex", gap: 4, marginBottom: 16, background: C.panel, borderRadius: 10, padding: 4 }}>
-          {["portfolio", "reviews", "contact"].map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} style={{ flex: 1, background: activeTab === tab ? C.orange : "transparent", color: activeTab === tab ? C.bg : C.muted, border: "none", borderRadius: 8, padding: "8px", fontSize: 13, fontWeight: 700, cursor: "pointer", textTransform: "capitalize", transition: "all 0.15s" }}>{tab}</button>
+
+        <div role="tablist" style={{ display: "flex", gap: 4, marginBottom: 16, background: C.panel, borderRadius: 10, padding: 4, border: `1px solid ${C.border}` }}>
+          {["portfolio", "reviews", "contact"].map(t => (
+            <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} style={{ flex: 1, background: tab === t ? C.orange : "transparent", color: tab === t ? "#14100A" : C.muted, border: "none", borderRadius: 8, padding: "9px", fontSize: 13, fontWeight: 800, cursor: "pointer", textTransform: "capitalize" }}>{t}</button>
           ))}
         </div>
 
-        {activeTab === "portfolio" && (
-          <div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {["Kitchen Remodel", "Room Addition", "Deck Build", "Bathroom Renovation"].map((proj, i) => (
-                <div key={proj} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
-                  <div style={{ height: 80, background: `linear-gradient(135deg, ${["#1e3a5f","#1a3a1e","#3a1e1e","#2d1b4e"][i]}, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>{["🏠","🏗️","🌿","🚿"][i]}</div>
-                  <div style={{ padding: "10px 12px" }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: C.white }}>{proj}</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>{contractor.location}</div>
-                  </div>
+        {tab === "portfolio" && (
+          <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {["Kitchen Remodel", "Room Addition", "Deck Build", "Bathroom Renovation"].map((proj, i) => (
+              <div key={proj} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
+                <div style={{ height: 84, background: `linear-gradient(135deg, ${["#173154", "#14361F", "#3A1D1D", "#241A45"][i]}, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon name={["home", "hammer", "clipboard", "sparkles"][i]} size={30} color={`${C.text}66`} />
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === "reviews" && (
-          <div>
-            {myReviews.length > 0 ? myReviews.map(r => (
-              <div key={r.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, marginBottom: 12 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: C.white }}>{r.author}</div>
-                  <StarRating rating={r.rating} />
+                <div style={{ padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: C.white }}>{proj}</div>
+                  <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>{contractor.location}</div>
                 </div>
-                <div style={{ fontSize: 11, color: C.muted, marginBottom: 8 }}>{r.project} · {r.date}</div>
-                <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.6, fontStyle: "italic" }}>"{r.text}"</div>
               </div>
-            )) : (
-              <div style={{ textAlign: "center", padding: 40, color: C.muted }}>No reviews yet for this contractor.</div>
-            )}
+            ))}
           </div>
         )}
 
-        {activeTab === "contact" && (
+        {tab === "reviews" && (
+          myReviews.length > 0 ? myReviews.map(r => (
+            <div key={r.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, marginBottom: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <div style={{ fontWeight: 800, fontSize: 14, color: C.white }}>{r.author}</div>
+                <Stars rating={r.rating} />
+              </div>
+              <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 8 }}>{r.project} · {r.date}</div>
+              <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6, fontStyle: "italic" }}>"{r.text}"</p>
+            </div>
+          )) : (
+            <div style={{ textAlign: "center", padding: 40, color: C.muted, fontSize: 13, background: C.card, borderRadius: 12, border: `1px dashed ${C.line}` }}>
+              No reviews yet. Hire {contractor.name.split(" ")[0]} and be the first to leave one.
+            </div>
+          )
+        )}
+
+        {tab === "contact" && (
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: C.white, marginBottom: 16 }}>Send a Message</div>
-            <textarea placeholder="Describe your project..." style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 100, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
-            <button style={{ width: "100%", background: C.orange, border: "none", borderRadius: 10, padding: "12px", color: C.bg, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>Send Message</button>
+            <div style={{ fontWeight: 800, fontSize: 15, color: C.white, marginBottom: 14 }}>Send a message</div>
+            <textarea placeholder={`Describe your project for ${contractor.name.split(" ")[0]} — what, where, and roughly when…`} aria-label="Project description" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, resize: "vertical", minHeight: 100, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
+            <button onClick={() => onToast(`Message sent to ${contractor.name}`)} className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 14 }}>Send message</button>
           </div>
         )}
       </div>
@@ -285,323 +434,407 @@ function ContractorProfile({ contractor, reviews, onBack }) {
   );
 }
 
-// ── Main App ──────────────────────────────────────────────────────────────────
+// ── Main app ─────────────────────────────────────────────────────────────────
 export default function BuildBridgeSocial() {
   const [view, setView] = useState("feed");
   const [activeProfile, setActiveProfile] = useState(null);
   const [postModal, setPostModal] = useState(false);
   const [newPost, setNewPost] = useState("");
   const [toast, setToast] = useState(null);
-  const [matchResults, setMatchResults] = useState([]);
-const [matchSearched, setMatchSearched] = useState(false);
+  const [networkQuery, setNetworkQuery] = useState("");
+  const [matchInput, setMatchInput] = useState("");
+  const [matchBudget, setMatchBudget] = useState("");
+  const [matchTimeline, setMatchTimeline] = useState("");
+  const [matchResults, setMatchResults] = useState(null); // null = not searched yet
+  const [matchLoading, setMatchLoading] = useState(false);
+  const [matchSummary, setMatchSummary] = useState("");
 
-  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
+  const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2500); };
+  const openProfile = c => { setActiveProfile(c); setView("profile"); };
+  const goView = id => { setView(id); setActiveProfile(null); };
 
-  const handleProfile = (contractor) => { setActiveProfile(contractor); setView("profile"); };
+  const filteredNetwork = useMemo(() => {
+    const q = networkQuery.trim().toLowerCase();
+    if (!q) return CONTRACTORS;
+    return CONTRACTORS.filter(c => [c.name, c.company, c.trade, c.location, ...c.specialties].join(" ").toLowerCase().includes(q));
+  }, [networkQuery]);
+
+  const keywordFallback = () => {
+    const scored = scoreContractors(matchInput);
+    setMatchResults(scored.length > 0 ? scored : [...CONTRACTORS].sort((a, b) => b.rating - a.rating));
+    setMatchSummary("");
+  };
+
+  const runMatch = async () => {
+    if (!matchInput.trim()) { showToast("Describe your project first"); return; }
+    setMatchLoading(true);
+    setMatchResults(null);
+    setMatchSummary("");
+    try {
+      const r = await fetch("/api/match", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: matchInput,
+          budget: matchBudget,
+          timeline: matchTimeline,
+          contractors: CONTRACTORS.map(({ id, name, company, trade, specialties, location, rating, jobs, verified }) => ({ id, name, company, trade, specialties, location, rating, jobs, verified })),
+        }),
+      });
+      if (!r.ok) throw new Error("api");
+      const data = await r.json();
+      const matched = (data.matches || [])
+        .map(m => {
+          const c = CONTRACTORS.find(x => x.id === m.id);
+          return c ? { ...c, reasons: m.reason ? [m.reason] : [] } : null;
+        })
+        .filter(Boolean);
+      if (matched.length === 0) throw new Error("empty");
+      setMatchResults(matched);
+      setMatchSummary(data.summary || "");
+    } catch {
+      keywordFallback(); // API down or no key set — keyword matcher still works
+    } finally {
+      setMatchLoading(false);
+    }
+  };
 
   const navItems = [
-    { id: "feed", icon: "🏠", label: "Feed" },
-    { id: "projects", icon: "📋", label: "Projects" },
-    { id: "network", icon: "👥", label: "Network" },
-    { id: "jobs", icon: "🔨", label: "Find Work" },
-    { id: "match", icon: "🤖", label: "AI Match" },
+    { id: "feed", icon: "home", label: "Feed" },
+    { id: "projects", icon: "clipboard", label: "Projects" },
+    { id: "network", icon: "users", label: "Network" },
+    { id: "jobs", icon: "hammer", label: "Find Work" },
+    { id: "match", icon: "sparkles", label: "AI Match" },
   ];
 
-  return (
-    <div style={{ background: C.bg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <style>{css}</style>
+  const NavButtons = ({ vertical = false }) =>
+    navItems.map(n => {
+      const active = view === n.id || (view === "profile" && n.id === "feed");
+      return (
+        <button key={n.id} onClick={() => goView(n.id)} className="nav-btn" aria-label={n.label} aria-current={active ? "page" : undefined}
+          style={{ background: active ? `${C.orange}18` : "transparent", color: active ? C.orange : C.muted, border: "none", padding: vertical ? "8px 14px" : "6px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 700, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <Icon name={n.icon} size={19} color={active ? C.orange : C.muted} />
+          <span style={{ fontSize: 9.5, letterSpacing: "0.04em" }}>{n.label}</span>
+        </button>
+      );
+    });
 
-      {/* Toast */}
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <style>{css}</style>
+      <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet" />
+
       {toast && (
-        <div style={{ position: "fixed", top: 70, left: "50%", transform: "translateX(-50%)", background: C.green, color: C.white, padding: "10px 20px", borderRadius: 10, fontWeight: 700, fontSize: 13, zIndex: 1000, boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>{toast}</div>
+        <div role="status" style={{ position: "fixed", top: 74, left: "50%", transform: "translateX(-50%)", background: C.green, color: "#08120B", padding: "10px 20px", borderRadius: 10, fontWeight: 800, fontSize: 13, zIndex: 1000, boxShadow: "0 6px 24px rgba(0,0,0,0.45)", display: "flex", alignItems: "center", gap: 8 }}>
+          <Icon name="check" size={15} color="#08120B" />{toast}
+        </div>
       )}
 
       {/* Header */}
-      <header style={{ background: C.panel, borderBottom: `1px solid ${C.border}`, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: `linear-gradient(135deg, ${C.orange}, #e8841a)`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>🏗️</div>
-          <span style={{ fontWeight: 800, fontSize: 17, color: C.white, letterSpacing: "-0.3px" }}>BuildBridge</span>
-          <span style={{ fontSize: 10, color: C.orange, background: `${C.orange}18`, padding: "2px 8px", borderRadius: 20, fontWeight: 700 }}>SOCIAL</span>
-        </div>
+      <header style={{ background: `${C.panel}F0`, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.border}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", position: "sticky", top: 0, zIndex: 100 }}>
+        <button onClick={() => goView("feed")} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label="BuildBridge home">
+          <div style={{ width: 34, height: 34, background: `linear-gradient(135deg, ${C.orange}, ${C.orangeDk})`, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon name="hammer" size={18} color="#14100A" />
+          </div>
+          <span className="display" style={{ fontWeight: 800, fontSize: 19, color: C.white }}>BuildBridge</span>
+          <span className="hide-mobile" style={{ fontSize: 10, color: C.orange, background: `${C.orange}18`, padding: "3px 9px", borderRadius: 20, fontWeight: 800, letterSpacing: "0.1em" }}>CITRUS COUNTY</span>
+        </button>
 
-        <nav style={{ display: "flex", gap: 2 }}>
-          {navItems.map(n => (
-            <button key={n.id} onClick={() => { setView(n.id); setActiveProfile(null); }} className="nav-btn"
-              style={{ background: view === n.id ? `${C.orange}18` : "transparent", color: view === n.id ? C.orange : C.muted, border: "none", padding: "6px 12px", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-              <span style={{ fontSize: 16 }}>{n.icon}</span>
-              <span style={{ fontSize: 9 }}>{n.label}</span>
-            </button>
-          ))}
-        </nav>
+        <nav className="top-nav" aria-label="Primary"><NavButtons /></nav>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button onClick={() => setPostModal(true)} style={{ background: C.orange, border: "none", borderRadius: 8, padding: "7px 14px", color: C.bg, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>+ Post</button>
-          <Avatar initials="AS" size={34} color={C.blue} />
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <button onClick={() => setPostModal(true)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6 }}>
+            <Icon name="plus" size={14} color="#14100A" /><span className="hide-mobile">Post</span>
+          </button>
+          <Avatar initials="AS" size={34} />
         </div>
       </header>
 
-      {/* Post Modal */}
+      {/* Mobile bottom nav */}
+      <nav className="bottom-nav" aria-label="Primary mobile"><NavButtons vertical /></nav>
+
+      {/* Post modal */}
       {postModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, width: "100%", maxWidth: 480, padding: 24 }} className="fade-in">
-            <div style={{ fontWeight: 800, fontSize: 17, color: C.white, marginBottom: 16 }}>Share a Project or Update</div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-              {["📸 Project", "🎬 Video", "💼 Hiring", "🔍 Seeking Work"].map(type => (
-                <button key={type} style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 10px", color: C.muted, fontSize: 11, cursor: "pointer", fontWeight: 600 }}>{type}</button>
+        <div role="dialog" aria-modal="true" aria-label="Share a project or update" style={{ position: "fixed", inset: 0, background: "rgba(4,8,16,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={e => e.target === e.currentTarget && setPostModal(false)}>
+          <div className="fade-in" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, width: "100%", maxWidth: 480, padding: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div className="display" style={{ fontWeight: 800, fontSize: 18, color: C.white }}>Share an update</div>
+              <button onClick={() => setPostModal(false)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, padding: 4 }}><Icon name="x" size={18} /></button>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+              {["Project", "Video", "Hiring", "Seeking work"].map(t => (
+                <button key={t} className="btn-ghost" style={{ padding: "6px 12px", fontSize: 11.5 }}>{t}</button>
               ))}
             </div>
-            <textarea value={newPost} onChange={e => setNewPost(e.target.value)}
-              placeholder="Describe your project, share a before & after, post a job opening..." 
-              style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "12px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
+            <textarea value={newPost} onChange={e => setNewPost(e.target.value)} aria-label="Post content"
+              placeholder="Describe your project, share a before & after, post a job opening…"
+              style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
             <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => setPostModal(false)} style={{ flex: 1, background: "transparent", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px", color: C.muted, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancel</button>
-              <button onClick={() => { setPostModal(false); setNewPost(""); showToast("✅ Post published!"); }}
-                style={{ flex: 2, background: C.orange, border: "none", borderRadius: 10, padding: "10px", color: C.bg, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Publish Post</button>
+              <button onClick={() => setPostModal(false)} className="btn-ghost" style={{ flex: 1, padding: 11, fontSize: 13 }}>Cancel</button>
+              <button onClick={() => { setPostModal(false); setNewPost(""); showToast("Post published"); }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Publish post</button>
             </div>
           </div>
         </div>
       )}
 
       {/* Main layout */}
-      <div style={{ display: "flex", flex: 1, maxWidth: 1100, margin: "0 auto", width: "100%" }}>
+      <div className="app-shell">
+        <main className="main-col">
+          <div className="scroll-col">
+            {view === "profile" && activeProfile ? (
+              <ContractorProfile contractor={activeProfile} reviews={REVIEWS} onBack={() => goView("feed")} onToast={showToast} />
 
-        {/* Feed / main content */}
-        <div style={{ flex: 1, borderRight: `1px solid ${C.border}` }}>
-          {view === "profile" && activeProfile ? (
-            <div className="feed-scroll">
-              <ContractorProfile contractor={activeProfile} reviews={REVIEWS} onBack={() => { setView("feed"); setActiveProfile(null); }} />
-            </div>
-          ) : view === "feed" ? (
-            <div className="feed-scroll">
-              {/* Story bar */}
-              <div style={{ display: "flex", gap: 12, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
-                {CONTRACTORS.map(c => (
-                  <div key={c.id} onClick={() => handleProfile(c)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", flexShrink: 0 }}>
-                    <div style={{ padding: 2, borderRadius: "50%", background: c.premium ? `linear-gradient(135deg, ${C.orange}, #ff6b35)` : `linear-gradient(135deg, ${C.border}, ${C.border})` }}>
-                      <Avatar initials={c.avatar} size={48} premium={false} />
+            ) : view === "feed" ? (
+              <>
+                {/* Homeowner quick-start */}
+                <div style={{ background: `linear-gradient(120deg, ${C.card}, #1A2645)`, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 18, position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />
+                  <div className="eyebrow" style={{ marginBottom: 6, marginTop: 4 }}>Homeowners start here</div>
+                  <div className="display" style={{ fontWeight: 800, fontSize: 21, color: C.white, lineHeight: 1.15, marginBottom: 6 }}>Find the right pro for your project</div>
+                  <div style={{ fontSize: 13, color: C.dim, marginBottom: 14 }}>Describe the job in plain words — our AI matches you with licensed Citrus County contractors.</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button onClick={() => goView("match")} className="btn-primary" style={{ padding: "10px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 7 }}>
+                      <Icon name="sparkles" size={15} color="#14100A" />Match me with a contractor
+                    </button>
+                    <button onClick={() => goView("network")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Browse the network</button>
+                  </div>
+                </div>
+
+                {/* Story bar */}
+                <div style={{ display: "flex", gap: 14, marginBottom: 18, overflowX: "auto", paddingBottom: 4 }}>
+                  {CONTRACTORS.map(c => (
+                    <button key={c.id} onClick={() => openProfile(c)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", flexShrink: 0, background: "none", border: "none", padding: 0 }} aria-label={`View ${c.name}'s profile`}>
+                      <div style={{ padding: 2, borderRadius: "50%", background: c.premium ? `linear-gradient(135deg, ${C.orange}, ${C.orangeDk})` : C.border }}>
+                        <Avatar initials={c.avatar} size={48} />
+                      </div>
+                      <span style={{ fontSize: 10.5, color: C.muted, maxWidth: 58, textAlign: "center", lineHeight: 1.2 }}>{c.name.split(" ")[0]}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {FEED_POSTS.map(post => (
+                  <FeedPost key={post.id} post={post} contractor={CONTRACTORS.find(c => c.id === post.contractorId)} onProfile={openProfile} />
+                ))}
+              </>
+
+            ) : view === "projects" ? (
+              <>
+                <SectionHead eyebrow="Open bids" title="Open projects" sub="Homeowners and developers looking for contractors now" />
+                {PROJECTS.map(proj => (
+                  <div key={proj.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, gap: 10, flexWrap: "wrap" }}>
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 800, fontSize: 16, color: C.white }}>{proj.type}</span>
+                          {proj.urgent && <Badge text="Urgent" color={C.red} />}
+                        </div>
+                        <div style={{ fontSize: 12, color: C.muted }}>Posted by {proj.owner} · {proj.posted}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div className="display" style={{ fontWeight: 800, fontSize: 17, color: C.orange }}>{proj.budget}</div>
+                        <div style={{ fontSize: 11, color: C.muted }}>{proj.bids} bids</div>
+                      </div>
                     </div>
-                    <span style={{ fontSize: 10, color: C.muted, maxWidth: 56, textAlign: "center", lineHeight: 1.2 }}>{c.name.split(" ")[0]}</span>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.dim, marginBottom: 10 }}><Icon name="pin" size={14} color={C.muted} />{proj.location}</div>
+                    <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.55, marginBottom: 14 }}>{proj.description}</p>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <button onClick={() => showToast("Bid submitted")} className="btn-primary" style={{ flex: 1, padding: 11, fontSize: 13 }}>Submit bid</button>
+                      <button className="btn-ghost" style={{ padding: "11px 18px", fontSize: 13 }}>Save</button>
+                    </div>
                   </div>
                 ))}
-              </div>
+              </>
 
-              {FEED_POSTS.map(post => {
-                const contractor = CONTRACTORS.find(c => c.id === post.contractorId);
-                return <FeedPost key={post.id} post={post} contractor={contractor} onProfile={handleProfile} />;
-              })}
-            </div>
-
-          ) : view === "projects" ? (
-            <div className="feed-scroll">
-              <div style={{ fontWeight: 800, fontSize: 18, color: C.white, marginBottom: 4 }}>Open Projects</div>
-              <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Homeowners and developers looking for contractors now</div>
-              {PROJECTS.map(proj => (
-                <div key={proj.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontWeight: 700, fontSize: 16, color: C.white }}>{proj.type}</span>
-                        {proj.urgent && <Badge text="URGENT" color={C.red} />}
-                      </div>
-                      <div style={{ fontSize: 12, color: C.muted }}>Posted by {proj.owner} · {proj.posted}</div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 700, fontSize: 15, color: C.orange }}>{proj.budget}</div>
-                      <div style={{ fontSize: 11, color: C.muted }}>{proj.bids} bids</div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>📍 {proj.location}</div>
-                  <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.5, marginBottom: 14 }}>{proj.description}</div>
-                  <div style={{ display: "flex", gap: 10 }}>
-                    <button onClick={() => showToast("✅ Bid submitted!")} style={{ flex: 1, background: C.orange, border: "none", borderRadius: 10, padding: "10px", color: C.bg, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Submit Bid</button>
-                    <button style={{ background: "transparent", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 16px", color: C.muted, fontSize: 13, cursor: "pointer" }}>Save</button>
-                  </div>
+            ) : view === "network" ? (
+              <>
+                <SectionHead eyebrow="The directory" title="Contractor network" sub="Verified, licensed professionals in Citrus County" />
+                <div style={{ position: "relative", marginBottom: 18 }}>
+                  <div style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)" }}><Icon name="search" size={16} color={C.muted} /></div>
+                  <input value={networkQuery} onChange={e => setNetworkQuery(e.target.value)} placeholder="Search by trade, name, town, or specialty…" aria-label="Search contractors"
+                    style={{ width: "100%", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px 12px 38px", color: C.text, fontSize: 13.5, outline: "none" }} />
                 </div>
-              ))}
-            </div>
-
-          ) : view === "network" ? (
-            <div className="feed-scroll">
-              <div style={{ fontWeight: 800, fontSize: 18, color: C.white, marginBottom: 4 }}>Contractor Network</div>
-              <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Verified, licensed professionals in your area</div>
-              {CONTRACTORS.map(c => (
-                <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 18, marginBottom: 14, display: "flex", gap: 14, alignItems: "flex-start" }}>
-                  <div onClick={() => handleProfile(c)} style={{ cursor: "pointer" }}>
-                    <Avatar initials={c.avatar} size={52} premium={c.premium} />
+                {filteredNetwork.length === 0 && (
+                  <div style={{ textAlign: "center", padding: 40, color: C.muted, fontSize: 13, background: C.card, borderRadius: 12, border: `1px dashed ${C.line}` }}>
+                    No contractors match "{networkQuery}". Try a trade like "roofing" or a town like "Inverness".
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                )}
+                {filteredNetwork.map(c => (
+                  <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 18, marginBottom: 14, display: "flex", gap: 14, alignItems: "flex-start" }}>
+                    <button onClick={() => openProfile(c)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label={`View ${c.name}'s profile`}>
+                      <Avatar initials={c.avatar} size={52} premium={c.premium} />
+                    </button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                        <div>
+                          <button onClick={() => openProfile(c)} style={{ background: "none", border: "none", fontWeight: 800, fontSize: 15, color: C.white, cursor: "pointer", padding: 0, marginBottom: 2, textAlign: "left" }}>{c.name}</button>
+                          <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
+                        </div>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {c.verified && <Badge text="Licensed" color={C.green} icon="badge" />}
+                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>
+                      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                        <Stars rating={c.rating} />
+                        <span style={{ fontSize: 12, color: C.muted }}>{c.jobs} jobs · {c.followers} followers</span>
+                      </div>
+                      <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                        <button onClick={() => openProfile(c)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
+                        <a href={`tel:${c.phone?.replace(/\D/g, "")}`} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          <Icon name="phone" size={13} />Call
+                        </a>
+                        <button onClick={() => showToast(`Following ${c.name}`)} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>+ Follow</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+
+            ) : view === "jobs" ? (
+              <>
+                <SectionHead eyebrow="Crew board" title="Find work" sub="Jobs posted by contractors looking for crews and specialty trades" />
+                {JOBS.map((job, i) => (
+                  <div key={i} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 10, flexWrap: "wrap" }}>
                       <div>
-                        <div onClick={() => handleProfile(c)} style={{ fontWeight: 700, fontSize: 15, color: C.white, cursor: "pointer", marginBottom: 2 }}>{c.name}</div>
-                        <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 800, fontSize: 15, color: C.white }}>{job.title}</span>
+                          {job.urgent && <Badge text="Urgent" color={C.red} />}
+                        </div>
+                        <div style={{ fontSize: 12, color: C.muted }}>{job.company} · {job.location}</div>
                       </div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {c.verified && <Badge text="✓" color={C.green} />}
-                        {c.premium && <Badge text="★" color={C.orange} />}
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 4, fontWeight: 800, color: C.green, fontSize: 14 }}><Icon name="dollar" size={14} color={C.green} />{job.pay}</div>
+                        <div style={{ fontSize: 11, color: C.muted }}>{job.type}</div>
                       </div>
                     </div>
-                    <div style={{ fontSize: 13, color: "#94a3b8", margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</div>
-                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                      <StarRating rating={c.rating} />
-                      <span style={{ fontSize: 12, color: C.muted }}>· {c.jobs} jobs · {c.followers} followers</span>
-                    </div>
-                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                      <button onClick={() => { handleProfile(c); }} style={{ background: C.orange, border: "none", borderRadius: 8, padding: "7px 16px", color: C.bg, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>View Profile</button>
-                      <button onClick={() => showToast(`✅ Following ${c.name}!`)} style={{ background: "transparent", border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 16px", color: C.muted, fontSize: 12, cursor: "pointer" }}>+ Follow</button>
-                    </div>
+                    <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.55, marginBottom: 12 }}>{job.desc}</p>
+                    <button onClick={() => showToast("Application sent")} style={{ background: C.green, border: "none", borderRadius: 10, padding: "9px 20px", color: "#08120B", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>Apply now</button>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </>
 
-          ) : view === "jobs" ? (
-            <div className="feed-scroll">
-              <div style={{ fontWeight: 800, fontSize: 18, color: C.white, marginBottom: 4 }}>Find Work</div>
-              <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Jobs posted by contractors looking for crews and specialty trades</div>
-              {[
-                { title: "Electrical Rough-In Crew Needed", company: "Rivera & Sons Construction", pay: "$28–$35/hr", type: "Subcontract", location: "Homosassa Springs", urgent: true, desc: "Need 2-man electrical rough-in crew for 2,400 sq ft new build. Starts July 15. Est. 3 weeks." },
-                { title: "Tile Setter — Master Bath Project", company: "Gulf Plumbing Co.", pay: "$22–$28/hr", type: "1099 Contract", location: "Crystal River", urgent: false, desc: "Experienced tile setter needed for master bath renovation. Shower, floor, backsplash. 5-day job." },
-                { title: "Framing Crew — Addition Project", company: "SunState Roofing", pay: "$26–$32/hr", type: "Subcontract", location: "Inverness", urgent: true, desc: "3-man framing crew needed for 580 sq ft addition. Plans ready. Start date flexible August 2026." },
-              ].map((job, i) => (
-                <div key={i} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+            ) : view === "match" ? (
+              <>
+                <SectionHead eyebrow="Smart matching" title="AI project matching" sub="Describe your project in plain words — we find the right contractor instantly" />
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
+                  <textarea value={matchInput} onChange={e => setMatchInput(e.target.value)} aria-label="Describe your project"
+                    placeholder='Example: "My lanai screen ripped in the storm and the roof is leaking near the back bedroom. Crystal River area, want it fixed this month."'
+                    style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 14, color: C.text, fontSize: 13.5, resize: "vertical", minHeight: 110, fontFamily: "inherit", outline: "none", marginBottom: 14, lineHeight: 1.55 }} />
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
                     <div>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
-                        <span style={{ fontWeight: 700, fontSize: 15, color: C.white }}>{job.title}</span>
-                        {job.urgent && <Badge text="URGENT" color={C.red} />}
-                      </div>
-                      <div style={{ fontSize: 12, color: C.muted }}>{job.company} · {job.location}</div>
+                      <div className="eyebrow" style={{ fontSize: 10, marginBottom: 6, color: C.muted }}>Budget</div>
+                      <select value={matchBudget} onChange={e => setMatchBudget(e.target.value)} aria-label="Budget" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
+                        <option value="">Select…</option>
+                        {["Under $5K", "$5K–$15K", "$15K–$50K", "$50K+"].map(o => <option key={o}>{o}</option>)}
+                      </select>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 700, color: C.green, fontSize: 14 }}>{job.pay}</div>
-                      <div style={{ fontSize: 11, color: C.muted }}>{job.type}</div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.5, marginBottom: 12 }}>{job.desc}</div>
-                  <button onClick={() => showToast("✅ Application sent!")} style={{ background: C.green, border: "none", borderRadius: 10, padding: "9px 20px", color: C.white, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Apply Now</button>
-                </div>
-              ))}
-            </div>
-
-       ) : view === "match" ? (
-    <div className="feed-scroll">
-      <div style={{ fontWeight: 800, fontSize: 18, color: C.white, marginBottom: 4 }}>AI Project Matching</div>
-      <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Describe your project — AI finds the right contractor instantly</div>
-      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
-        <textarea
-          id="match-input"
-          placeholder="Describe your project in detail — type of work, location, budget, timeline..."
-          style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "14px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 14 }}
-        />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
-          {[["Budget", ["Under $5K","$5K–$15K","$15K–$50K","$50K+"]], ["Timeline", ["ASAP","1 Month","3 Months","Flexible"]]].map(([label, opts]) => (
-            <div key={label}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 6 }}>{label.toUpperCase()}</div>
-              <select id={`match-${label.toLowerCase()}`} style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
-                <option value="">Select...</option>
-                {opts.map(o => <option key={o}>{o}</option>)}
-              </select>
-            </div>
-          ))}
-        </div>
-        <button onClick={() => {
-          const input = document.getElementById("match-input").value.toLowerCase();
-          const keywords = {
-            "Roofing": ["roof","shingle","metal roof","leak","storm","flat roof"],
-            "Electrical": ["electric","panel","wiring","outlet","ev charging","breaker"],
-            "Plumbing": ["plumb","pipe","water heater","repipe","leak","drain","faucet"],
-            "Tile & Masonry": ["tile","stone","brick","masonry","grout","travertine","outdoor kitchen","patio"],
-            "General Contractor": ["addition","renovation","remodel","build","construction","kitchen","bathroom","home","room"],
-            "Project Management": ["manage","budget","permit","oversee","coordinate","project manager","inception","closeout"],
-          };
-          const scored = CONTRACTORS.map(c => {
-            const tradeKeys = keywords[c.trade] || [];
-            const score = tradeKeys.filter(k => input.includes(k)).length + (input.includes(c.trade.toLowerCase()) ? 2 : 0) + c.rating * 0.5;
-            const reasons = tradeKeys.filter(k => input.includes(k));
-            return { ...c, score, reasons };
-          }).filter(c => c.score > 0).sort((a, b) => b.score - a.score);
-          setMatchResults(scored.length > 0 ? scored : CONTRACTORS.sort((a,b) => b.rating - a.rating));
-          setMatchSearched(true);
-        }} style={{ width: "100%", background: C.orange, border: "none", borderRadius: 10, padding: "12px", color: C.bg, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
-          🤖 Find Matching Contractors →
-        </button>
-      </div>
-
-      {matchSearched && (
-        <div>
-          <div style={{ fontSize: 13, color: C.orange, fontWeight: 700, marginBottom: 12 }}>🤖 AI MATCHED {matchResults.length} CONTRACTORS</div>
-          {matchResults.map((c, i) => (
-            <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${i === 0 ? C.orange : C.border}`, borderRadius: 16, padding: 18, marginBottom: 14 }}>
-              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                <div style={{ position: "relative" }}>
-                  <Avatar initials={c.avatar} size={48} premium={c.premium} />
-                  {i === 0 && <div style={{ position: "absolute", top: -6, right: -6, background: C.orange, color: C.bg, fontSize: 9, fontWeight: 800, padding: "2px 5px", borderRadius: 6 }}>TOP</div>}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 15, color: C.white }}>{c.name}</div>
-                      <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
+                      <div className="eyebrow" style={{ fontSize: 10, marginBottom: 6, color: C.muted }}>Timeline</div>
+                      <select value={matchTimeline} onChange={e => setMatchTimeline(e.target.value)} aria-label="Timeline" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
+                        <option value="">Select…</option>
+                        {["ASAP", "1 month", "3 months", "Flexible"].map(o => <option key={o}>{o}</option>)}
+                      </select>
                     </div>
-                    <StarRating rating={c.rating} />
                   </div>
-                  <div style={{ fontSize: 13, color: "#94a3b8", margin: "8px 0" }}>{c.bio}</div>
-                  {c.reasons && c.reasons.length > 0 && (
-                    <div style={{ fontSize: 11, color: C.green, marginBottom: 8 }}>✓ Matched on: {c.reasons.join(", ")}</div>
-                  )}
-                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                    <button onClick={() => handleProfile(c)} style={{ background: C.orange, border: "none", borderRadius: 8, padding: "7px 16px", color: C.bg, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>View Profile</button>
-                    <button onClick={() => showToast(`✅ Message sent to ${c.name}!`)} style={{ background: "transparent", border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 16px", color: C.muted, fontSize: 12, cursor: "pointer" }}>Message</button>
-                  </div>
+                  <button onClick={runMatch} disabled={matchLoading} className="btn-primary" style={{ width: "100%", padding: 13, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: matchLoading ? 0.7 : 1 }}>
+                    <Icon name="sparkles" size={16} color="#14100A" />{matchLoading ? "Matching…" : "Find matching contractors"}{!matchLoading && <Icon name="arrowRight" size={16} color="#14100A" />}
+                  </button>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  ) : null}
-        </div>
+
+                {matchResults && (
+                  <div className="fade-in">
+                    {matchSummary && (
+                      <div style={{ background: C.card, border: `1px solid ${C.blue}44`, borderRadius: 12, padding: "12px 16px", marginBottom: 14, fontSize: 13.5, color: C.dim, lineHeight: 1.5, display: "flex", gap: 10, alignItems: "flex-start" }}>
+                        <Icon name="sparkles" size={16} color={C.blue} style={{ marginTop: 2 }} />
+                        <span><span style={{ color: C.white, fontWeight: 700 }}>AI assessment: </span>{matchSummary}</span>
+                      </div>
+                    )}
+                    <div className="eyebrow" style={{ marginBottom: 12 }}>{matchResults.length} matched contractor{matchResults.length !== 1 ? "s" : ""}{matchTimeline === "ASAP" ? " · sorted for fast starts" : ""}</div>
+                    {matchResults.map((c, i) => (
+                      <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${i === 0 ? C.orange : C.border}`, borderRadius: 16, padding: 18, marginBottom: 14 }}>
+                        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                          <div style={{ position: "relative" }}>
+                            <Avatar initials={c.avatar} size={48} premium={c.premium} />
+                            {i === 0 && <div className="display" style={{ position: "absolute", top: -8, right: -10, background: C.orange, color: "#14100A", fontSize: 9, fontWeight: 800, padding: "2px 6px", borderRadius: 6, letterSpacing: "0.08em" }}>TOP MATCH</div>}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
+                              <div>
+                                <div style={{ fontWeight: 800, fontSize: 15, color: C.white }}>{c.name}</div>
+                                <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
+                              </div>
+                              <Stars rating={c.rating} />
+                            </div>
+                            <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>
+                            {c.reasons?.length > 0 && (
+                              <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: C.green, marginBottom: 8, fontWeight: 700 }}>
+                                <Icon name="check" size={13} color={C.green} />Matched on: {c.reasons.join(", ")}
+                              </div>
+                            )}
+                            <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+                              <button onClick={() => openProfile(c)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
+                              <button onClick={() => showToast(`Message sent to ${c.name}`)} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>Message</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+        </main>
 
         {/* Right sidebar */}
-        <div style={{ width: 280, flexShrink: 0 }}>
-          <div className="right-scroll">
-            {/* Trending tags */}
+        <aside className="side-col">
+          <div className="scroll-col">
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.orange, marginBottom: 12, letterSpacing: "0.5px" }}>TRENDING IN CITRUS COUNTY</div>
+              <div className="eyebrow" style={{ marginBottom: 12 }}>Trending in Citrus County</div>
               {["#MetalRoofing", "#KitchenRemodel", "#NewConstruction", "#StormRepair", "#OutdoorLiving"].map((tag, i) => (
-                <div key={tag} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < 4 ? `1px solid ${C.border}` : "none" }}>
-                  <span style={{ fontSize: 13, color: C.blue, cursor: "pointer" }}>{tag}</span>
+                <div key={tag} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: i < 4 ? `1px dashed ${C.line}` : "none" }}>
+                  <span style={{ fontSize: 13, color: C.blue, cursor: "pointer", fontWeight: 600 }}>{tag}</span>
                   <span style={{ fontSize: 11, color: C.muted }}>{[312, 198, 156, 134, 89][i]} posts</span>
                 </div>
               ))}
             </div>
 
-            {/* Premium CTA */}
-            <div style={{ background: `linear-gradient(135deg, #1a0a2e, #2d1b4e)`, border: `1px solid #7c3aed44`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#a855f7", marginBottom: 8, letterSpacing: "0.5px" }}>★ GO PREMIUM</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.white, marginBottom: 8 }}>Get your HD video commercial</div>
-              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12, lineHeight: 1.5 }}>Featured placement, verified badge, priority matching, and a pro video shoot of your best project.</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: C.orange, marginBottom: 12 }}>$149<span style={{ fontSize: 12, color: C.muted, fontWeight: 400 }}>/mo</span></div>
-              <button style={{ width: "100%", background: "#7c3aed", border: "none", borderRadius: 10, padding: "10px", color: C.white, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Upgrade to Premium</button>
+            {/* Vendor CTA */}
+            <div style={{ background: C.card, border: `1px solid ${C.orange}44`, borderRadius: 14, padding: 16, marginBottom: 16, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />
+              <div className="eyebrow" style={{ marginBottom: 8, marginTop: 4 }}>Vendors & suppliers</div>
+              <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Put your business in front of every contractor in the county</div>
+              <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>List your shop, post deals, and reach the crews buying materials every week. Free to join.</div>
+              <button onClick={() => showToast("Vendor signup coming soon")} className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }}>Claim your vendor page</button>
             </div>
 
-            {/* Suggested connections */}
+            {/* Premium CTA */}
+            <div style={{ background: `linear-gradient(135deg, #1C1233, #241A45)`, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
+              <div className="eyebrow" style={{ color: C.purple, marginBottom: 8 }}>Go premium</div>
+              <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Get your HD video commercial</div>
+              <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Featured placement, verified badge, priority matching, and a pro video shoot of your best project.</div>
+              <div className="display" style={{ fontSize: 22, fontWeight: 800, color: C.orange, marginBottom: 12 }}>$149<span style={{ fontSize: 12, color: C.muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>/mo</span></div>
+              <button style={{ width: "100%", background: C.purple, border: "none", borderRadius: 10, padding: 10, color: "#14102A", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>Upgrade to Premium</button>
+            </div>
+
+            {/* Suggested */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.orange, marginBottom: 12, letterSpacing: "0.5px" }}>PEOPLE TO FOLLOW</div>
-              {CONTRACTORS.slice(0, 3).map(c => (
-                <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+              <div className="eyebrow" style={{ marginBottom: 12 }}>People to follow</div>
+              {CONTRACTORS.slice(0, 3).map((c, i) => (
+                <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < 2 ? `1px dashed ${C.line}` : "none" }}>
                   <Avatar initials={c.avatar} size={36} premium={c.premium} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: C.white }}>{c.name}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: C.white }}>{c.name}</div>
                     <div style={{ fontSize: 11, color: C.muted }}>{c.trade}</div>
                   </div>
-                  <button onClick={() => showToast(`✅ Following ${c.name}!`)} style={{ background: "transparent", border: `1px solid ${C.orange}`, borderRadius: 6, padding: "4px 10px", color: C.orange, fontSize: 11, fontWeight: 600, cursor: "pointer" }}>Follow</button>
+                  <button onClick={() => showToast(`Following ${c.name}`)} style={{ background: "transparent", border: `1px solid ${C.orange}`, borderRadius: 6, padding: "4px 10px", color: C.orange, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Follow</button>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

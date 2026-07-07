@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+const track = (action, vendor) => { if (window.gtag) window.gtag("event", action, { vendor: vendor }); };
 
 /* ════════════════════════════════════════════════════════════════════════════
    BuildBridge — Citrus County's Construction Network
@@ -331,11 +332,12 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
 
         {/* Contact strip — the actions that make the phone ring */}
         <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
-          <a href={`tel:${tel}`} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>
+         <a href={`tel:${tel}`} onClick={() => track("call_click", contractor.company)} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>
             <Icon name="phone" size={15} color="#14100A" /> Call {contractor.phone}
           </a>
           <button onClick={() => setTab("contact")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Message</button>
           <button onClick={() => onToast(`Following ${contractor.name}`)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>+ Follow</button>
+          {contractor.website && <a href={`${contractor.website}?utm_source=buildbridge&utm_medium=profile`} target="_blank" rel="noopener" onClick={() => track("website_click", contractor.company)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>Website</a>} 
         </div>
 
         <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
@@ -431,7 +433,7 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: C.white, marginBottom: 14 }}>Send a message</div>
             <textarea placeholder={`Describe your project for ${contractor.name.split(" ")[0]} — what, where, and roughly when…`} aria-label="Project description" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, resize: "vertical", minHeight: 100, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
-            <button onClick={() => contractor.email ? window.location.href = `mailto:${contractor.email}?subject=BuildBridge Lead — ${contractor.trade} Inquiry` : onToast(`Call ${contractor.phone} to reach ${contractor.name.split(" ")[0]}`)}  className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 14 }}>Send message</button>
+            <button onClick={() => (track("message_click", contractor.company), contractor.email ?window.location.href = `mailto:${contractor.email}?subject=BuildBridge Lead — ${contractor.trade} Inquiry` : onToast(`Call ${contractor.phone} to reach ${contractor.name.split(" ")[0]}`)}  className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 14 }}>Send message</button>
           </div>
         )}
       </div>

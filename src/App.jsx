@@ -393,7 +393,7 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
 
         {tab === "portfolio" && (
           <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {["Kitchen Remodel", "Room Addition", "Deck Build", "Bathroom Renovation"].map((proj, i) => (
+            {(contractor.projects || []).map((proj, i) => (
               <div key={proj} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
                 <div style={{ height: 84, background: `linear-gradient(135deg, ${["#173154", "#14361F", "#3A1D1D", "#241A45"][i]}, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Icon name={["home", "hammer", "clipboard", "sparkles"][i]} size={30} color={`${C.text}66`} />
@@ -404,6 +404,9 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
                 </div>
               </div>
             ))}
+            {(!contractor.projects || contractor.projects.length === 0) && (
+          <div style={{ gridColumn: "1 / -1", padding: 24, textAlign: "center", color: C.muted, fontSize: 13 }}>No projects posted yet — check back soon.</div>
+          )}
           </div>
         )}
 

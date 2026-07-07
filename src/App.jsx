@@ -433,7 +433,7 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: C.white, marginBottom: 14 }}>Send a message</div>
             <textarea placeholder={`Describe your project for ${contractor.name.split(" ")[0]} — what, where, and roughly when…`} aria-label="Project description" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, resize: "vertical", minHeight: 100, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
-            <button onClick={() => (track("message_click", contractor.company), contractor.email ?window.location.href = `mailto:${contractor.email}?subject=BuildBridge Lead — ${contractor.trade} Inquiry` : onToast(`Call ${contractor.phone} to reach ${contractor.name.split(" ")[0]}`)}  className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 14 }}>Send message</button>
+            <button onClick={() => (track("message_click", contractor.company), contractor.email ?window.location.href = `mailto:${contractor.email}?subject=BuildBridge Lead — ${contractor.trade} Inquiry` : onToast(`Call ${contractor.phone} to reach ${contractor.name.split(" ")[0]}`))}  className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 14 }}>Send message</button>
           </div>
         )}
       </div>

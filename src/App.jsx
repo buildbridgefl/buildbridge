@@ -512,6 +512,7 @@ export default function BuildBridgeSocial() {
     { id: "network", icon: "users", label: "Network" },
     { id: "jobs", icon: "hammer", label: "Find Work" },
     { id: "match", icon: "sparkles", label: "AI Match" },
+    { id: "permits", icon: "clipboard", label: "Permits" },
   ];
 
   const NavButtons = ({ vertical = false }) =>
@@ -791,7 +792,34 @@ export default function BuildBridgeSocial() {
                   </div>
                 )}
               </>
-            ) : null}
+            ) : view === "permits" ? (
+            <>
+              <SectionHead eyebrow="BuildBridge LLC Services" title="Permit Prep & Processing" sub="Citrus County permit paperwork — handled. Your license, your permit, our legwork." />
+
+              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
+                <div className="eyebrow" style={{ marginBottom: 10, color: C.orange }}>Heard about the new $7,500 no-permit rule?</div>
+                <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6, margin: 0 }}>Careful — Florida's HB 803 (effective July 1, 2026) does NOT cover electrical, plumbing, structural, mechanical, or gas work, and it doesn't apply in flood hazard areas — which includes a big chunk of coastal Citrus County. It also requires a written exemption request filed with the county. Guess wrong and you're paying double permit fees, or failing an inspection when you sell.</p>
+              </div>
+
+              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
+                <div className="eyebrow" style={{ marginBottom: 12 }}>What we do</div>
+                <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6, marginTop: 0 }}>For licensed contractors: we prepare, assemble, and process your permit applications as your authorized agent — filed under your license, submitted electronically, tracked to approval. You stay on the tools.</p>
+                <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6, marginBottom: 0 }}>For homeowners: owner-builder permit packages and HB 803 exemption request filings — including confirming your project actually qualifies before you skip a permit.</p>
+              </div>
+
+              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
+                <div className="eyebrow" style={{ marginBottom: 12 }}>Pricing</div>
+                {[["Exemption filing", "$75–100"], ["Standard permit", "$150–250"], ["Complex permit", "$300–500"], ["Monthly retainer (regulars)", "$250–400"]].map(([label, price]) => (
+                  <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px dashed ${C.line}`, fontSize: 13.5 }}>
+                    <span style={{ color: C.text }}>{label}</span><span style={{ color: C.orange, fontWeight: 800 }}>{price}</span>
+                  </div>
+                ))}
+                <div style={{ fontSize: 12.5, color: C.green, marginTop: 12, fontWeight: 700 }}>BuildBridge vendors: your first one is free.</div>
+              </div>
+
+              <button onClick={() => (track("permit_request_click", "BuildBridge LLC"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Permit Prep Request")} className="btn-primary" style={{ width: "100%", padding: 14, fontSize: 14 }}>Request Permit Help</button>
+            </>
+          ) : null}
           </div>
         </main>
 

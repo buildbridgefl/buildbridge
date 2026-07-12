@@ -185,7 +185,7 @@ function Avatar({ initials, size = 40, premium = false }) {
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
       <div style={{ width: size, height: size, borderRadius: "50%", background: `linear-gradient(135deg, ${C.orange}2A, ${C.blue}22)`, border: `2px solid ${premium ? C.orange : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.34, fontWeight: 800, color: C.orange }} className="display">
-        {initials}
+       <span style={{ color: "#fff", fontWeight: 800, fontSize: size * 0.34, textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>{initials}</span> 
       </div>
       {premium && (
         <div style={{ position: "absolute", bottom: -3, right: -3, width: size * 0.36, height: size * 0.36, minWidth: 14, minHeight: 14, background: C.orange, borderRadius: "50%", border: `2px solid ${C.bg}`, display: "flex", alignItems: "center", justifyContent: "center" }}>

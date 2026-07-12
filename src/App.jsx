@@ -829,7 +829,7 @@ export default function BuildBridgeSocial() {
               <div className="eyebrow" style={{ marginBottom: 8, marginTop: 4 }}>Vendors & suppliers</div>
               <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Put your business in front of every contractor in the county</div>
               <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>List your shop, post deals, and reach the crews buying materials every week. Free to join.</div>
-              <button onClick={() => showToast("Vendor signup coming soon")} className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }} onClick={() => (track("supplier_signup_click", "sidebar"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Supplier Signup Request")}>Feature Your Deals</button>
+              <button  className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }} onClick={() => (track("supplier_signup_click", "sidebar"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Supplier Signup Request")}>Feature Your Deals</button>
             </div>
 
             {/* Premium CTA */}
@@ -838,7 +838,7 @@ export default function BuildBridgeSocial() {
               <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Get your HD video commercial</div>
               <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Featured placement, verified badge, priority matching, and a pro video shoot of your best project.</div>
               <div className="display" style={{ fontSize: 22, fontWeight: 800, color: C.orange, marginBottom: 12 }}>$149<span style={{ fontSize: 12, color: C.muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>/mo</span></div>
-              <button style={{ width: "100%", background: C.purple, border: "none", borderRadius: 10, padding: 10, color: "#14102A", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>Upgrade to Premium</button>
+              <button onClick={() => (track("premium_interest_click", "sidebar"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Premium Interest — Video Commercial")} style={{ width: "100%", background: C.purple, border: "none", borderRadius: 10, padding: 10, color: "#14102A", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>I'm Interested</button>
             </div>
 
             {/* Suggested */}

@@ -328,7 +328,7 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
             <Icon name="phone" size={15} color="#14100A" /> Call {contractor.phone}
           </a>
           <button onClick={() => setTab("contact")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Message</button>
-          <button onClick={() => onToast(`Following ${contractor.name}`)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>+ Follow</button>
+          <button onClick={() => { track("follow_click", contractor.company); onToast("Thanks for the interest — full accounts coming soon"); }} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>+ Follow</button>
           {contractor.website && <a href={`${contractor.website}?utm_source=buildbridge&utm_medium=profile`} target="_blank" rel="noopener" onClick={() => track("website_click", contractor.company)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>Website</a>} 
         </div>
 
@@ -685,7 +685,7 @@ export default function BuildBridgeSocial() {
                         <a href={`tel:${c.phone?.replace(/\D/g, "")}`} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
                           <Icon name="phone" size={13} />Call
                         </a>
-                        <button onClick={() => showToast(`Following ${c.name}`)} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>+ Follow</button>
+                        <button onClick={() => { track("follow_click", c.company); showToast("Thanks for the interest — full accounts coming soon"); }} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>+ Follow</button>
                       </div>
                     </div>
                   </div>
@@ -856,7 +856,7 @@ export default function BuildBridgeSocial() {
                     <div style={{ fontSize: 13, fontWeight: 700, color: C.white }}>{c.name}</div>
                     <div style={{ fontSize: 11, color: C.muted }}>{c.trade}</div>
                   </div>
-                  <button onClick={() => showToast(`Following ${c.name}`)} style={{ background: "transparent", border: `1px solid ${C.orange}`, borderRadius: 6, padding: "4px 10px", color: C.orange, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Follow</button>
+                  <button onClick={() => { track("follow_click", c.company); showToast("Thanks for the interest — full accounts coming soon"); }} style={{ background: "transparent", border: `1px solid ${C.orange}`, borderRadius: 6, padding: "4px 10px", color: C.orange, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>+ Follow</button>
                 </div>
               ))}
             </div>

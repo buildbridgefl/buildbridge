@@ -835,7 +835,7 @@ export default function BuildBridgeSocial() {
               <div className="eyebrow" style={{ marginBottom: 8, marginTop: 4 }}>Vendors & suppliers</div>
               <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Put your business in front of every contractor in the county</div>
               <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>List your shop, post deals, and reach the crews buying materials every week. Free to join.</div>
-              <button  className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }} onClick={() => (track("supplier_signup_click", "sidebar"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Supplier Signup Request")}>Feature Your Deals</button>
+              <button  className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }} onClick={() => (track("supplier_signup_click", "sidebar"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSe6VqOYrwFEJFWzycoT3cZtfU76pXTYIC3RpR04y_EO0RngZQ/viewform", "_blank"))}>Feature Your Deals</button>
             </div>
 
             {/* Premium CTA */}

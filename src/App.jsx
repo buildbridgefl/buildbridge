@@ -566,7 +566,7 @@ export default function BuildBridgeSocial() {
               style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setPostModal(false)} className="btn-ghost" style={{ flex: 1, padding: 11, fontSize: 13 }}>Cancel</button>
-              <button onClick={() => { setPostModal(false); setNewPost(""); showToast("Post published"); }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Publish post</button>
+              <button onClick={() => { track("share_update_click", "Crew Board"); window.location.href = `mailto:asanchez@buildbridgefl.com?subject=BuildBridge Post Submission&body=${encodeURIComponent(newPost)}`; setPostModal(false); setNewPost(""); showToast("Thanks! We'll get this live on your profile shortly."); }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Publish post</button>
             </div>
           </div>
         </div>

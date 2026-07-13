@@ -33,6 +33,10 @@ const PROJECTS = [
 const JOBS = [
 ];
 
+const SUPPLIERS = [
+  { id: 1, name: "Nature Coast Fence Supply", category: "Fencing Materials", location: "Weeki Wachee, FL", website: "https://naturecoastfencesupply.com", phone: "", bio: "Wholesale vinyl, chain link, and aluminum fence materials. Over 90% manufactured in the USA — vinyl fence profiles extruded right in Hernando County. Family-owned since 2018." },
+];
+
 // ── Matching engine (expanded plain-language keyword map) ────────────────────
 const TRADE_KEYWORDS = {
   "Roofing": ["roof", "shingle", "metal roof", "leak", "leaking", "storm", "flat roof", "gutter", "soffit", "fascia", "hurricane", "hail", "tarp", "re-roof", "reroof", "drip edge", "attic"],
@@ -146,6 +150,7 @@ function Icon({ name, size = 18, color = "currentColor", style }) {
     clipboard: <><rect {...P} x="5" y="4" width="14" height="17" rx="2" /><path {...P} d="M9 4V2.5h6V4M9 10h6M9 14h6M9 18h4" /></>,
     users: <><circle {...P} cx="9" cy="8" r="3.2" /><path {...P} d="M2.5 20c.6-3.4 3.3-5.5 6.5-5.5S14.9 16.6 15.5 20M16 5.2a3.2 3.2 0 0 1 0 5.9M18 14.8c2 .8 3.2 2.6 3.5 5.2" /></>,
     hammer: <path {...P} d="m14 6 3.5-3.5c1.5 0 4 2.5 4 4L18 10m-4-4-9.5 9.5a2.1 2.1 0 0 0 3 3L17 9m-3-3 4 4" />,
+    truck: <><path {...P} d="M2 8h11v8H2z" /><path {...P} d="M13 11h4l3 3v2h-2" /><circle {...P} cx="6.5" cy="18" r="1.8" /><circle {...P} cx="16.5" cy="18" r="1.8" /></>,
     sparkles: <path {...P} d="M12 3v0l1.8 4.6L18.5 9.5l-4.7 1.9L12 16l-1.8-4.6L5.5 9.5l4.7-1.9L12 3ZM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15ZM5 14l.7 1.8L7.5 16.5l-1.8.7L5 19l-.7-1.8L2.5 16.5l1.8-.7L5 14Z" />,
     heart: <path {...P} d="M12 20.5C7 16.5 3 13.3 3 9.2 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.7 0 4.1-4 7.3-9 11.3Z" />,
     comment: <path {...P} d="M21 12a8 8 0 0 1-8 8H4l2.2-3.1A8 8 0 1 1 21 12Z" />,
@@ -500,6 +505,7 @@ export default function BuildBridgeSocial() {
     { id: "jobs", icon: "hammer", label: "Find Work" },
     { id: "match", icon: "sparkles", label: "AI Match" },
     { id: "permits", icon: "clipboard", label: "Permits" },
+    { id: "suppliers", icon: "truck", label: "Suppliers" }, 
   ];
 
   const NavButtons = ({ vertical = false }) =>
@@ -806,7 +812,7 @@ export default function BuildBridgeSocial() {
 
               <button onClick={() => (track("permit_request_click", "BuildBridge LLC"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Permit Prep Request")} className="btn-primary" style={{ width: "100%", padding: 14, fontSize: 14 }}>Request Permit Help</button>
             </>
-          ) : null}
+          ) : view === "suppliers" ? (             <>               <SectionHead eyebrow="Vendors & Suppliers" title="Material Suppliers" sub="Local suppliers Citrus County contractors trust. Order or reach out directly." />                {SUPPLIERS.map(s => (                 <div key={s.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>                   <div className="eyebrow" style={{ marginBottom: 6, color: C.orange }}>{s.category}</div>                   <div style={{ fontSize: 18, fontWeight: 800, color: C.white, marginBottom: 6 }}>{s.name}</div>                   <div style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>{s.location}</div>                   <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6, marginTop: 0, marginBottom: 14 }}>{s.bio}</p>                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>                     <a href={`${s.website}?utm_source=buildbridge&utm_medium=supplier_catalog`} target="_blank" rel="noopener" onClick={() => track("supplier_click", s.name)} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>Shop Now</a>                     {s.phone && <a href={`tel:${s.phone}`} onClick={() => track("supplier_call_click", s.name)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>Call {s.phone}</a>}                   </div>                 </div>               ))}             </>           ) : null}
           </div>
         </main>
 

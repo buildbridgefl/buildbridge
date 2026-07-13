@@ -820,11 +820,10 @@ export default function BuildBridgeSocial() {
         <aside className="side-col">
           <div className="scroll-col">
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
-              <div className="eyebrow" style={{ marginBottom: 12 }}>Trending in Citrus County</div>
+              <div className="eyebrow" style={{ marginBottom: 12 }}>Popular Topics</div>
               {["#MetalRoofing", "#KitchenRemodel", "#NewConstruction", "#StormRepair", "#OutdoorLiving"].map((tag, i) => (
                 <div key={tag} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: i < 4 ? `1px dashed ${C.line}` : "none" }}>
                   <span style={{ fontSize: 13, color: C.blue, cursor: "pointer", fontWeight: 600 }}>{tag}</span>
-                  <span style={{ fontSize: 11, color: C.muted }}>{[312, 198, 156, 134, 89][i]} posts</span>
                 </div>
               ))}
             </div>

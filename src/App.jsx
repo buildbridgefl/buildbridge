@@ -499,13 +499,13 @@ export default function BuildBridgeSocial() {
   };
 
   const navItems = [
-    { id: "feed", icon: "home", label: "Feed" },
-    { id: "projects", icon: "clipboard", label: "Projects" },
-    { id: "network", icon: "users", label: "Network" },
-    { id: "jobs", icon: "hammer", label: "Find Work" },
-    { id: "match", icon: "sparkles", label: "AI Match" },
-    { id: "permits", icon: "clipboard", label: "Permits" },
-    { id: "suppliers", icon: "truck", label: "Suppliers" }, 
+  { id: "feed", icon: "home", label: "Feed" },
+{ id: "match", icon: "sparkles", label: "AI Match" },
+{ id: "jobs", icon: "hammer", label: "Find Work" },
+{ id: "projects", icon: "clipboard", label: "Projects" },
+{ id: "network", icon: "users", label: "Network" },
+{ id: "permits", icon: "clipboard", label: "Permits" },
+{ id: "suppliers", icon: "truck", label: "Suppliers" },  
   ];
 
   const NavButtons = ({ vertical = false }) =>

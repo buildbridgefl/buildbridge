@@ -18,7 +18,7 @@ const CONTRACTORS = [
 ];
 
 const FEED_POSTS = [
-  { id: 6, contractorId: 6, type: "video", time: "Just now", title: "Welcome to BuildBridge FL — Citrus County's Construction Network", description: "BuildBridge is live and open for business in Citrus County. If you're a contractor, vendor, or homeowner — this is your platform. Free to join, built by someone with 25+ years in the trades. Let's build something great together.", likes: 0, comments: 0, saves: 0, tags: ["CitrusCounty", "BuildBridge", "Welcome"], isVideo: true },
+  { id: 6, contractorId: 6, type: "text", time: "Just now", title: "Welcome to BuildBridge FL — Citrus County's Construction Network", description: "BuildBridge is live and open for business in Citrus County. If you're a contractor, vendor, or homeowner — this is your platform. Free to join, built by someone with 25+ years in the trades. Let's build something great together.", likes: 0, comments: 0, saves: 0, tags: ["CitrusCounty", "BuildBridge", "Welcome"], isVideo: false },
 ];
 
 const REVIEWS = [

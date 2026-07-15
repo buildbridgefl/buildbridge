@@ -26,9 +26,9 @@ const REVIEWS = [
 ];
 
 const PROJECTS = [
-  { id: 1, owner: "Linda F.", type: "Bathroom Remodel", budget: "$15K–$25K", location: "Homosassa Springs, FL", posted: "1h ago", description: "Master bath gut renovation — new tile, vanity, walk-in shower, fixtures. About 85 sq ft.", bids: 3, urgent: false },
-  { id: 2, owner: "Ray M.", type: "Roof Replacement", budget: "$8K–$15K", location: "Crystal River, FL", posted: "4h ago", description: "Shingle roof, approx 2,200 sq ft. Some decking damage from recent storm. Need assessment first.", bids: 7, urgent: true },
-  { id: 3, owner: "Dev Group LLC", type: "Commercial Buildout", budget: "$150K+", location: "Inverness, FL", posted: "2d ago", description: "4,500 sq ft medical office buildout. Full GC needed. Plans available. Start date August 1.", bids: 2, urgent: false },
+  { id: 1, owner: "Linda F.", type: "Bathroom Remodel (Sample)", budget: "$15K–$25K", location: "Homosassa Springs, FL", posted: "1h ago", description: "Master bath gut renovation — new tile, vanity, walk-in shower, fixtures. About 85 sq ft.", bids: 3, urgent: false },
+  { id: 2, owner: "Ray M.", type: "Roof Replacement (Sample)", budget: "$8K–$15K", location: "Crystal River, FL", posted: "4h ago", description: "Shingle roof, approx 2,200 sq ft. Some decking damage from recent storm. Need assessment first.", bids: 7, urgent: true },
+  { id: 3, owner: "Dev Group LLC", type: "Commercial Buildout (Sample)", budget: "$150K+", location: "Inverness, FL", posted: "2d ago", description: "4,500 sq ft medical office buildout. Full GC needed. Plans available. Start date August 1.", bids: 2, urgent: false },
 ];
 
 const JOBS = [

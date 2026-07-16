@@ -455,8 +455,8 @@ export default function BuildBridgeSocial() {
 
   const filteredNetwork = useMemo(() => {
     const q = networkQuery.trim().toLowerCase();
-    if (!q) return CONTRACTORS;
-    return CONTRACTORS.filter(c => [c.name, c.company, c.trade, c.location, ...c.specialties].join(" ").toLowerCase().includes(q));
+    if (!q) return CONTRACTORS.filter(c => !c.hidden);
+    return CONTRACTORS.filter(c => !c.hidden && [c.name, c.company, c.trade, c.location, ...c.specialties].join(" ").toLowerCase().includes(q));
   }, [networkQuery]);
 
   const keywordFallback = () => {
@@ -855,7 +855,7 @@ export default function BuildBridgeSocial() {
             {/* Suggested */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>
               <div className="eyebrow" style={{ marginBottom: 12 }}>People to follow</div>
-              {CONTRACTORS.slice(0, 3).map((c, i) => (
+              {CONTRACTORS.filter(c => !c.hidden).slice(0, 3).map((c, i) => (
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < 2 ? `1px dashed ${C.line}` : "none" }}>
                   <Avatar initials={c.avatar} size={36} premium={c.premium} />
                   <div style={{ flex: 1, minWidth: 0 }}>

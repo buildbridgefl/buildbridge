@@ -553,7 +553,7 @@ export default function BuildBridgeSocial() {
           <button onClick={() => setPostModal(true)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6 }}>
             <Icon name="plus" size={14} color="#14100A" /><span className="hide-mobile">Post</span>
           </button>
-          <Avatar initials="AS" size={34} />
+          <Avatar initials="BB" size={34} />
         </div>
       </header>
 

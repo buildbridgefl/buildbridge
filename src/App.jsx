@@ -614,7 +614,7 @@ export default function BuildBridgeSocial() {
                       <div style={{ padding: 2, borderRadius: "50%", background: c.premium ? `linear-gradient(135deg, ${C.orange}, ${C.orangeDk})` : C.border }}>
                         <Avatar initials={c.avatar} size={48} />
                       </div>
-                      <span style={{ fontSize: 10.5, color: C.muted, maxWidth: 58, textAlign: "center", lineHeight: 1.2 }}>{c.name.split(" ")[0]}</span>
+                      <span style={{ fontSize: 10.5, color: C.muted, maxWidth: 58, textAlign: "center", lineHeight: 1.2 }}>{c.compnany}</span>
                     </button>
                   ))}
                 </div>

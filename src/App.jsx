@@ -19,7 +19,7 @@ const CONTRACTORS = [
 ];
 
 const FEED_POSTS = [
-  { id: 7, contractorId: 6, type: "text", time: "Just now", title: "Citrus County homeowners: you may no longer need a permit for that project", description: "Florida's new HB 803 law took effect July 1 — projects under $7,500 may now qualify for a permit exemption, meaning less paperwork and faster starts. Exemption doesn't cover electrical, plumbing, structural, mechanical, or gas work, and flood zone properties don't qualify. BuildBridge Permit Prep helps you figure out if you qualify and handles the filing so you don't have to fight the county portal. Contractors: your first filing is free (prep fee waived — county fees always separate). Head to the Permits tab to learn more. #HB803 #CitrusCounty #BuildBridge",likes: 0, comments: 0, saves: 0, tags: ["HB803", "CitrusCounty", "BuildBridge"] },
+  { id: 7, contractorId: 6, type: "text", time: "Just now", title: "Citrus County homeowners: you may no longer need a permit for that project", description: "Florida's new HB 803 law took effect July 1 — projects under $7,500 may now qualify for a permit exemption, meaning less paperwork and faster starts. Exemption doesn't cover electrical, plumbing, structural, mechanical, or gas work, and flood zone properties don't qualify. BuildBridge Permit Prep helps you figure out if you qualify and handles the filing so you don't have to fight the county portal. Contractors: your first filing is free (prep fee waived — county fees always separate). Head to the Permits tab to learn more. #HB803 #CitrusCounty #BuildBridge",likes: 0, comments: 1, saves: 0, commentsList: [{ author: "BuildBridge FL", avatar: "BB", text: "Questions about whether your project qualifies? Drop us a line through the Permits tab — happy to help you figure it out." }],tags: ["HB803", "CitrusCounty", "BuildBridge"] },
   { id: 6, contractorId: 6, type: "text", time: "1w ago", title: "Welcome to BuildBridge FL — Citrus County's Construction Network", description: "BuildBridge is live and open for business in Citrus County. If you're a contractor, vendor, or homeowner — this is your platform. Free to join, built by someone with 25+ years in the trades. Let's build something great together.", likes: 0, comments: 0, saves: 0,tags: ["CitrusCounty", "BuildBridge", "Welcome"] }
 ];
 
@@ -289,11 +289,23 @@ function FeedPost({ post, contractor, onProfile }) {
         </div>
 
         {showComment && (
-          <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+  <div style={{ marginTop: 10 }}>
+    {(post.commentsList || []).map((cm, i) => (
+      <div key={i} style={{ display: "flex", gap: 8, marginBottom: 10, alignItems: "flex-start" }}>
+        <Avatar initials={cm.avatar} size={28} />
+        <div style={{ background: C.panel, borderRadius: 10, padding: "8px 12px", flex: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.white }}>{cm.author}</div>
+          <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.5 }}>{cm.text}</div>
+        </div>
+      </div>
+    ))}
+    <div style={{ display: "flex", gap: 8 }}>
+          
             <input placeholder="Add a comment…" aria-label="Add a comment" style={{ flex: 1, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 12px", color: C.text, fontSize: 13, outline: "none" }} />
             <button className="btn-primary" style={{ padding: "9px 16px", fontSize: 12 }}>Post</button>
           </div>
-        )}
+      </div>
+      )}
       </div>
     </article>
   );

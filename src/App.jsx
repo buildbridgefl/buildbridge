@@ -281,7 +281,7 @@ function FeedPost({ post, contractor, onProfile }) {
             { icon: "heart", label: post.likes + (liked ? 1 : 0), on: liked, action: () => setLiked(v => !v), aria: "Like" },
             { icon: "comment", label: post.comments, on: showComment, action: () => setShowComment(v => !v), aria: "Comment" },
             { icon: "bookmark", label: post.saves + (saved ? 1 : 0), on: saved, action: () => setSaved(v => !v), aria: "Save" },
-            { icon: "share", label: "Share", action: () => {}, aria: "Share" },
+            { icon: "share", label: "Share", action: () => { if (navigator.share) { navigator.share({ title: "BuildBridge FL", url: "https://buildbridgefl.com" }); } else { navigator.clipboard.writeText("https://buildbridgefl.com"); alert("Link copied!"); } }, aria: "Share" },
           ].map(({ icon, label, on, action, aria }) => (
             <button key={aria} onClick={action} aria-label={aria} style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: on ? C.orange : C.muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", padding: "6px 10px", borderRadius: 8 }}>
               <Icon name={icon} size={16} color={on ? C.orange : C.muted} /><span>{label}</span>

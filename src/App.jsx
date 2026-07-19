@@ -857,14 +857,13 @@ export default function BuildBridgeSocial() {
               <button  className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }} onClick={() => (track("supplier_signup_click", "sidebar"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSe6VqOYrwFEJFWzycoT3cZtfU76pXTYIC3RpR04y_EO0RngZQ/viewform", "_blank"))}>Feature Your Deals</button>
             </div>
 
-            {/* Premium CTA */}
-            <div style={{ background: `linear-gradient(135deg, #1C1233, #241A45)`, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
-              <div className="eyebrow" style={{ color: C.purple, marginBottom: 8 }}>Go premium</div>
-              <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Get your HD video commercial</div>
-              <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Featured placement, verified badge, priority matching, and a pro video shoot of your best project.</div>
-              <div className="display" style={{ fontSize: 22, fontWeight: 800, color: C.orange, marginBottom: 12 }}>$149<span style={{ fontSize: 12, color: C.muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>/mo</span></div>
-              <button onClick={() => (track("premium_interest_click", "sidebar"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Premium Interest — Video Commercial")} style={{ width: "100%", background: C.purple, border: "none", borderRadius: 10, padding: 10, color: "#14102A", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>I'm Interested</button>
-            </div>
+            {/* Permit Prep CTA */}
+        <div style={{ background: C.card, border: `1px solid ${C.orange}44`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
+          <div className="eyebrow" style={{ color: C.orange, marginBottom: 8 }}>Permit Prep</div>
+          <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>New: HB 803 permit exemptions</div>
+          <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Projects under $7,500 may no longer need a permit. We check if you qualify and handle the county filing. First filing free.</div>
+          <button className="btn-primary" onClick={() => (track("permit_prep_sidebar_click", "sidebar"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Permit Prep Inquiry")} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>Ask About My Project</button>
+        </div>
 
             {/* Suggested */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>

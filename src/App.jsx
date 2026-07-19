@@ -628,6 +628,14 @@ export default function BuildBridgeSocial() {
           </div>
           <button className="btn-primary" onClick={() => (track("permit_banner_click", "banner"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSefxtPbcIOzoAEZYCuQa8f-HTVmxd1pIQ5WYPtAdxhBcZ1jjg/viewform"))} style={{ padding: "10px 16px", fontSize: 12.5, whiteSpace: "nowrap" }}>Check My Project</button>
         </div>
+               {/* Get Listed banner */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16 }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.white }}>Contractors: get listed free</div>
+            <div style={{ fontSize: 11.5, color: C.dim }}>Verified badge, direct homeowner contact, no fees.</div>
+          </div>
+          <button className="btn-ghost" onClick={() => (track("get_listed_banner_click", "banner"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSe6VqOYrwFEJFWzycoT3cZtfU76pXTYIC3RpR04y_EO0RngZQ/viewform"))} style={{ padding: "9px 14px", fontSize: 12 }}>Get Listed</button>
+        </div>  
 
                 {/* Story bar */}
                 <div style={{ display: "flex", gap: 14, marginBottom: 18, overflowX: "auto", paddingBottom: 4 }}>

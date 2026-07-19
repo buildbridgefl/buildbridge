@@ -657,6 +657,13 @@ export default function BuildBridgeSocial() {
             ) : view === "projects" ? (
               <>
                 <SectionHead eyebrow="Open bids" title="Open projects" sub="Homeowners and developers looking for contractors now" />
+                {PROJECTS.length === 0 && (
+                <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 16, padding: "36px 20px", textAlign: "center", marginBottom: 16 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 6 }}>No open projects yet</div>
+                  <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.6, maxWidth: 420, margin: "0 auto 14px" }}>Homeowners: be the first — post your project free and let verified local contractors come to you.</div>
+                  <button className="btn-primary" onClick={() => (track("post_project_click", "projects"), window.open("FORM_LINK_HERE"))} style={{ padding: "10px 18px", fontSize: 13 }}>Post a Project</button>
+                </div>
+              )} 
                 {PROJECTS.map(proj => (
                   <div key={proj.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, gap: 10, flexWrap: "wrap" }}>

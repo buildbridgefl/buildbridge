@@ -620,6 +620,14 @@ export default function BuildBridgeSocial() {
                     <button onClick={() => goView("network")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Browse the network</button>
                   </div>
                 </div>
+                 {/* Permit Prep banner */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: C.card, border: `1px solid ${C.orange}55`, borderLeft: `4px solid ${C.orange}`, borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 4 }}>Permit Prep is here — HB 803 exemptions</div>
+            <div style={{ fontSize: 12, color: C.dim, lineHeight: 1.5 }}>Projects under $7,500 may not need a permit anymore. We check and file for you. First filing free.</div>
+          </div>
+          <button className="btn-primary" onClick={() => (track("permit_banner_click", "banner"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSefxtPbcIOzoAEZYCuQa8f-HTVmxd1pIQ5WYPtAdxhBcZ1jjg/viewform"))} style={{ padding: "10px 16px", fontSize: 12.5, whiteSpace: "nowrap" }}>Check My Project</button>
+        </div>
 
                 {/* Story bar */}
                 <div style={{ display: "flex", gap: 14, marginBottom: 18, overflowX: "auto", paddingBottom: 4 }}>
@@ -862,7 +870,7 @@ export default function BuildBridgeSocial() {
           <div className="eyebrow" style={{ color: C.orange, marginBottom: 8 }}>Permit Prep</div>
           <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>New: HB 803 permit exemptions</div>
           <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Projects under $7,500 may no longer need a permit. We check if you qualify and handle the county filing. First filing free.</div>
-          <button className="btn-primary" onClick={() => (track("permit_prep_sidebar_click", "sidebar"), window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Permit Prep Inquiry")} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>Ask About My Project</button>
+          <button className="btn-primary" onClick={() => (track("permit_prep_sidebar_click", "sidebar"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSefxtPbcIOzoAEZYCuQa8f-HTVmxd1pIQ5WYPtAdxhBcZ1jjg/viewform"))} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>Ask About My Project</button>
         </div>
 
             {/* Suggested */}

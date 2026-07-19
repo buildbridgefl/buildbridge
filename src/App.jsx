@@ -28,9 +28,7 @@ const REVIEWS = [
 ];
 
 const PROJECTS = [
-  { id: 1, owner: "Linda F.", type: "Bathroom Remodel (Sample)", budget: "$15K–$25K", location: "Homosassa Springs, FL", posted: "1h ago", description: "Master bath gut renovation — new tile, vanity, walk-in shower, fixtures. About 85 sq ft.", bids: 3, urgent: false },
-  { id: 2, owner: "Ray M.", type: "Roof Replacement (Sample)", budget: "$8K–$15K", location: "Crystal River, FL", posted: "4h ago", description: "Shingle roof, approx 2,200 sq ft. Some decking damage from recent storm. Need assessment first.", bids: 7, urgent: true },
-  { id: 3, owner: "Dev Group LLC", type: "Commercial Buildout (Sample)", budget: "$150K+", location: "Inverness, FL", posted: "2d ago", description: "4,500 sq ft medical office buildout. Full GC needed. Plans available. Start date August 1.", bids: 2, urgent: false },
+
 ];
 
 const JOBS = [
@@ -661,7 +659,7 @@ export default function BuildBridgeSocial() {
                 <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 16, padding: "36px 20px", textAlign: "center", marginBottom: 16 }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 6 }}>No open projects yet</div>
                   <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.6, maxWidth: 420, margin: "0 auto 14px" }}>Homeowners: be the first — post your project free and let verified local contractors come to you.</div>
-                  <button className="btn-primary" onClick={() => (track("post_project_click", "projects"), window.open("FORM_LINK_HERE"))} style={{ padding: "10px 18px", fontSize: 13 }}>Post a Project</button>
+                  <button className="btn-primary" onClick={() => (track("post_project_click", "projects"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSfR4-Vo9J6VdoBETpNWKkz1KntfzW-LpqFnKui8k7QNVUzjDw/viewform"))} style={{ padding: "10px 18px", fontSize: 13 }}>Post a Project</button>
                 </div>
               )} 
                 {PROJECTS.map(proj => (

@@ -12,11 +12,11 @@ const CONTRACTORS = [
   
   { id: 6, hidden: true, name: "BuildBridge FL", company: "BuildBridge", trade: "official", location: "Citrus County, FL", phone: "(352) 555-0100", rating: 5.0, jobs: 0, followers: 0, following: 0, verified: false, premium: true, avatar: "BB", bio: "Project Management for residential builds — overseeing your project from inception to completion. Single point of contact for budget planning, architect coordination, permit management, hiring and vetting builders, construction oversight, and move-in closeout.", specialties: ["Budget Planning", "Permit Management", "Construction Oversight"], license: "N/A", reviews: 0, videoTitle: "BuildBridge FL — Citrus County's Construction Network", videoUrl: "https://www.youtube.com/embed/dTcSJL5hhpY", email: "asanchez@buildbridgefl.com"},
   { id: 7, name: "Daryl Walbert", company: "Secure Garage Doors LLC", trade: "Garage Doors", location: "Spring Hill, FL", phone: "(727) 834-0397", rating: 5.0, jobs: 0, followers: 0, following: 0, verified: true, premium: false, avatar: "SG", bio: "Garage door service, repair, and new installations. Florida LLC established 2019, serving Hernando, Pasco, and Citrus County.", specialties: ["Garage Door Repair", "New Installations", "Openers & Springs"], license: null, reviews: 0, videoTitle: null, email: "securegaragedoorsllc@gmail.com" },
-  { id: 8, name: "Allan Zarek", company: "AJZ Plumbing LLC", trade: "Plumbing", location: "Homosassa, FL", phone: "(352) 422-5269", avatar: "AJZ", email: "ajzplum99@gmail.com", website: "https://www.ajzplumbingllc.com", rating: 5.0, jobs: 0, reviews: 0, followers: 0, following: 0, verified: true, premium: false, logo: "/logos/ajz.png", specialties: ["Leak Repair", "Drain Cleaning", "Water Heaters", "Sewer Lines"], license: "CFC1430815", bio: "Owner-operated plumbing with 25 years of experience. Leak repair, drain cleaning, sewer lines, water heaters including tankless, and emergency service. Serving Citrus County. Licensed and insured." },
+  { id: 8, name: "Allan Zarek", company: "AJZ Plumbing LLC", trade: "Plumbing", license: true, location: "Homosassa, FL", phone: "(352) 422-5269", avatar: "AJZ", email: "ajzplum99@gmail.com", website: "https://www.ajzplumbingllc.com", rating: 5.0, jobs: 0, reviews: 0, followers: 0, following: 0, verified: true, premium: false, logo: "/logos/ajz.png", specialties: ["Leak Repair", "Drain Cleaning", "Water Heaters", "Sewer Lines"], license: "CFC1430815", bio: "Owner-operated plumbing with 25 years of experience. Leak repair, drain cleaning, sewer lines, water heaters including tankless, and emergency service. Serving Citrus County. Licensed and insured." },
   { id: 9, name: "Joe Gomes", company: "J&J Hauling Solutions LLC", trade: "Debris Removal & Hauling", location: "Lecanto, FL", phone: "(352) 464-7541", website: "https://jnjhaulingsolutions.com", rating: 5.0, jobs: 0, followers: 0, following: 0, verified: true, premium: false, avatar: "JH", bio: "Hurricane and storm debris cleanup, property clean-outs, and yard waste removal. Residential, commercial, and municipal. Florida LLC established 2025, serving Citrus County. Also reach Jay at (352) 634-3081.", specialties: ["Storm Debris Removal", "Property Clean-Outs", "Yard Waste Hauling"], license: null, reviews: 0, videoTitle: null }, 
   { id: 10, name: "David Carter", company: "5 Star Landscape and Tree Services LLC", trade: "Landscape & Tree Services", location: "Beverly Hills, FL", phone: "(352) 287-1918", rating: 5.0, jobs: 0, followers: 0, following: 0, verified: true, premium: false, avatar: "VC", bio: "Tree cutting, landscaping, pressure washing, yard cleanups, construction site cleanups, and outdoor handyman services. Free estimates. Florida LLC established 2026, serving Citrus County.", specialties: ["Tree Cutting", "Landscaping", "Pressure Washing"], license: null, reviews: 0, videoTitle: null },
-  { id: 11, name: "Vinnie Camenzuli", company: "Taddeo Electrical Contractors, Inc.", trade: "Electrical", location: "Hudson, FL", phone: "(352) 556-5276", avatar: "TE", email: "service@taddeoelectric.com", website: "https://taddeoelectric.com", rating: 5.0, jobs: 0, reviews: 0, followers: 0, following: 0, verified: true, premium: false, license: "EC13007179", specialties: ["Panel Upgrades", "EV Charger Installation", "Home Rewiring", "Generator Transfer Switches"], bio: "Family-owned electrical contractor serving Citrus, Hernando, Pasco, North Hillsborough, and North Pinellas Counties since 2010." },
-  { id: 12, name: "Robert Dennis", company: "A & J Junk Removal LLC", avatar: "A&J", trade: "Junk Removal & Clean-Outs", location: "Belleview, FL", phone: "(352) 530-3519", email: "aandjjunk82@gmail.com", rating: 5.0, jobs: ["Estate Clean-Outs", "House Clean-Outs", "Yard Debris Removal", "Appliance Removal"], specialties: ["Estate Clean-Outs", "House Clean-Outs", "Yard Debris Removal"], bio: "Family-run junk removal and clean-out service. Estate and house clean-outs, yard debris, and appliance removal. Free estimates. Serving Citrus County and Central Florida.", license: null, reviews: 0, videoTitle: null },
+  { id: 11, name: "Vinnie Camenzuli", company: "Taddeo Electrical Contractors, Inc.", trade: "Electrical", license: true, location: "Hudson, FL", phone: "(352) 556-5276", avatar: "TE", email: "service@taddeoelectric.com", website: "https://taddeoelectric.com", rating: 5.0, jobs: 0, reviews: 0, followers: 0, following: 0, verified: true, premium: false, license: "EC13007179", specialties: ["Panel Upgrades", "EV Charger Installation", "Home Rewiring", "Generator Transfer Switches"], bio: "Family-owned electrical contractor serving Citrus, Hernando, Pasco, North Hillsborough, and North Pinellas Counties since 2010." },
+  { id: 12, name: "Robert Dennis", company: "A & J Junk Removal LLC", verified: true, avatar: "A&J", trade: "Junk Removal & Clean-Outs", location: "Belleview, FL", phone: "(352) 530-3519", email: "aandjjunk82@gmail.com", rating: 5.0, jobs: ["Estate Clean-Outs", "House Clean-Outs", "Yard Debris Removal", "Appliance Removal"], specialties: ["Estate Clean-Outs", "House Clean-Outs", "Yard Debris Removal"], bio: "Family-run junk removal and clean-out service. Estate and house clean-outs, yard debris, and appliance removal. Free estimates. Serving Citrus County and Central Florida.", license: null, reviews: 0, videoTitle: null },
 ];
 
 const FEED_POSTS = [
@@ -239,7 +239,7 @@ function FeedPost({ post, contractor, onProfile }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <button onClick={() => onProfile(contractor)} style={{ background: "none", border: "none", fontWeight: 800, fontSize: 14, color: C.white, cursor: "pointer", padding: 0 }}>{contractor.name}</button>
-            {contractor.verified && <Badge text="Licensed" color={C.green} icon="badge" />}
+            {contractor.verified && <Badge text={contractor.license ? "Licensed" : "Verified"} color={contractor.license ? C.green : C.blue} icon="badge" />}
             {contractor.premium && <Badge text="Premium" color={C.orange} icon="star" />}
           </div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{contractor.company} · {contractor.trade} · {post.time}</div>
@@ -611,7 +611,7 @@ export default function BuildBridgeSocial() {
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />
                   <div className="eyebrow" style={{ marginBottom: 6, marginTop: 4 }}>Homeowners start here</div>
                   <div className="display" style={{ fontWeight: 800, fontSize: 21, color: C.white, lineHeight: 1.15, marginBottom: 6 }}>Find the right pro for your project</div>
-                  <div style={{ fontSize: 13, color: C.dim, marginBottom: 14 }}>Describe the job in plain words — our AI matches you with licensed Citrus County contractors.</div>
+                  <div style={{ fontSize: 13, color: C.dim, marginBottom: 14 }}>Describe the job in plain words — our AI matches you with verified Citrus County contractors.</div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <button onClick={() => goView("match")} className="btn-primary" style={{ padding: "10px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 7 }}>
                       <Icon name="sparkles" size={15} color="#14100A" />Match me with a contractor
@@ -690,7 +690,7 @@ export default function BuildBridgeSocial() {
 
             ) : view === "network" ? (
               <>
-                <SectionHead eyebrow="The directory" title="Contractor network" sub="Verified, licensed professionals in Citrus County" />
+                <SectionHead eyebrow="The directory" title="Contractor network" sub="Verified local professionals in Citrus County" />
                 <div style={{ position: "relative", marginBottom: 18 }}>
                   <div style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)" }}><Icon name="search" size={16} color={C.muted} /></div>
                   <input value={networkQuery} onChange={e => setNetworkQuery(e.target.value)} placeholder="Search by trade, name, town, or specialty…" aria-label="Search contractors"
@@ -713,7 +713,7 @@ export default function BuildBridgeSocial() {
                           <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
-                          {c.verified && <Badge text="Licensed" color={C.green} icon="badge" />}
+                          {c.verified && <Badge text={c.license ? "Licensed" : "Verified"} color={c.license ? C.green : C.blue} icon="badge" />}
                           {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}
                         </div>
                       </div>

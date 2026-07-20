@@ -862,10 +862,10 @@ export default function BuildBridgeSocial() {
         <aside className="side-col">
           <div className="scroll-col">
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
-              <div className="eyebrow" style={{ marginBottom: 12 }}>Popular Topics</div>
-              {["#MetalRoofing", "#KitchenRemodel", "#NewConstruction", "#StormRepair", "#OutdoorLiving"].map((tag, i) => (
+              <div className="eyebrow" style={{ marginBottom: 12 }}>Browse by Trade</div>
+              {["#GarageDoors", "#Plumbing", "#Electrical", "#Landscaping", "#JunkRemoval"].map((tag, i) => (
                 <div key={tag} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: i < 4 ? `1px dashed ${C.line}` : "none" }}>
-                  <span style={{ fontSize: 13, color: C.blue, cursor: "pointer", fontWeight: 600 }}>{tag}</span>
+                  <span onClick={() => (track("topic_click", tag), setNetworkQuery(tag.replace("#", "").replace(/([A-Z])/g, " $1").trim()), goView("network"))} style={{ fontSize: 13, color: C.blue, cursor: "pointer", fontWeight: 600 }}>{tag}</span>
                 </div>
               ))}
             </div>

@@ -681,7 +681,7 @@ export default function BuildBridgeSocial() {
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.dim, marginBottom: 10 }}><Icon name="pin" size={14} color={C.muted} />{proj.location}</div>
                     <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.55, marginBottom: 14 }}>{proj.description}</p>
                     <div style={{ display: "flex", gap: 10 }}>
-                      <button onClick={() => { track("project_bid_click", proj.type); window.location.href = "mailto:asanchez@buildbridgefl.com?subject=Bid: " + proj.type; }} className="btn-primary" style={{ flex: 1, padding: 11, fontSize: 13 }}>Submit bid</button>
+                      <button onClick={() => { track("project_bid_click", proj.type); window.open("YOUR_FORM_URL"); }} className="btn-primary" style={{ flex: 1, padding: 11, fontSize: 13 }}>Submit bid</button>
                       <button className="btn-ghost" style={{ padding: "11px 18px", fontSize: 13 }}>Save</button>
                     </div>
                   </div>

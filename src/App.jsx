@@ -635,8 +635,7 @@ export default function BuildBridgeSocial() {
           </div>
           <button className="btn-ghost" onClick={() => (track("get_listed_banner_click", "banner"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSe6VqOYrwFEJFWzycoT3cZtfU76pXTYIC3RpR04y_EO0RngZQ/viewform"))} style={{ padding: "9px 14px", fontSize: 12 }}>Get Listed</button>
         </div>  
-
-                {/* Facebook banner */} <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 16px", marginBottom: 14 }}> <div style={{ flex: 1, minWidth: 220 }}> <div style={{ fontSize: 13, fontWeight: 800, color: C.white }}>BuildBridge FL is on Facebook</div> <div style={{ fontSize: 11.5, color: C.dim }}>Follow for verified vendor spotlights and permit tips.</div> </div> <button className="btn-ghost" onClick={() => (track("facebook_follow_click", "banner"), window.open("https://www.facebook.com/profile.php?id=61591959271748"))} style={{ padding: "9px 14px", fontSize: 12.5 }}>Follow us</button> </div>  {/* Story bar */}
+       
                 <div style={{ display: "flex", gap: 14, marginBottom: 18, overflowX: "auto", paddingBottom: 4 }}>
                   {CONTRACTORS.filter(c => !c.hidden).map(c => (
                     <button key={c.id} onClick={() => openProfile(c)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", flexShrink: 0, background: "none", border: "none", padding: 0 }} aria-label={`View ${c.name}'s profile`}>

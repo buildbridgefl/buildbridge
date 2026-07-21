@@ -24,6 +24,12 @@ async function submitProjectPost(postType, content) {
     return r.ok;
   } catch (e) { return false; }
 }
+async function submitVendorApplication(app) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications`, { method: "POST", headers: sbHeaders, body: JSON.stringify(app) });
+    return r.ok;
+  } catch (e) { return false; }
+}
 function LiveFollowers({ id, fallback = 0 }) {
   const [n, setN] = useState(fallback);
   useEffect(() => {
@@ -502,6 +508,8 @@ export default function BuildBridgeSocial() {
   const [activeProfile, setActiveProfile] = useState(null);
   const [postModal, setPostModal] = useState(false);
   const [postType, setPostType] = useState("Project");
+  const [vendorModal, setVendorModal] = useState(false);
+  const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "" });
   const [newPost, setNewPost] = useState("");
   const [toast, setToast] = useState(null);
   const [networkQuery, setNetworkQuery] = useState("");
@@ -620,6 +628,26 @@ export default function BuildBridgeSocial() {
         </div>
       </header>
 
+     {/* Vendor application modal */}
+{vendorModal && (
+<div role="dialog" aria-modal="true" aria-label="Apply to get listed" style={{ position: "fixed", inset: 0, background: "rgba(4,8,16,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }}>
+<div className="fade-in" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, width: "100%", maxWidth: 480, padding: 24, maxHeight: "90vh", overflowY: "auto" }}>
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+<div className="display" style={{ fontWeight: 800, fontSize: 18, color: C.white }}>Get listed free</div>
+<button onClick={() => setVendorModal(false)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, padding: 4 }}><Icon name="x" size={18} /></button>
+</div>
+<div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>We verify every business on Sunbiz and check licenses with FL DBPR before listing. Free, no fees ever.</div>
+{[["name","Your name *"],["company","Business name *"],["trade","Trade (e.g. Plumbing, Roofing) *"],["phone","Phone *"],["email","Email"],["website","Website"],["license","License # (if your trade requires one)"]].map(([k, label]) => (
+<input key={k} value={vApp[k]} onChange={e => setVApp({ ...vApp, [k]: e.target.value })} placeholder={label} aria-label={label} style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none", marginBottom: 8 }} />
+))}
+<textarea value={vApp.bio} onChange={e => setVApp({ ...vApp, bio: e.target.value })} placeholder="Tell homeowners about your business — services, service area, years in business…" aria-label="About your business" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 80, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
+<div style={{ display: "flex", gap: 10 }}>
+<button onClick={() => setVendorModal(false)} className="btn-ghost" style={{ flex: 1, padding: 11, fontSize: 13 }}>Cancel</button>
+<button onClick={async () => { if (!vApp.name.trim() || !vApp.company.trim() || !vApp.trade.trim() || !vApp.phone.trim()) { showToast("Please fill the required fields (*)"); return; } track("vendor_apply_submit", vApp.company); const ok = await submitVendorApplication(vApp); if (ok) { setVendorModal(false); setVApp({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "" }); showToast("Application sent! We'll verify your business and be in touch."); } else { showToast("Hmm, that didn't send — try again in a minute."); } }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Submit application</button>
+</div>
+</div>
+</div>
+)}
       {/* Mobile bottom nav */}
       <nav className="bottom-nav" aria-label="Primary mobile"><NavButtons vertical /></nav>
 
@@ -683,7 +711,7 @@ export default function BuildBridgeSocial() {
             <div style={{ fontSize: 13, fontWeight: 800, color: C.white }}>Contractors: get listed free</div>
             <div style={{ fontSize: 11.5, color: C.dim }}>Verified badge, direct homeowner contact, no fees.</div>
           </div>
-          <button className="btn-ghost" onClick={() => (track("get_listed_banner_click", "banner"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSe6VqOYrwFEJFWzycoT3cZtfU76pXTYIC3RpR04y_EO0RngZQ/viewform"))} style={{ padding: "9px 14px", fontSize: 12 }}>Get Listed</button>
+          <button className="btn-ghost" onClick={() => (track("get_listed_banner_click", "banner"), setVendorModal(true))} style={{ padding: "9px 14px", fontSize: 12 }}>Get Listed</button>
         </div>  
        
                 <div style={{ display: "flex", gap: 14, marginBottom: 18, overflowX: "auto", paddingBottom: 4 }}>

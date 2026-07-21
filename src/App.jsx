@@ -563,7 +563,7 @@ export default function BuildBridgeSocial() {
         <nav className="top-nav" aria-label="Primary"><NavButtons /></nav>
 
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button onClick={() => (track("facebook_follow_click", "header"), window.open("https://www.facebook.com/profile.php?id=61591959271748"))} className="btn-ghost" aria-label="BuildBridge FL on Facebook" style={{ padding: "8px 12px", fontSize: 13, fontWeight: 800 }}>f</button> <button onClick={() => setPostModal(true)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => (track("facebook_follow_click", "header"), window.open("https://www.facebook.com/profile.php?id=61591959271748"))} className="btn-ghost" aria-label="BuildBridge FL on Facebook" style={{ padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.blue }}>Follow us on Facebook</button> <button onClick={() => setPostModal(true)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6 }}>
             <Icon name="plus" size={14} color="#14100A" /><span className="hide-mobile">Post</span>
           </button>
           <Avatar initials="BB" size={34} />

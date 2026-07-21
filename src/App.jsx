@@ -939,7 +939,7 @@ export default function BuildBridgeSocial() {
                     <div style={{ fontSize: 13, fontWeight: 700, color: C.white }}>{c.name}</div>
                     <div style={{ fontSize: 11, color: C.muted }}>{c.trade}</div>
                   </div>
-                  <button onClick={() => { track("follow_click", c.company); showToast("Thanks for the interest — full accounts coming soon"); }} style={{ background: "transparent", border: `1px solid ${C.orange}`, borderRadius: 6, padding: "4px 10px", color: C.orange, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>+ Follow</button>
+                  <FollowButton contractor={c} onToast={showToast} />
                 </div>
               ))}
             </div>

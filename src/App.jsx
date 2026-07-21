@@ -18,6 +18,12 @@ async function addFollow(vendorId) {
     return await r.json();
   } catch (e) { return null; }
 }
+async function submitProjectPost(postType, content) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/project_posts`, { method: "POST", headers: sbHeaders, body: JSON.stringify({ post_type: postType, content: content }) });
+    return r.ok;
+  } catch (e) { return false; }
+}
 function LiveFollowers({ id, fallback = 0 }) {
   const [n, setN] = useState(fallback);
   useEffect(() => {
@@ -495,6 +501,7 @@ export default function BuildBridgeSocial() {
   const [view, setView] = useState("feed");
   const [activeProfile, setActiveProfile] = useState(null);
   const [postModal, setPostModal] = useState(false);
+  const [postType, setPostType] = useState("Project");
   const [newPost, setNewPost] = useState("");
   const [toast, setToast] = useState(null);
   const [networkQuery, setNetworkQuery] = useState("");
@@ -626,7 +633,7 @@ export default function BuildBridgeSocial() {
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
               {["Project", "Video", "Hiring", "Seeking work"].map(t => (
-                <button key={t} className="btn-ghost" style={{ padding: "6px 12px", fontSize: 11.5 }}>{t}</button>
+                <button key={t} onClick={() => setPostType(t)} className="btn-ghost" style={{ padding: "6px 12px", fontSize: 11.5, border: postType === t ? `1px solid ${C.orange}` : undefined, color: postType === t ? C.orange : undefined }}>{t}</button>
               ))}
             </div>
             <textarea value={newPost} onChange={e => setNewPost(e.target.value)} aria-label="Post content"
@@ -634,7 +641,7 @@ export default function BuildBridgeSocial() {
               style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setPostModal(false)} className="btn-ghost" style={{ flex: 1, padding: 11, fontSize: 13 }}>Cancel</button>
-              <button onClick={() => { track("share_update_click", "Crew Board"); window.location.href = `mailto:asanchez@buildbridgefl.com?subject=BuildBridge Post Submission&body=${encodeURIComponent(newPost)}`; setPostModal(false); setNewPost(""); showToast("Thanks! We'll get this live on your profile shortly."); }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Publish post</button>
+              <button onClick={async () => { if (!newPost.trim()) { showToast("Type something first!"); return; } track("share_update_click", "Crew Board"); const ok = await submitProjectPost(postType, newPost); setPostModal(false); setNewPost(""); showToast(ok ? "Sent! We review posts before they go live — yours is in the queue." : "Hmm, that didn't send — try again in a minute."); }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Publish post</button>
             </div>
           </div>
         </div>

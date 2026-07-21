@@ -1,5 +1,47 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 const track = (action, vendor) => { if (window.gtag) window.gtag("event", action, { vendor: vendor }); };
+const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicHd4ZmFhemV0ZmNid3hybXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1OTU5NjcsImV4cCI6MjEwMDE3MTk2N30.5Ptc17G4dJ5iXiaWDupto0gTHhS2ltyLgDLaDBFKppM";
+const sbHeaders = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
+async function fetchFollows() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_follows?select=vendor_id,followers`, { headers: sbHeaders });
+    const rows = await r.json();
+    const map = {};
+    rows.forEach(row => { map[row.vendor_id] = row.followers; });
+    return map;
+  } catch (e) { return {}; }
+}
+async function addFollow(vendorId) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/increment_follow`, { method: "POST", headers: sbHeaders, body: JSON.stringify({ vid: vendorId }) });
+    return await r.json();
+  } catch (e) { return null; }
+}
+function LiveFollowers({ id, fallback = 0 }) {
+  const [n, setN] = useState(fallback);
+  useEffect(() => {
+    let live = true;
+    const load = () => fetchFollows().then(m => { if (live && m[id] != null) setN(m[id]); });
+    load();
+    window.addEventListener("follows-updated", load);
+    return () => { live = false; window.removeEventListener("follows-updated", load); };
+  }, [id]);
+  return n;
+}
+function FollowButton({ contractor, onToast }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }} onClick={async () => {
+      if (done) return;
+      setDone(true);
+      track("follow_click", contractor.company);
+      await addFollow(contractor.id);
+      window.dispatchEvent(new Event("follows-updated"));
+      onToast && onToast("You're now following " + contractor.company);
+    }}>{done ? "Following ✓" : "+ Follow"}</button>
+  );
+}
 
 /* ════════════════════════════════════════════════════════════════════════════
    BuildBridge — Citrus County's Construction Network
@@ -343,12 +385,12 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
             <Icon name="phone" size={15} color="#14100A" /> Call {contractor.phone}
           </a>
           <button onClick={() => setTab("contact")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Message</button>
-          <button onClick={() => { track("follow_click", contractor.company); onToast("Thanks for the interest — full accounts coming soon"); }} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>+ Follow</button>
+          <FollowButton contractor={contractor} onToast={onToast} />
           {contractor.website && <a href={`${contractor.website}?utm_source=buildbridge&utm_medium=profile`} target="_blank" rel="noopener" onClick={() => track("website_click", contractor.company)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>Website</a>} 
         </div>
 
         <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
-          {[["Rating", contractor.rating.toFixed(1)], ["Jobs done", contractor.jobs], ["Followers", contractor.followers], ["Reviews", contractor.reviews]].map(([label, val]) => (
+          {[["Rating", contractor.rating.toFixed(1)], ["Jobs done", contractor.jobs], ["Followers", <LiveFollowers id={contractor.id} fallback={contractor.followers} />], ["Reviews", contractor.reviews]].map(([label, val]) => (
             <div key={label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
               <div className="display" style={{ fontWeight: 800, fontSize: 20, color: C.orange }}>{val}</div>
               <div style={{ fontSize: 10.5, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>{label}</div>

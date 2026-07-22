@@ -18,9 +18,9 @@ async function addFollow(vendorId) {
     return await r.json();
   } catch (e) { return null; }
 }
-async function submitProjectPost(postType, content) {
+async function submitProjectPost(postType, content, contact) {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/project_posts`, { method: "POST", headers: sbHeaders, body: JSON.stringify({ post_type: postType, content: content }) });
+    const r = await fetch(`${SB_URL}/rest/v1/project_posts`, { method: "POST", headers: sbHeaders, body: JSON.stringify({ post_type: postType, content: content, contact: contact || null }) });
     return r.ok;
   } catch (e) { return false; }
 }
@@ -544,7 +544,7 @@ export default function BuildBridgeSocial() {
   const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
   const [dbPosts, setDbPosts] = useState([]);
   useEffect(() => { fetchApprovedPosts().then(setDbPosts); }, []);
-  const [newPost, setNewPost] = useState("");
+  const [newPost, setNewPost] = useState("");   const [newContact, setNewContact] = useState("");
   const [toast, setToast] = useState(null);
   const [networkQuery, setNetworkQuery] = useState("");
   const [matchInput, setMatchInput] = useState("");
@@ -698,12 +698,12 @@ export default function BuildBridgeSocial() {
                 <button key={t} onClick={() => setPostType(t)} className="btn-ghost" style={{ padding: "6px 12px", fontSize: 11.5, border: postType === t ? `1px solid ${C.orange}` : undefined, color: postType === t ? C.orange : undefined }}>{t}</button>
               ))}
             </div>
-            <textarea value={newPost} onChange={e => setNewPost(e.target.value)} aria-label="Post content"
+            <input value={newContact} onChange={e => setNewContact(e.target.value)} placeholder="Your phone or email (optional — leave blank and BuildBridge connects leads for you)" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none", marginBottom: 10 }} />                 <textarea value={newPost} onChange={e => setNewPost(e.target.value)} aria-label="Post content"
               placeholder="Describe your project, share a before & after, post a job opening…"
               style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12, color: C.text, fontSize: 13, resize: "vertical", minHeight: 120, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setPostModal(false)} className="btn-ghost" style={{ flex: 1, padding: 11, fontSize: 13 }}>Cancel</button>
-              <button onClick={async () => { if (!newPost.trim()) { showToast("Type something first!"); return; } track("share_update_click", "Crew Board"); const ok = await submitProjectPost(postType, newPost); setPostModal(false); setNewPost(""); showToast(ok ? "Sent! We review posts before they go live — yours is in the queue." : "Hmm, that didn't send — try again in a minute."); }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Publish post</button>
+              <button onClick={async () => { if (!newPost.trim()) { showToast("Type something first!"); return; } track("share_update_click", "Crew Board"); const ok = await submitProjectPost(postType, newPost, newContact); setPostModal(false); setNewPost(""); showToast(ok ? "Sent! We review posts before they go live — yours is in the queue." : "Hmm, that didn't send — try again in a minute."); }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Publish post</button>
             </div>
           </div>
         </div>

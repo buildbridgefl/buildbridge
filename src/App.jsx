@@ -830,7 +830,7 @@ export default function BuildBridgeSocial() {
                         <a href={`tel:${c.phone?.replace(/\D/g, "")}`} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
                           <Icon name="phone" size={13} />Call
                         </a>
-                        <button onClick={() => { track("follow_click", c.company); showToast("Thanks for the interest — full accounts coming soon"); }} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>+ Follow</button>
+                        <FollowButton contractor={c} onToast={showToast} />
                       </div>
                     </div>
                   </div>
@@ -840,7 +840,13 @@ export default function BuildBridgeSocial() {
             ) : view === "jobs" ? (
               <>
                 <SectionHead eyebrow="Crew board" title="Find work" sub="Jobs posted by contractors looking for crews and specialty trades" />
-                {JOBS.map((job, i) => (
+              {JOBS.length === 0 && (
+<div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 16, padding: "36px 20px", textAlign: "center", marginBottom: 16 }}>
+<div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 6 }}>No crew jobs posted yet</div>
+<div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.6, maxWidth: 420, margin: "0 auto 14px" }}>Contractors: hiring a crew or need a specialty sub? Post it here free and reach every verified pro in Citrus County.</div>
+<button className="btn-primary" onClick={() => (track("post_job_click", "findwork"), setPostModal(true), setPostType("Hiring"))} style={{ padding: "9px 20px", fontSize: 13 }}>Post a job — free</button>
+</div>
+)}  {JOBS.map((job, i) => (
                   <div key={i} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 10, flexWrap: "wrap" }}>
                       <div>

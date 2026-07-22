@@ -728,7 +728,7 @@ export default function BuildBridgeSocial() {
                     <button onClick={() => goView("match")} className="btn-primary" style={{ padding: "10px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 7 }}>
                       <Icon name="sparkles" size={15} color="#14100A" />Match me with a contractor
                     </button>
-                    <button onClick={() => goView("network")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Browse the network</button>
+                    <button onClick={() => goView("network")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Browse the network</button>               <div style={{ fontSize: 11.5, color: C.dim, marginTop: 12 }}>No paid ads. No pay-to-play. Nobody buys their way onto this site. Every contractor here passed a license and registration check first — that's the only way in.</div>
                   </div>
                 </div>
                  {/* Permit Prep banner */}

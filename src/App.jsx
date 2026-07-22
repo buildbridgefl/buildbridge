@@ -30,6 +30,29 @@ async function submitVendorApplication(app) {
     return r.ok;
   } catch (e) { return false; }
 }
+async function fetchApprovedVendors() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*&approved=eq.true`, { headers: sbHeaders });
+    const rows = await r.json();
+    return rows.map(v => ({
+      id: 1000 + v.id,
+      name: v.name,
+      company: v.company,
+      trade: v.trade || "General",
+      location: "Citrus County, FL",
+      phone: v.phone || "",
+      email: v.email || "",
+      website: v.website || "",
+      avatar: (v.company || "??").split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase(),
+      rating: 5.0, jobs: 0, followers: 0, following: 0,
+      verified: true, premium: false,
+      license: v.license || null,
+      reviews: 0, videoTitle: null,
+      specialties: [],
+      bio: v.bio || ""
+    }));
+  } catch (e) { return []; }
+}
 function LiveFollowers({ id, fallback = 0 }) {
   const [n, setN] = useState(fallback);
   useEffect(() => {
@@ -104,18 +127,18 @@ const TRADE_KEYWORDS = {
   "Project Management": ["manage", "budget", "permit", "oversee", "coordinate", "project manager", "inception", "closeout", "architect", "new home", "custom home", "ground up", "vet", "hire a builder", "general oversight"],
 };
 
-function scoreContractors(input) {
+function scoreContractors(input, list) {
   const text = input.toLowerCase();
-  return CONTRACTORS
+  return list
     .map(c => {
-      const keys = TRADE_KEYWORDS[c.trade] || [];
+      const keys = Object.entries(TRADE_KEYWORDS).filter(([trade]) => c.trade.toLowerCase().includes(trade.toLowerCase()) || trade.toLowerCase().includes(c.trade.toLowerCase().split(" ")[0])).flatMap(([, words]) => words).concat(c.trade.toLowerCase().split(/[^a-z]+/).filter(w => w.length > 3));
       const reasons = keys.filter(k => text.includes(k));
-      const tradeHit = text.includes(c.trade.toLowerCase()) ? 2 : 0;
+      const tradeHit = c.trade.toLowerCase().split(/[^a-z]+/).some(w => w.length > 3 && text.includes(w)) ? 2 : 0;
       const specialtyHits = c.specialties.filter(s => text.includes(s.toLowerCase())).length;
       const score = reasons.length * 2 + tradeHit + specialtyHits * 1.5 + c.rating * 0.4 + (c.verified ? 0.3 : 0);
       return { ...c, score, reasons: [...new Set(reasons)] };
     })
-    .filter(c => c.reasons.length > 0 || text.includes(c.trade.toLowerCase()))
+    .filter(c => c.reasons.length > 0 || c.trade.toLowerCase().split(/[^a-z]+/).some(w => w.length > 3 && text.includes(w)))
     .sort((a, b) => b.score - a.score);
 }
 
@@ -510,6 +533,9 @@ export default function BuildBridgeSocial() {
   const [postType, setPostType] = useState("Project");
   const [vendorModal, setVendorModal] = useState(false);
   const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "" });
+  const [dbVendors, setDbVendors] = useState([]);
+  useEffect(() => { fetchApprovedVendors().then(setDbVendors); }, []);
+  const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
   const [newPost, setNewPost] = useState("");
   const [toast, setToast] = useState(null);
   const [networkQuery, setNetworkQuery] = useState("");
@@ -526,13 +552,13 @@ export default function BuildBridgeSocial() {
 
   const filteredNetwork = useMemo(() => {
     const q = networkQuery.trim().toLowerCase();
-    if (!q) return CONTRACTORS.filter(c => !c.hidden);
-    return CONTRACTORS.filter(c => !c.hidden && [c.name, c.company, c.trade, c.location, ...c.specialties].join(" ").toLowerCase().includes(q));
-  }, [networkQuery]);
+    if (!q) return ALL.filter(c => !c.hidden);
+    return ALL.filter(c => !c.hidden && [c.name, c.company, c.trade, c.location, ...c.specialties].join(" ").toLowerCase().includes(q));
+  }, [networkQuery, ALL]);
 
   const keywordFallback = () => {
-    const scored = scoreContractors(matchInput);
-    setMatchResults(scored.length > 0 ? scored : [...CONTRACTORS].sort((a, b) => b.rating - a.rating));
+    const scored = scoreContractors(matchInput, ALL);
+    setMatchResults(scored.length > 0 ? scored : [...ALL].sort((a, b) => b.rating - a.rating));
     setMatchSummary("");
   };
 
@@ -549,14 +575,14 @@ export default function BuildBridgeSocial() {
           description: matchInput,
           budget: matchBudget,
           timeline: matchTimeline,
-          contractors: CONTRACTORS.map(({ id, name, company, trade, specialties, location, rating, jobs, verified }) => ({ id, name, company, trade, specialties, location, rating, jobs, verified })),
+          contractors: ALL.map(({ id, name, company, trade, specialties, location, rating, jobs, verified }) => ({ id, name, company, trade, specialties, location, rating, jobs, verified })),
         }),
       });
       if (!r.ok) throw new Error("api");
       const data = await r.json();
       const matched = (data.matches || [])
         .map(m => {
-          const c = CONTRACTORS.find(x => x.id === m.id);
+          const c = ALL.find(x => x.id === m.id);
           return c ? { ...c, reasons: m.reason ? [m.reason] : [] } : null;
         })
         .filter(Boolean);
@@ -715,7 +741,7 @@ export default function BuildBridgeSocial() {
         </div>  
        
                 <div style={{ display: "flex", gap: 14, marginBottom: 18, overflowX: "auto", paddingBottom: 4 }}>
-                  {CONTRACTORS.filter(c => !c.hidden).map(c => (
+                  {ALL.filter(c => !c.hidden).map(c => (
                     <button key={c.id} onClick={() => openProfile(c)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", flexShrink: 0, background: "none", border: "none", padding: 0 }} aria-label={`View ${c.name}'s profile`}>
                       <div style={{ padding: 2, borderRadius: "50%", background: c.premium ? `linear-gradient(135deg, ${C.orange}, ${C.orangeDk})` : C.border }}>
                         <Avatar initials={c.avatar} size={48} />
@@ -726,7 +752,7 @@ export default function BuildBridgeSocial() {
                 </div>
 
                 {FEED_POSTS.map(post => (
-                  <FeedPost key={post.id} post={post} contractor={CONTRACTORS.find(c => c.id === post.contractorId)} onProfile={openProfile} />
+                  <FeedPost key={post.id} post={post} contractor={ALL.find(c => c.id === post.contractorId)} onProfile={openProfile} />
                 ))}
               </>
 
@@ -967,7 +993,7 @@ export default function BuildBridgeSocial() {
             {/* Suggested */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>
               <div className="eyebrow" style={{ marginBottom: 12 }}>People to follow</div>
-              {CONTRACTORS.filter(c => !c.hidden).slice(0, 3).map((c, i) => (
+              {ALL.filter(c => !c.hidden).slice(0, 3).map((c, i) => (
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < 2 ? `1px dashed ${C.line}` : "none" }}>
                   <Avatar initials={c.avatar} size={36} premium={c.premium} />
                   <div style={{ flex: 1, minWidth: 0 }}>

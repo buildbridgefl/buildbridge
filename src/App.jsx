@@ -854,6 +854,7 @@ export default function BuildBridgeSocial() {
 <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.6, maxWidth: 420, margin: "0 auto 14px" }}>Contractors: hiring a crew or need a specialty sub? Post it here free and reach every verified pro in Citrus County.</div>
 <button className="btn-primary" onClick={() => (track("post_job_click", "findwork"), setPostModal(true), setPostType("Hiring"))} style={{ padding: "9px 20px", fontSize: 13 }}>Post a job — free</button>
 </div>
+ )}               
 {dbPosts.filter(p => p.post_type === "Hiring" || p.post_type === "Seeking work").map(p => (
 <div key={p.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
@@ -863,7 +864,7 @@ export default function BuildBridgeSocial() {
 <p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55 }}>{p.content}</p>
 <div style={{ fontSize: 11.5, color: C.dim, marginTop: 8 }}>Interested? Contact BuildBridge to be connected.</div>
 </div>
-))})}  {JOBS.map((job, i) => (
+))}  {JOBS.map((job, i) => (
                   <div key={i} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 10, flexWrap: "wrap" }}>
                       <div>

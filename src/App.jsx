@@ -53,6 +53,12 @@ async function fetchApprovedVendors() {
     }));
   } catch (e) { return []; }
 }
+async function fetchApprovedPosts() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/project_posts?select=*&approved=eq.true&order=created_at.desc`, { headers: sbHeaders });
+    return await r.json();
+  } catch (e) { return []; }
+}
 function LiveFollowers({ id, fallback = 0 }) {
   const [n, setN] = useState(fallback);
   useEffect(() => {
@@ -536,6 +542,8 @@ export default function BuildBridgeSocial() {
   const [dbVendors, setDbVendors] = useState([]);
   useEffect(() => { fetchApprovedVendors().then(setDbVendors); }, []);
   const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
+  const [dbPosts, setDbPosts] = useState([]);
+  useEffect(() => { fetchApprovedPosts().then(setDbPosts); }, []);
   const [newPost, setNewPost] = useState("");
   const [toast, setToast] = useState(null);
   const [networkQuery, setNetworkQuery] = useState("");
@@ -840,13 +848,22 @@ export default function BuildBridgeSocial() {
             ) : view === "jobs" ? (
               <>
                 <SectionHead eyebrow="Crew board" title="Find work" sub="Jobs posted by contractors looking for crews and specialty trades" />
-              {JOBS.length === 0 && (
+              {JOBS.length === 0 && dbPosts.filter(p => p.post_type === "Hiring" || p.post_type === "Seeking work").length === 0 && (
 <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 16, padding: "36px 20px", textAlign: "center", marginBottom: 16 }}>
 <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 6 }}>No crew jobs posted yet</div>
 <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.6, maxWidth: 420, margin: "0 auto 14px" }}>Contractors: hiring a crew or need a specialty sub? Post it here free and reach every verified pro in Citrus County.</div>
 <button className="btn-primary" onClick={() => (track("post_job_click", "findwork"), setPostModal(true), setPostType("Hiring"))} style={{ padding: "9px 20px", fontSize: 13 }}>Post a job — free</button>
 </div>
-)}  {JOBS.map((job, i) => (
+{dbPosts.filter(p => p.post_type === "Hiring" || p.post_type === "Seeking work").map(p => (
+<div key={p.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
+<div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+<Badge text={p.post_type} color={p.post_type === "Hiring" ? C.blue : C.green} />
+<span style={{ fontSize: 11, color: C.muted }}>{new Date(p.created_at).toLocaleDateString()}</span>
+</div>
+<p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55 }}>{p.content}</p>
+<div style={{ fontSize: 11.5, color: C.dim, marginTop: 8 }}>Interested? Contact BuildBridge to be connected.</div>
+</div>
+))})}  {JOBS.map((job, i) => (
                   <div key={i} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8, gap: 10, flexWrap: "wrap" }}>
                       <div>

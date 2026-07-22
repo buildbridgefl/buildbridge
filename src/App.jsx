@@ -862,7 +862,7 @@ export default function BuildBridgeSocial() {
 <span style={{ fontSize: 11, color: C.muted }}>{new Date(p.created_at).toLocaleDateString()}</span>
 </div>
 <p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55 }}>{p.content}</p>
-<div style={{ fontSize: 11.5, color: C.dim, marginTop: 8 }}>Interested? Contact BuildBridge to be connected.</div>
+{!p.contact && {p.contact && <div style={{ fontSize: 11.5, color: C.blue, marginTop: 8 }}>Contact: {p.contact}</div>} {!p.contact && <div style={{ fontSize: 11.5, color: C.dim, marginTop: 8 }}>Interested? Contact BuildBridge to be connected.</div>}}
 </div>
 ))}  {JOBS.map((job, i) => (
                   <div key={i} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>

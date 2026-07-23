@@ -456,7 +456,7 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
 
         {contractor.videoTitle && (
           <div style={{ background: `linear-gradient(135deg, #1C1233, #241A45)`, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
-            <div className="eyebrow" style={{ color: C.purple, marginBottom: 10 }}>Premium feature — video commercial</div>
+            <div className="eyebrow" style={{ color: C.purple, marginBottom: 10 }}>Featured video</div>
             {contractor.videoUrl ? (
               <>
                 <VideoEmbed url={contractor.videoUrl} title={contractor.videoTitle} />

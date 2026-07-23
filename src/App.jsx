@@ -538,6 +538,18 @@ export default function BuildBridgeSocial() {
   const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "" });
   const [dbVendors, setDbVendors] = useState([]);
 useEffect(() => {
+ async function fetchVendorVideos() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_videos?select=*&order=sort_order.asc`, { headers: sbHeaders });
+    const rows = await r.json();
+    const map = {};
+    rows.forEach(row => {
+      if (!map[row.vendor_id]) map[row.vendor_id] = [];
+      map[row.vendor_id].push({ url: row.video_url, title: row.video_title });
+    });
+    return map;
+  } catch (e) { return {}; }
+}
   Promise.all([fetchApprovedVendors(), fetchVendorVideos()]).then(([vendors, videoMap]) => {
     setDbVendors(vendors.map(v => ({ ...v, videos: videoMap[v.id - 1000] || [] })));
   });

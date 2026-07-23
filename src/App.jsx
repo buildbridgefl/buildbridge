@@ -454,28 +454,25 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
           </div>
         </div>
 
-        {contractor.videoTitle && (
-          <div style={{ background: `linear-gradient(135deg, #1C1233, #241A45)`, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
-            <div className="eyebrow" style={{ color: C.purple, marginBottom: 10 }}>Featured video</div>
-            {contractor.videoUrl ? (
-              <>
-                <VideoEmbed url={contractor.videoUrl} title={contractor.videoTitle} />
-                <div style={{ fontWeight: 800, fontSize: 14, color: C.white, marginTop: 10 }}>{contractor.videoTitle}</div>
-                <div style={{ fontSize: 12, color: C.purple, marginTop: 3 }}>HD project walkthrough · Featured on BuildBridge</div>
-              </>
-            ) : (
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${C.purple}22`, border: `2px solid ${C.purple}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Icon name="play" size={20} color={C.purple} />
-                </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: 14, color: C.white }}>{contractor.videoTitle}</div>
-                  <div style={{ fontSize: 12, color: C.purple, marginTop: 3 }}>Video coming soon</div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+      {(() => {
+  const vids = contractor.videos && contractor.videos.length
+    ? contractor.videos
+    : (contractor.videoUrl ? [{ url: contractor.videoUrl, title: contractor.videoTitle }] : []);
+  return vids.length > 0 && (
+    <div style={{ background: `linear-gradient(135deg, #1C1233, #241A45)`, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
+      <div className="eyebrow" style={{ color: C.purple, marginBottom: 10 }}>Featured video{vids.length > 1 ? "s" : ""}</div>
+      {vids.map((v, i) => (
+        <div key={i} style={{ marginBottom: i < vids.length - 1 ? 20 : 0 }}>
+          <VideoEmbed url={v.url} title={v.title} />
+          <div style={{ fontWeight: 800, fontSize: 14, color: C.white, marginTop: 10 }}>{v.title}</div>
+          <div style={{ fontSize: 12, color: C.purple, marginTop: 3 }}>Featured on BuildBridge</div>
+        </div>
+      ))}
+    </div>
+  );
+})()}
+        
+        
 
         <div role="tablist" style={{ display: "flex", gap: 4, marginBottom: 16, background: C.panel, borderRadius: 10, padding: 4, border: `1px solid ${C.border}` }}>
           {["portfolio", "reviews", "contact"].map(t => (
@@ -540,7 +537,12 @@ export default function BuildBridgeSocial() {
   const [vendorModal, setVendorModal] = useState(false);
   const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "" });
   const [dbVendors, setDbVendors] = useState([]);
-  useEffect(() => { fetchApprovedVendors().then(setDbVendors); }, []);
+useEffect(() => {
+  Promise.all([fetchApprovedVendors(), fetchVendorVideos()]).then(([vendors, videoMap]) => {
+    setDbVendors(vendors.map(v => ({ ...v, videos: videoMap[v.id - 1000] || [] })));
+  });
+}, []);
+  
   const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
   const [dbPosts, setDbPosts] = useState([]);
   useEffect(() => { fetchApprovedPosts().then(setDbPosts); }, []);

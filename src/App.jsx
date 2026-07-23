@@ -1044,8 +1044,11 @@ useEffect(() => {
               ))}
             </div>
           </div>
-        </aside>
+          </aside>
+        </div>
+        <footer style={{ padding: "24px 18px", textAlign: "center", fontSize: 11.5, color: C.dim, lineHeight: 1.6, borderTop: `1px solid ${C.border}`, marginTop: 24 }}>
+          BuildBridge verifies each contractor's license and business registration before listing them. The contract and the work are between you and the contractor — BuildBridge isn't the contractor and doesn't oversee, manage, or guarantee the job.
+        </footer>
       </div>
-    </div>
-  );
-}
+    );
+  }

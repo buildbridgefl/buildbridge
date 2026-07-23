@@ -47,7 +47,7 @@ async function fetchApprovedVendors() {
       rating: 5.0, jobs: 0, followers: 0, following: 0,
       verified: true, premium: false,
       license: v.license || null,
-      reviews: 0, videoTitle: null,
+      reviews: 0, videoTitle: v.video_title || null, videoUrl: v.video_url || null,
       specialties: [],
       bio: v.bio || ""
     }));

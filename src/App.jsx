@@ -806,7 +806,7 @@ useEffect(() => {
                     <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.55, marginBottom: 14 }}>{proj.description}</p>
                     <div style={{ display: "flex", gap: 10 }}>
                       <button onClick={() => { track("project_bid_click", proj.type); window.open("https://docs.google.com/forms/d/e/1FAIpQLSfRcogqKEVIOTeroLkFBV_GhpIAKw9_6P-ZcgQe7lHdXp9ZrA/viewform"); }} className="btn-primary" style={{ flex: 1, padding: 11, fontSize: 13 }}>Submit bid</button>
-                      <button className="btn-ghost" style={{ padding: "11px 18px", fontSize: 13 }}>Save</button>
+                      <button className="btn-ghost" onClick={() => showToast("Saved projects — coming soon!")} style={{ padding: "11px 18px", fontSize: 13 }}>Save</button>
                     </div>
                   </div>
                 ))}

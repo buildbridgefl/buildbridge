@@ -796,12 +796,12 @@ useEffect(() => {
 
             ) : view === "projects" ? (
               <>
-                <SectionHead eyebrow="Open bids" title="Open projects" sub="Homeowners and developers looking for contractors now" />
+                <SectionHead eyebrow="Open bids" title="Open projects" sub="Homeowners and developers looking for contractors now" />                 <button className="btn-primary" onClick={() => (track("post_project_click", "projects"), setPostType("Project"), setPostModal(true))} style={{ padding: "10px 18px", fontSize: 13, marginBottom: 16 }}>Post a Project — free</button>
                 {PROJECTS.length === 0 && dbPosts.filter(p => p.post_type === "Project").length === 0 && (
                 <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 16, padding: "36px 20px", textAlign: "center", marginBottom: 16 }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 6 }}>No open projects yet</div>
                   <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.6, maxWidth: 420, margin: "0 auto 14px" }}>Homeowners: be the first — post your project free and let verified local contractors come to you.</div>
-                  <button className="btn-primary" onClick={() => (track("post_project_click", "projects"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSfR4-Vo9J6VdoBETpNWKkz1KntfzW-LpqFnKui8k7QNVUzjDw/viewform"))} style={{ padding: "10px 18px", fontSize: 13 }}>Post a Project</button>
+                  <button className="btn-primary" onClick={() => (track("post_project_click", "projects"), setPostType("Project"), setPostModal(true))} style={{ padding: "10px 18px", fontSize: 13 }}>Post a Project</button>
                 </div>
               )} 
                 {dbPosts.filter(p => p.post_type === "Project").map(p => (                 <div key={p.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>                 <Badge text={p.post_type} color={C.orange} />                 <span style={{ fontSize: 11, color: C.muted }}>{new Date(p.created_at).toLocaleDateString()}</span>                 </div>                 <p style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55 }}>{p.content}</p>                 {p.contact && <div style={{ fontSize: 11.5, color: C.blue, marginTop: 8 }}>Contact: {p.contact}</div>}                 {!p.contact && <div style={{ fontSize: 11.5, color: C.dim, marginTop: 8 }}>Open to quotes — contact BuildBridge to be connected.</div>}                 </div>                 ))}                 {PROJECTS.map(proj => (

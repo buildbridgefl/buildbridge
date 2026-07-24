@@ -566,8 +566,9 @@ useEffect(() => {
 }
  Promise.all([fetchApprovedVendors(), fetchVendorVideos()]).then(([vendors, videoMap]) => {
       setDbVendors(vendors.map(v => ({ ...v, videos: videoMap[v.id - 1000] || [] })));
-    }, []);
-    useEffect(() => { fetchApprovedSuppliers().then(setDbSuppliers); }, []);
+    });
+  }, []);
+  useEffect(() => { fetchApprovedSuppliers().then(setDbSuppliers); }, []);
 
     const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
     const ALL_SUPPLIERS = useMemo(() => [...SUPPLIERS, ...dbSuppliers], [dbSuppliers]);

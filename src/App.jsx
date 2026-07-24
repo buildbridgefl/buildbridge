@@ -1034,7 +1034,7 @@ useEffect(() => {
               <div className="eyebrow" style={{ marginBottom: 8, marginTop: 4 }}>Vendors & suppliers</div>
               <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Put your business in front of every contractor in the county</div>
               <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>List your shop, post deals, and reach the crews buying materials every week. Free to join.</div>
-              <button  className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }} onClick={() => (track("supplier_signup_click", "sidebar"), (track("supplier_signup_click", "sidebar"), setVApp({ ...vApp, type: "supplier" }), setVendorModal(true))}>Feature Your Deals</button>
+              <button  className="btn-primary" style={{ width: "100%", padding: 10, fontSize: 12.5 }} onClick={() => (track("supplier_signup_click", "sidebar"), setVApp({ ...vApp, type: "supplier" }), setVendorModal(true))}>Feature Your Deals</button>
             </div>
 
             {/* Permit Prep CTA */}

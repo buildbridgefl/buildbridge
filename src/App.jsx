@@ -534,7 +534,7 @@ export default function BuildBridgeSocial() {
   const [postModal, setPostModal] = useState(false);
   const [postType, setPostType] = useState("Project");
   const [vendorModal, setVendorModal] = useState(false);
-  const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "" });
+  const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "", type: "contractor" });
   const [dbVendors, setDbVendors] = useState([]);
 useEffect(() => {
  async function fetchVendorVideos() {
@@ -683,7 +683,7 @@ useEffect(() => {
 <div className="display" style={{ fontWeight: 800, fontSize: 18, color: C.white }}>Get listed free</div>
 <button onClick={() => setVendorModal(false)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, padding: 4 }}><Icon name="x" size={18} /></button>
 </div>
-<div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>We verify every business on Sunbiz and check licenses with FL DBPR before listing. Free, no fees ever.</div>
+<div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>We verify every business on Sunbiz and check licenses with FL DBPR before listing. Free, no fees ever.</div>               <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>                 {["contractor", "supplier"].map(t => (                   <button key={t} onClick={() => setVApp({ ...vApp, type: t })} className="btn-ghost" style={{ padding: "8px 16px", fontSize: 12.5, border: vApp.type === t ? `1px solid ${C.orange}` : undefined, color: vApp.type === t ? C.orange : undefined }}>{t === "contractor" ? "Contractor" : "Supplier / Vendor"}</button>                 ))}               </div>
 {[["name","Your name *"],["company","Business name *"],["trade","Trade (e.g. Plumbing, Roofing) *"],["phone","Phone *"],["email","Email"],["website","Website"],["license","License # (if your trade requires one)"]].map(([k, label]) => (
 <input key={k} value={vApp[k]} onChange={e => setVApp({ ...vApp, [k]: e.target.value })} placeholder={label} aria-label={label} style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none", marginBottom: 8 }} />
 ))}

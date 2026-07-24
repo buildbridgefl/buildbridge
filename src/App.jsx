@@ -32,7 +32,7 @@ async function submitVendorApplication(app) {
 }
 async function fetchApprovedVendors() {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*&approved=eq.true`, { headers: sbHeaders });
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*&approved=eq.true&type=eq.contractor`, { headers: sbHeaders });
     const rows = await r.json();
     return rows.map(v => ({
       id: 1000 + v.id,
@@ -50,10 +50,25 @@ async function fetchApprovedVendors() {
       reviews: 0, videoTitle: v.video_title || null, videoUrl: v.video_url || null,
       specialties: [],
       bio: v.bio || ""
+   }));
+  } catch (e) { return []; }
+}
+async function fetchApprovedSuppliers() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*&approved=eq.true&type=eq.supplier`, { headers: sbHeaders });
+    const rows = await r.json();
+    return rows.map(v => ({
+      id: 2000 + v.id,
+      name: v.company,
+      category: v.trade || "General",
+      location: "Citrus County, FL",
+      website: v.website || "",
+      phone: v.phone || "",
+      bio: v.bio || ""
     }));
   } catch (e) { return []; }
 }
-async function fetchApprovedPosts() {
+async function fetchVendorVideos() {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/project_posts?select=*&approved=eq.true&order=created_at.desc`, { headers: sbHeaders });
     return await r.json();
@@ -535,7 +550,7 @@ export default function BuildBridgeSocial() {
   const [postType, setPostType] = useState("Project");
   const [vendorModal, setVendorModal] = useState(false);
   const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "", type: "contractor" });
-  const [dbVendors, setDbVendors] = useState([]);
+  const [dbVendors, setDbVendors] = useState([]);     const [dbSuppliers, setDbSuppliers] = useState([]);
 useEffect(() => {
  async function fetchVendorVideos() {
   try {
@@ -549,12 +564,13 @@ useEffect(() => {
     return map;
   } catch (e) { return {}; }
 }
-  Promise.all([fetchApprovedVendors(), fetchVendorVideos()]).then(([vendors, videoMap]) => {
-    setDbVendors(vendors.map(v => ({ ...v, videos: videoMap[v.id - 1000] || [] })));
-  });
-}, []);
-  
-  const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
+ Promise.all([fetchApprovedVendors(), fetchVendorVideos()]).then(([vendors, videoMap]) => {
+      setDbVendors(vendors.map(v => ({ ...v, videos: videoMap[v.id - 1000] || [] })));
+    }, []);
+    useEffect(() => { fetchApprovedSuppliers().then(setDbSuppliers); }, []);
+
+    const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
+    const ALL_SUPPLIERS = useMemo(() => [...SUPPLIERS, ...dbSuppliers], [dbSuppliers]);
   const [dbPosts, setDbPosts] = useState([]);
   useEffect(() => { fetchApprovedPosts().then(setDbPosts); }, []);
   const [newPost, setNewPost] = useState("");   const [newContact, setNewContact] = useState("");

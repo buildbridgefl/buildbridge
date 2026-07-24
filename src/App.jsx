@@ -68,7 +68,7 @@ async function fetchApprovedSuppliers() {
     }));
   } catch (e) { return []; }
 }
-async function fetchVendorVideos() {
+async function fetchApprovedPosts() {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/project_posts?select=*&approved=eq.true&order=created_at.desc`, { headers: sbHeaders });
     return await r.json();

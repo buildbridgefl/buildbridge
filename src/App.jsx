@@ -989,7 +989,7 @@ useEffect(() => {
                             )}
                             <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                               <button onClick={() => openProfile(c)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
-                              <button onClick={() => showToast(`Message sent to ${c.name}`)} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>Message</button>
+                              <button onClick={() => c.email ? (window.location.href = `mailto:${c.email}?subject=BuildBridge Inquiry`) : showToast(`Call ${c.name} to connect`)} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>Message</button>
                             </div>
                           </div>
                         </div>
@@ -1000,7 +1000,7 @@ useEffect(() => {
               </>
             ) : view === "permits" ? (
             <>
-              <SectionHead eyebrow="BuildBridge LLC Services" title="Permit Prep & Processing" sub="Citrus County permit paperwork — handled. Your license, your permit, our legwork." />
+              <SectionHead eyebrow="BuildBridge Services" title="Permit Prep & Processing" sub="Citrus County permit paperwork — handled. Your license, your permit, our legwork." />
 
               <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
                 <div className="eyebrow" style={{ marginBottom: 10, color: C.orange }}>Heard about the new $7,500 no-permit rule?</div>

@@ -609,7 +609,7 @@ useEffect(() => {
   }, [networkQuery, ALL]);
 
   const keywordFallback = () => {
-    const scored = scoreContractors(matchInput, ALL);
+    const scored = scoreContractors(matchInput, ALL.filter(c => !c.hidden));
     setMatchResults(scored.length > 0 ? scored : [...ALL].sort((a, b) => b.rating - a.rating));
     setMatchSummary("");
   };
@@ -627,7 +627,7 @@ useEffect(() => {
           description: matchInput,
           budget: matchBudget,
           timeline: matchTimeline,
-          contractors: ALL.map(({ id, name, company, trade, specialties, location, rating, jobs, verified }) => ({ id, name, company, trade, specialties, location, rating, jobs, verified })),
+          contractors: ALL.filter(c => !c.hidden).map(({ id, name, company, trade, specialties, location, rating, jobs, verified }) => ({ id, name, company, trade, specialties, location, rating, jobs, verified })),
         }),
       });
       if (!r.ok) throw new Error("api");

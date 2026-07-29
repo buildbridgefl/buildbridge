@@ -610,7 +610,7 @@ useEffect(() => {
 
   const keywordFallback = () => {
     const scored = scoreContractors(matchInput, ALL.filter(c => !c.hidden));
-    setMatchResults(scored.length > 0 ? scored : [...ALL].sort((a, b) => b.rating - a.rating));
+    setMatchResults(scored.length > 0 ? scored : ALL.filter(c => !c.hidden).sort((a, b) => b.rating - a.rating));
     setMatchSummary("");
   };
 
@@ -634,7 +634,7 @@ useEffect(() => {
       const data = await r.json();
       const matched = (data.matches || [])
         .map(m => {
-          const c = ALL.find(x => x.id === m.id);
+          const c = ALL.find(x => x.id === m.id && !x.hidden);
           return c ? { ...c, reasons: m.reason ? [m.reason] : [] } : null;
         })
         .filter(Boolean);

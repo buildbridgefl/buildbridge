@@ -702,7 +702,6 @@ useEffect(() => {
           <button onClick={() => (track("facebook_follow_click", "header"), window.open("https://www.facebook.com/profile.php?id=61591959271748"))} className="btn-ghost" aria-label="BuildBridge FL on Facebook" style={{ padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.blue }}>Follow</button> <button onClick={() => (track("facebook_group_click", "header"), window.open("https://www.facebook.com/groups/1454402876451068/"))} className="btn-ghost" aria-label="Citrus County Construction Network Facebook group" style={{ padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.orange }}>Join Group</button> <button onClick={() => setPostModal(true)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6 }}>
             <Icon name="plus" size={14} color="#14100A" /><span className="hide-mobile">Post</span>
           </button>
-          <Avatar initials="BB" size={34} />
         </div>
       </header>
 

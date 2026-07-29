@@ -74,6 +74,20 @@ async function fetchApprovedPosts() {
     return await r.json();
   } catch (e) { return []; }
 }
+function daysAgo(dateString) {
+  if (!dateString) return "";
+  const then = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - then;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays < 30) return `${diffDays} days ago`;
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths === 1) return "1 month ago";
+  return `${diffMonths} months ago`;
+}
 function LiveFollowers({ id, fallback = 0 }) {
   const [n, setN] = useState(fallback);
   useEffect(() => {
@@ -812,7 +826,7 @@ useEffect(() => {
                           <span style={{ fontWeight: 800, fontSize: 16, color: C.white }}>{proj.type}</span>
                           {proj.urgent && <Badge text="Urgent" color={C.red} />}
                         </div>
-                        <div style={{ fontSize: 12, color: C.muted }}>Posted by {proj.owner} · {proj.posted}</div>
+                        <div style={{ fontSize: 12, color: C.muted }}>Posted by {proj.owner || "Homeowner"} · {daysAgo(proj.created_at)}</div>
                       </div>
                       <div style={{ textAlign: "right" }}>
                         <div className="display" style={{ fontWeight: 800, fontSize: 17, color: C.orange }}>{proj.budget}</div>

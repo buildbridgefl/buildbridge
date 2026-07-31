@@ -562,7 +562,7 @@ export default function BuildBridgeSocial() {
   const [activeProfile, setActiveProfile] = useState(null);
   const [postModal, setPostModal] = useState(false);
   const [postType, setPostType] = useState("Project");
-  const [vendorModal, setVendorModal] = useState(false);
+  const [vendorModal, setVendorModal] = useState(false);   const [bidModal, setBidModal] = useState(null);   const [bidForm, setBidForm] = useState({ bidder_name: "", phone: "", email: "", bid_amount: "", message: "" });
   const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "", type: "contractor" });
   const [dbVendors, setDbVendors] = useState([]);     const [dbSuppliers, setDbSuppliers] = useState([]);
 useEffect(() => {

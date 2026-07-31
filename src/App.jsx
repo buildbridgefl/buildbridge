@@ -838,12 +838,40 @@ useEffect(() => {
                       <button className="btn-ghost" onClick={() => showToast("Saved projects — coming soon!")} style={{ padding: "11px 18px", fontSize: 13 }}>Save</button>
                     </div>
                   </div>
-                ))}
+                  ))}
+              </>
+
+            ) : view === "trust" ? (
+              <>
+                <SectionHead eyebrow="Verification" title="What is Sunbiz? What is DBPR?" sub="How BuildBridge checks every contractor and supplier before listing them" />
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 8 }}>Sunbiz</div>
+                  <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6 }}>Sunbiz is Florida's official state business registry (sunbiz.org). It confirms a company is a real, legally registered business in good standing — not a fly-by-night operation with no paper trail.</p>
+                </div>
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 8 }}>DBPR</div>
+                  <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6 }}>DBPR stands for the Florida Department of Business & Professional Regulation. It confirms a contractor holds an active, legitimate state license for their trade — plumbing, electrical, HVAC, and others — where the law requires one. Not every trade needs a state license (landscaping and junk removal, for example, don't) — but where one's required, DBPR is how you check it's real.</p>
+                </div>
+                <div style={{ background: C.card, border: `1px solid ${C.orange}44`, borderRadius: 16, padding: 20, marginBottom: 16 }}>
+                  <p style={{ fontSize: 13.5, color: C.white, lineHeight: 1.6, fontWeight: 700 }}>We check both before anyone gets listed on BuildBridge. No fees, no exceptions.</p>
+                </div>
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 10 }}>Don't take our word for it</div>
+                  <p style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.6, marginBottom: 12 }}>Check any business yourself, any time:</p>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <a href="https://sunbiz.org" target="_blank" rel="noopener" className="btn-ghost" style={{ padding: "10px 16px", fontSize: 13, textDecoration: "none" }}>Sunbiz search →</a>
+                    <a href="https://myfloridalicense.com" target="_blank" rel="noopener" className="btn-ghost" style={{ padding: "10px 16px", fontSize: 13, textDecoration: "none" }}>DBPR license search →</a>
+                  </div>
+                </div>
               </>
 
             ) : view === "network" ? (
               <>
                 <SectionHead eyebrow="The directory" title="Contractor network" sub="Verified local professionals in Citrus County" />
+              
+      
+          
+              
                 <div style={{ position: "relative", marginBottom: 18 }}>
                   <div style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)" }}><Icon name="search" size={16} color={C.muted} /></div>
                   <input value={networkQuery} onChange={e => setNetworkQuery(e.target.value)} placeholder="Search by trade, name, town, or specialty…" aria-label="Search contractors"

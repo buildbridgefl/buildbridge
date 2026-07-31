@@ -24,7 +24,7 @@ async function submitProjectPost(postType, content, contact) {
     return r.ok;
   } catch (e) { return false; }
 }
-async function submitVendorApplication(app) {
+async function submitBid(bid) {     try {       const r = await fetch(`${SB_URL}/rest/v1/project_bids`, { method: "POST", headers: sbHeaders, body: JSON.stringify(bid) });       return r.ok;     } catch (e) { return false; }   } async function submitVendorApplication(app) {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/vendor_applications`, { method: "POST", headers: sbHeaders, body: JSON.stringify(app) });
     return r.ok;
@@ -725,7 +725,7 @@ useEffect(() => {
 </div>
 </div>
 )}
-      {/* Mobile bottom nav */}
+      {/* Submit a Bid modal */}       {bidModal && (         <div role="dialog" aria-modal="true" aria-label="Submit a bid" style={{ position: "fixed", inset: 0, background: "rgba(4,8,16,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>           <div className="fade-in" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, width: "100%", maxWidth: 480, padding: 24, maxHeight: "90vh", overflowY: "auto" }}>             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>               <div className="display" style={{ fontWeight: 800, fontSize: 18, color: C.white }}>Submit a bid</div>               <button onClick={() => setBidModal(null)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, padding: 4 }}><Icon name="x" size={18} /></button>             </div>             <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Bidding on: <strong style={{ color: C.white }}>{bidModal.type}</strong> — {bidModal.location}</div>             {[["bidder_name","Your name *"],["phone","Phone *"],["email","Email"],["bid_amount","Your bid amount"]].map(([k, label]) => (               <input key={k} value={bidForm[k]} onChange={e => setBidForm({ ...bidForm, [k]: e.target.value })} placeholder={label} aria-label={label} style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 14px", fontSize: 13.5, color: C.white, marginBottom: 10 }} />             ))}             <textarea value={bidForm.message} onChange={e => setBidForm({ ...bidForm, message: e.target.value })} placeholder="Message — describe your approach, timeline, or questions" aria-label="Message" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 14px", fontSize: 13.5, color: C.white, minHeight: 80, marginBottom: 14, resize: "vertical" }} />             <div style={{ display: "flex", gap: 10 }}>               <button onClick={() => setBidModal(null)} className="btn-ghost" style={{ flex: 1, padding: 11, fontSize: 13 }}>Cancel</button>               <button onClick={async () => { if (!bidForm.bidder_name.trim() || !bidForm.phone.trim()) { showToast("Please fill the required fields (*)"); return; } const ok = await submitBid({ project_id: bidModal.id, ...bidForm }); if (ok) { showToast("Bid submitted — the homeowner will follow up"); setBidModal(null); setBidForm({ bidder_name: "", phone: "", email: "", bid_amount: "", message: "" }); track("bid_submit", bidModal.type); } else { showToast("Something went wrong — try again"); } }} className="btn-primary" style={{ flex: 1, padding: 11, fontSize: 13 }}>Submit bid</button>             </div>           </div>         </div>       )}       {/* Mobile bottom nav */}
       <nav className="bottom-nav" aria-label="Primary mobile"><NavButtons vertical /></nav>
 
       {/* Post modal */}
@@ -835,7 +835,7 @@ useEffect(() => {
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, color: C.dim, marginBottom: 10 }}><Icon name="pin" size={14} color={C.muted} />{proj.location}</div>
                     <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.55, marginBottom: 14 }}>{proj.description}</p>
                     <div style={{ display: "flex", gap: 10 }}>
-                      <button onClick={() => { track("project_bid_click", proj.type); window.open("https://docs.google.com/forms/d/e/1FAIpQLSfRcogqKEVIOTeroLkFBV_GhpIAKw9_6P-ZcgQe7lHdXp9ZrA/viewform"); }} className="btn-primary" style={{ flex: 1, padding: 11, fontSize: 13 }}>Submit bid</button>
+                      <button onClick={() => { track("project_bid_click", proj.type); setBidModal(proj); }} className="btn-primary" style={{ flex: 1, padding: 11, fontSize: 13 }}>Submit bid</button>
                       <button className="btn-ghost" onClick={() => showToast("Saved projects — coming soon!")} style={{ padding: "11px 18px", fontSize: 13 }}>Save</button>
                     </div>
                   </div>

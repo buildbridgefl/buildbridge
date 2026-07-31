@@ -476,7 +476,8 @@ function ContractorProfile({ contractor, reviews, onBack, onToast }) {
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Icon name="pin" size={14} color={C.muted} />{contractor.location}</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
               <Icon name="badge" size={14} color={C.muted} />
-              {contractor.license === "N/A" ? "License: N/A" : <>License <a href={`https://www.myfloridalicense.com/wl11.asp?mode=2&search=LicNbr&SID=&brd=&typ=&lic=${contractor.license}`} target="_blank" rel="noreferrer" style={{ color: C.blue, fontWeight: 700 }}>{contractor.license}</a> · verify at FL DBPR</>}
+             {contractor.license === "N/A" ? "License: N/A" : <>License <a href={`https://www.myfloridalicense.com/wl11.asp?mode=2&search=LicNbr&SID=&brd=&typ=&lic=${contractor.license}`} target="_blank" rel="noreferrer" style={{ color: C.blue, fontWeight: 700 }}>{contractor.license}</a> · <span onClick={() => setView("trust")} style={{ color: C.blue, cursor: "pointer", textDecoration: "underline" }}>verify at FL DBPR</span></>}
+              {" · "}<a href={`https://search.sunbiz.org/Inquiry/CorporationSearch/SearchResults?inquiryType=EntityName&searchTerm=${encodeURIComponent(contractor.company || "")}`} target="_blank" rel="noreferrer" onClick={() => track("sunbiz_verify_click", contractor.company)} style={{ color: C.blue, textDecoration: "underline" }}>Sunbiz record</a>
             </span>
           </div>
         </div>

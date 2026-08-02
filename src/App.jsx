@@ -353,7 +353,7 @@ function FeedPost({ post, contractor, onProfile }) {
             {contractor.verified && <Badge text={contractor.license ? "Licensed" : "Verified"} color={contractor.license ? C.green : C.blue} icon="badge" />}
             {contractor.premium && <Badge text="Premium" color={C.orange} icon="star" />}
           </div>
-          <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{contractor.company} · {contractor.trade} · {post.time}</div>
+          <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{contractor.company} · {contractor.trade}</div>
         </div>
         {post.isJob && <Badge text="Hiring" color={C.blue} />}
         {post.isVideo && <Badge text="Video" color={C.purple} icon="play" />}

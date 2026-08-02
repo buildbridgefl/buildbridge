@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 const track = (action, vendor) => { if (window.gtag) window.gtag("event", action, { vendor: vendor }); };
 const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicHd4ZmFhemV0ZmNid3hybXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1OTU5NjcsImV4cCI6MjEwMDE3MTk2N30.5Ptc17G4dJ5iXiaWDupto0gTHhS2ltyLgDLaDBFKppM";
@@ -423,15 +423,30 @@ function FeedPost({ post, contractor, onProfile }) {
 }
 
 // ── Contractor profile ───────────────────────────────────────────────────────
-function ContractorProfile({ contractor, reviews, onBack, onToast, onTrust }) {
+function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack, onToast, onTrust }) {
   const [tab, setTab] = useState("portfolio");
   const myReviews = reviews.filter(r => r.contractorId === contractor.id);
   const tel = contractor.phone?.replace(/\D/g, "");
+  const idx = roster.findIndex(c => c.id === contractor.id);
+  const canNav = idx >= 0 && roster.length > 1 && !!onSelect;
+  const touchX = useRef(0);
+  const go = step => {
+    if (!canNav) return;
+    setTab("portfolio");
+    onSelect(roster[(idx + step + roster.length) % roster.length]);
+  };
 
   return (
-    <div className="fade-in">
+    <div className="fade-in"
+      onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
+      onTouchEnd={e => { const dx = e.changedTouches[0].clientX - touchX.current; if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1); }}>
       <div style={{ background: `linear-gradient(135deg, ${C.panel}, #16224066)`, height: 116, borderRadius: 16, border: `1px solid ${C.border}`, position: "relative", marginBottom: -30 }}>
-        <button onClick={onBack} className="btn-ghost" style={{ position: "absolute", top: 14, left: 14, padding: "6px 14px", fontSize: 13, background: `${C.bg}CC` }}>← Back</button>
+        <div style={{ position: "absolute", top: 14, left: 14, display: "flex", gap: 8, alignItems: "center" }}>
+          <button onClick={onBack} className="btn-ghost" style={{ padding: "6px 14px", fontSize: 13, background: `${C.bg}CC` }}>← Back</button>
+          {canNav && <button onClick={() => go(-1)} aria-label="Previous contractor" className="btn-ghost" style={{ padding: "6px 12px", fontSize: 15, background: `${C.bg}CC` }}>‹</button>}
+          {canNav && <button onClick={() => go(1)} aria-label="Next contractor" className="btn-ghost" style={{ padding: "6px 12px", fontSize: 15, background: `${C.bg}CC` }}>›</button>}
+          {canNav && <span style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>{idx + 1} of {roster.length}</span>}
+        </div>
         <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 8 }}>
           {contractor.premium && <Badge text="Premium Pro" color={C.orange} icon="star" />}
           {contractor.verified && <Badge text="Verified" color={C.green} icon="badge" />}
@@ -757,7 +772,7 @@ useEffect(() => {
         <main className="main-col">
           <div className="scroll-col">
             {view === "profile" && activeProfile ? (
-              <ContractorProfile contractor={activeProfile} reviews={REVIEWS} onBack={() => goView("feed")} onToast={showToast} onTrust={() => goView("trust")} />
+              <ContractorProfile contractor={activeProfile} reviews={REVIEWS} roster={ALL.filter(c => !c.hidden)} onSelect={openProfile} onBack={() => goView("feed")} onToast={showToast} onTrust={() => goView("trust")} />
 
             ) : view === "feed" ? (
               <>

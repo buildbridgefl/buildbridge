@@ -30,7 +30,7 @@ async function submitBid(bid) {     try {       const r = await fetch(`${SB_URL}
     return r.ok;
   } catch (e) { return false; }
 }
-async function fetchApprovedVendors() {
+async function fetchMyVendorRow(token) {   try {     const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*`, {       headers: { apikey: SB_KEY, Authorization: `Bearer ${token}` }     });     if (!r.ok) return [];     return await r.json();   } catch (e) { return []; } } async function fetchApprovedVendors() {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*&approved=eq.true&type=eq.contractor`, { headers: sbHeaders });
     const rows = await r.json();
@@ -581,7 +581,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
 
 // ── Main app ─────────────────────────────────────────────────────────────────
 export default function BuildBridgeSocial() {
-  const [view, setView] = useState("feed");   const [authUser, setAuthUser] = useState(null);   const [loginModal, setLoginModal] = useState(false);   const [loginEmail, setLoginEmail] = useState("");   useEffect(() => {     const token = readTokenFromUrl() || localStorage.getItem("bb-token");     if (token) getUser(token).then(u => { if (u && u.email) setAuthUser(u); else localStorage.removeItem("bb-token"); });   }, []);
+  const [view, setView] = useState("feed");   const [authUser, setAuthUser] = useState(null);   const [loginModal, setLoginModal] = useState(false);   const [loginEmail, setLoginEmail] = useState("");   const [myRow, setMyRow] = useState(null);   useEffect(() => {     if (!authUser) { setMyRow(null); return; }     const token = localStorage.getItem("bb-token");     if (token) fetchMyVendorRow(token).then(rows => setMyRow(rows));   }, [authUser]);   useEffect(() => {     const token = readTokenFromUrl() || localStorage.getItem("bb-token");     if (token) getUser(token).then(u => { if (u && u.email) setAuthUser(u); else localStorage.removeItem("bb-token"); });   }, []);
   const [activeProfile, setActiveProfile] = useState(null);
   const [postModal, setPostModal] = useState(false);
   const [postType, setPostType] = useState("Project");
@@ -678,7 +678,7 @@ useEffect(() => {
 { id: "projects", icon: "clipboard", label: "Projects" },
 { id: "network", icon: "users", label: "Network" },
 { id: "permits", icon: "clipboard", label: "Permits" },
-{ id: "suppliers", icon: "truck", label: "Suppliers" },  
+{ id: "suppliers", icon: "truck", label: "Suppliers" }, { id: "myprofile", icon: "clipboard", label: "My Profile" },  
   ];
 
   const NavButtons = ({ vertical = false }) =>
@@ -865,7 +865,7 @@ useEffect(() => {
                   ))}
               </>
 
-            ) : view === "trust" ? (
+            ) : view === "myprofile" ? (               <>                 <SectionHead eyebrow="Your listing" title="My profile" sub="Edit your BuildBridge listing" />                 {!authUser ? (                   <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 16, padding: 30, textAlign: "center", fontSize: 13, color: C.dim }}>Sign in to see your listing.</div>                 ) : myRow === null ? (                   <div style={{ fontSize: 13, color: C.dim }}>Loading…</div>                 ) : myRow.length === 0 ? (                   <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 16, padding: 30, textAlign: "center", fontSize: 13, color: C.dim }}>No listing is linked to {authUser.email} yet.</div>                 ) : myRow.map(v => (                   <div key={v.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>                     <div style={{ fontSize: 17, fontWeight: 800, color: C.white, marginBottom: 4 }}>{v.company}</div>                     <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 10 }}>{v.name} · {v.trade}</div>                     <div style={{ fontSize: 13, color: C.dim, lineHeight: 1.6 }}>{v.phone}<br />{v.email}</div>                     <div style={{ fontSize: 11.5, color: C.orange, marginTop: 12 }}>Row id {v.id} — editing coming next session</div>                   </div>                 ))}               </>              ) : view === "trust" ? (
               <>
                 <SectionHead eyebrow="Verification" title="What is Sunbiz? What is DBPR?" sub="How BuildBridge checks every contractor and supplier before listing them" />
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 16 }}>

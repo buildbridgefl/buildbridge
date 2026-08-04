@@ -58,16 +58,16 @@ async function fetchApprovedVendors() {
       name: v.name,
       company: v.company,
       trade: v.trade || "General",
-      location: "Citrus County, FL",
+      location: v.city || "Citrus County, FL",
       phone: v.phone || "",
       email: v.email || "",
       website: v.website || "",
-      avatar: (v.company || "??").split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase(),
+      avatar: v.avatar || (v.company || "??").split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase(),
       rating: 5.0, jobs: 0, followers: 0, following: 0,
       verified: true, premium: false,
       license: v.license || null,
       reviews: 0, videoTitle: v.video_title || null, videoUrl: v.video_url || null,
-      specialties: [],
+      specialties: v.specialties ? v.specialties.split(",").map(s => s.trim()) : [],
       bio: v.bio || ""
    }));
   } catch (e) { return []; }

@@ -708,13 +708,13 @@ useEffect(() => {
       <header style={{ background: `${C.panel}F0`, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.border}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", position: "sticky", top: 0, zIndex: 100 }}>
         <button onClick={() => goView("feed")} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label="BuildBridge home">
           <svg width="150" height="34" viewBox="0 0 900 260" style={{ flexShrink: 0 }}>
-  <text x="450" y="130" fontFamily="Arial, Helvetica, sans-serif" fontSize="86" fontWeight="700" textAnchor="middle" fill="#DCE4F2">Build<tspan fill="#FF8A1E">Bridge</tspan></text>
-  <path d="M 200 175 Q 450 130 700 175" fill="none" stroke="#E06D00" strokeWidth="4" />
-  <circle cx="200" cy="175" r="7" fill="#FF8A1E" />
-  <circle cx="325" cy="152" r="7" fill="#E06D00" />
-  <circle cx="450" cy="142" r="8" fill="#DCE4F2" />
-  <circle cx="575" cy="152" r="7" fill="#E06D00" />
-  <circle cx="700" cy="175" r="7" fill="#FF8A1E" />
+<text x="450" y="130" fontFamily="Arial, Helvetica, sans-serif" fontSize="86" fontWeight="700" textAnchor="middle" fill={C.text}>Build<tspan fill={C.orange}>Bridge</tspan></text>
+  <path d="M 200 175 Q 450 130 700 175" fill="none" stroke={C.orangeDk} strokeWidth="4" />
+  <circle cx="200" cy="175" r="7" fill={C.orange} />
+  <circle cx="325" cy="152" r="7" fill={C.orangeDk} />
+  <circle cx="450" cy="142" r="8" fill={C.text} />
+  <circle cx="575" cy="152" r="7" fill={C.orangeDk} />
+  <circle cx="700" cy="175" r="7" fill={C.orange} />
 </svg>
           <span className="hide-mobile" style={{ fontSize: 10, color: C.orange, background: `${C.orange}18`, padding: "3px 9px", borderRadius: 20, fontWeight: 800, letterSpacing: "0.1em" }}>CITRUS COUNTY</span>
         </button>

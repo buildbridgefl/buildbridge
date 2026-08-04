@@ -510,7 +510,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
     ? contractor.videos
     : (contractor.videoUrl ? [{ url: contractor.videoUrl, title: contractor.videoTitle }] : []);
   return vids.length > 0 && (
-    <div style={{ background: `linear-gradient(135deg, #1C1233, #241A45)`, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
+    <div style={{ background: C.card, border: `1px solid ${C.purple}44`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
       <div className="eyebrow" style={{ color: C.purple, marginBottom: 10 }}>Featured video{vids.length > 1 ? "s" : ""}</div>
       {vids.map((v, i) => (
         <div key={i} style={{ marginBottom: i < vids.length - 1 ? 20 : 0 }}>
@@ -535,7 +535,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
           <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {(contractor.projects || []).map((proj, i) => (
               <div key={proj} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
-                <div style={{ height: 84, background: `linear-gradient(135deg, ${["#173154", "#14361F", "#3A1D1D", "#241A45"][i]}, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ height: 84, background: `linear-gradient(135deg, ${[C.blue, C.green, C.red, C.purple][i]}22, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Icon name={["home", "hammer", "clipboard", "sparkles"][i]} size={30} color={`${C.text}66`} />
                 </div>
                 <div style={{ padding: "10px 12px" }}>

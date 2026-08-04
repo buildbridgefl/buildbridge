@@ -201,7 +201,6 @@ const LIGHT = {
 };
 
 const C = { ...DARK }; 
-};
 
 const makeCss = () => `
   * { box-sizing: border-box; margin: 0; padding: 0; }

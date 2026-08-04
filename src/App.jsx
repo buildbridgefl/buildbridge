@@ -176,7 +176,7 @@ function scoreContractors(input, list) {
 }
 
 // ── Design tokens ────────────────────────────────────────────────────────────
-const C = {
+const DARK = {
   bg: "#0B1220",        // deep blueprint navy
   panel: "#0F1729",
   card: "#141E33",
@@ -190,11 +190,20 @@ const C = {
   purple: "#A78BFA",
   text: "#DCE4F2",
   dim: "#93A3C0",
-  muted: "#5D6E8F",
+ muted: "#5D6E8F",
   white: "#FFFFFF",
 };
 
-const css = `
+const LIGHT = {
+  bg: "#F1F5FA", panel: "#F8FAFD", card: "#FFFFFF", border: "#DDE4EF", line: "#E6ECF4",
+  orange: "#F07800", orangeDk: "#B85400", blue: "#2563EB", green: "#0E8A4C", red: "#D63333",
+  purple: "#7C4DE0", text: "#111A2B", dim: "#4B5B76", muted: "#78889F", white: "#FFFFFF",
+};
+
+const C = { ...DARK }; 
+};
+
+const makeCss = () => `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body, #root { height: 100%; }
   body {
@@ -613,7 +622,7 @@ useEffect(() => {
   const [matchLoading, setMatchLoading] = useState(false);
   const [matchSummary, setMatchSummary] = useState("");
 
-  const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2500); };
+  const [theme, setTheme] = useState(() => localStorage.getItem("bb-theme") || "dark");   useEffect(() => { Object.assign(C, theme === "light" ? LIGHT : DARK); }, [theme]);   const toggleTheme = () => { const next = theme === "light" ? "dark" : "light"; Object.assign(C, next === "light" ? LIGHT : DARK); localStorage.setItem("bb-theme", next); setTheme(next); };   const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2500); };
   const openProfile = c => { setActiveProfile(c); setView("profile"); };
   const goView = id => { setView(id); setActiveProfile(null); };
 
@@ -687,7 +696,7 @@ useEffect(() => {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <style>{css}</style>
+      <style>{makeCss()}</style>
       <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet" />
 
       {toast && (
@@ -714,7 +723,7 @@ useEffect(() => {
         <nav className="top-nav" aria-label="Primary"><NavButtons /></nav>
 
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <button onClick={() => (track("facebook_follow_click", "header"), window.open("https://www.facebook.com/profile.php?id=61591959271748"))} className="btn-ghost" aria-label="BuildBridge FL on Facebook" style={{ padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.blue }}>Follow us on Facebook</button> <button onClick={() => (track("facebook_group_click", "header"), window.open("https://www.facebook.com/groups/1454402876451068/"))} className="btn-ghost" aria-label="Citrus County Construction Network Facebook group" style={{ padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.orange }}>Join Group</button> <button onClick={() => setPostModal(true)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={toggleTheme} className="btn-ghost" aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"} title={theme === "light" ? "Dark mode" : "Light mode"} style={{ padding: "8px 11px", fontSize: 15, lineHeight: 1 }}>{theme === "light" ? "🌙" : "☀️"}</button> <button onClick={() => (track("facebook_follow_click", "header"), window.open("https://www.facebook.com/profile.php?id=61591959271748"))} className="btn-ghost" aria-label="BuildBridge FL on Facebook" style={{ padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.blue }}>Follow us on Facebook</button> <button onClick={() => (track("facebook_group_click", "header"), window.open("https://www.facebook.com/groups/1454402876451068/"))} className="btn-ghost" aria-label="Citrus County Construction Network Facebook group" style={{ padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.orange }}>Join Group</button> <button onClick={() => setPostModal(true)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12.5, display: "flex", alignItems: "center", gap: 6 }}>
             <Icon name="plus" size={14} color="#14100A" /><span className="hide-mobile">Post</span>
           </button>
         </div>

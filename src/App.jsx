@@ -197,7 +197,7 @@ const DARK = {
 const LIGHT = {
   bg: "#F1F5FA", panel: "#F8FAFD", card: "#FFFFFF", border: "#DDE4EF", line: "#E6ECF4",
   orange: "#F07800", orangeDk: "#B85400", blue: "#2563EB", green: "#0E8A4C", red: "#D63333",
-  purple: "#7C4DE0", text: "#111A2B", dim: "#4B5B76", muted: "#78889F", white: "#FFFFFF",
+  purple: "#7C4DE0", text: "#111A2B", dim: "#4B5B76", muted: "#78889F", white: "#0A1220",
 };
 
 const C = { ...DARK }; 
@@ -297,7 +297,7 @@ function Avatar({ initials, size = 40, premium = false }) {
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
       <div style={{ width: size, height: size, borderRadius: "50%", background: `linear-gradient(135deg, ${C.orange}2A, ${C.blue}22)`, border: `2px solid ${premium ? C.orange : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.34, fontWeight: 800, color: C.orange }} className="display">
-       <span style={{ color: "#fff", fontWeight: 800, fontSize: size * 0.34, textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>{initials}</span> 
+       <span style={{ color: C.white, fontWeight: 800, fontSize: size * 0.34 }}>{initials}</span> 
       </div>
       {premium && (
         <div style={{ position: "absolute", bottom: -3, right: -3, width: size * 0.36, height: size * 0.36, minWidth: 14, minHeight: 14, background: C.orange, borderRadius: "50%", border: `2px solid ${C.bg}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -785,7 +785,7 @@ useEffect(() => {
             ) : view === "feed" ? (
               <>
                 {/* Homeowner quick-start */}
-                <div style={{ background: `linear-gradient(120deg, ${C.card}, #1A2645)`, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 18, position: "relative", overflow: "hidden" }}>
+                <div style={{ background: `linear-gradient(120deg, ${C.card}, ${C.panel})`, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 18, position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />
                   <div className="eyebrow" style={{ marginBottom: 6, marginTop: 4 }}>Homeowners start here</div>
                   <div className="display" style={{ fontWeight: 800, fontSize: 21, color: C.white, lineHeight: 1.15, marginBottom: 6 }}>Find the right pro for your project</div>

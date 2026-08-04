@@ -74,7 +74,7 @@ async function fetchApprovedPosts() {
     return await r.json();
   } catch (e) { return []; }
 }
-function daysAgo(dateString) {
+async function sendMagicLink(email) {   try {     const r = await fetch(`${SB_URL}/auth/v1/otp?redirect_to=${encodeURIComponent(window.location.origin)}`, {       method: "POST",       headers: { apikey: SB_KEY, "Content-Type": "application/json" },       body: JSON.stringify({ email: email, create_user: true })     });     return r.ok;   } catch (e) { return false; } } async function getUser(token) {   try {     const r = await fetch(`${SB_URL}/auth/v1/user`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${token}` } });     if (!r.ok) return null;     return await r.json();   } catch (e) { return null; } } function readTokenFromUrl() {   const hash = window.location.hash;   if (!hash.includes("access_token")) return null;   const params = new URLSearchParams(hash.slice(1));   const token = params.get("access_token");   if (token) {     localStorage.setItem("bb-token", token);     window.history.replaceState(null, "", window.location.pathname);   }   return token; } function daysAgo(dateString) {
   if (!dateString) return "";
   const then = new Date(dateString);
   const now = new Date();
@@ -581,7 +581,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
 
 // ── Main app ─────────────────────────────────────────────────────────────────
 export default function BuildBridgeSocial() {
-  const [view, setView] = useState("feed");
+  const [view, setView] = useState("feed");   const [authUser, setAuthUser] = useState(null);   const [loginModal, setLoginModal] = useState(false);   const [loginEmail, setLoginEmail] = useState("");   useEffect(() => {     const token = readTokenFromUrl() || localStorage.getItem("bb-token");     if (token) getUser(token).then(u => { if (u && u.email) setAuthUser(u); else localStorage.removeItem("bb-token"); });   }, []);
   const [activeProfile, setActiveProfile] = useState(null);
   const [postModal, setPostModal] = useState(false);
   const [postType, setPostType] = useState("Project");

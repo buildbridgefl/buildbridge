@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";async function fetchMyVendorRow(token) {
+import { useState, useMemo, useEffect, useRef } from "react";
 const track = (action, vendor) => { if (window.gtag) window.gtag("event", action, { vendor: vendor }); };
 const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicHd4ZmFhemV0ZmNid3hybXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1OTU5NjcsImV4cCI6MjEwMDE3MTk2N30.5Ptc17G4dJ5iXiaWDupto0gTHhS2ltyLgDLaDBFKppM";

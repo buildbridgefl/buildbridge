@@ -30,7 +30,26 @@ async function submitBid(bid) {     try {       const r = await fetch(`${SB_URL}
     return r.ok;
   } catch (e) { return false; }
 }
-async function updateMyVendorRow(token, id, fields) {   try {     const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?id=eq.${id}`, {       method: "PATCH",       headers: { apikey: SB_KEY, Authorization: `Bearer ${token}`, "Content-Type": "application/json", Prefer: "return=minimal" },       body: JSON.stringify(fields)     });     return r.ok;   } catch (e) { return false; } } async function fetchMyVendorRow(token) {   try {     const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*`, {       headers: { apikey: SB_KEY, Authorization: `Bearer ${token}` }     });     if (!r.ok) return [];     return await r.json();   } catch (e) { return []; } } async function fetchApprovedVendors() {
+async function updateMyVendorRow(token, id, fields) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?id=eq.${id}`, {
+      method: "PATCH",
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${token}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify(fields)
+    });
+    return r.ok;
+  } catch (e) { return false; }
+}
+async function fetchMyVendorRow(token) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*`, {
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${token}` }
+    });
+    if (!r.ok) return [];
+    return await r.json();
+  } catch (e) { return []; }
+}
+async function fetchApprovedVendors() {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*&approved=eq.true&type=eq.contractor`, { headers: sbHeaders });
     const rows = await r.json();
@@ -581,7 +600,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
 
 // ── Main app ─────────────────────────────────────────────────────────────────
 export default function BuildBridgeSocial() {
-  const [view, setView] = useState("feed");   const [authUser, setAuthUser] = useState(null);   const [loginModal, setLoginModal] = useState(false);   const [loginEmail, setLoginEmail] = useState("");   const [myRow, setMyRow] = useState(null);   useEffect(() => {     if (!authUser) { setMyRow(null); return; }     const token = localStorage.getItem("bb-token");     if (token) fetchMyVendorRow(token).then(rows => { setMyRow(rows); if (rows[0]) setEditForm({ phone: rows[0].phone || "", email: rows[0].email || "", website: rows[0].website || "", bio: rows[0].bio || "" }); });   }, [authUser]);   useEffect(() => {     const token = readTokenFromUrl() || localStorage.getItem("bb-token");     if (token) getUser(token).then(u => { if (u && u.email) setAuthUser(u); else localStorage.removeItem("bb-token"); });   }, []);
+  const [view, setView] = useState("feed");   const [authUser, setAuthUser] = useState(null);   const [loginModal, setLoginModal] = useState(false);   const [loginEmail, setLoginEmail] = useState("");   const [myRow, setMyRow] = useState(null);   const [editForm, setEditForm] = useState({ phone: "", email: "", website: "", bio: "" });   useEffect(() => {     if (!authUser) { setMyRow(null); return; }     const token = localStorage.getItem("bb-token");     if (token) fetchMyVendorRow(token).then(rows => { setMyRow(rows); if (rows[0]) setEditForm({ phone: rows[0].phone || "", email: rows[0].email || "", website: rows[0].website || "", bio: rows[0].bio || "" }); });   }, [authUser]);   useEffect(() => {     const token = readTokenFromUrl() || localStorage.getItem("bb-token");     if (token) getUser(token).then(u => { if (u && u.email) setAuthUser(u); else localStorage.removeItem("bb-token"); });   }, []);
   const [activeProfile, setActiveProfile] = useState(null);
   const [postModal, setPostModal] = useState(false);
   const [postType, setPostType] = useState("Project");

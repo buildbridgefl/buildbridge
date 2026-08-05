@@ -1157,7 +1157,7 @@ useEffect(() => {
                               <Stars rating={c.rating} />
                             </div>
                             <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>
-                           {c.distanceMiles != null && ( <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: C.blue, marginBottom: 8, fontWeight: 700 }}><Icon name="mapPin" size={13} color={C.blue} />{Math.round(c.distanceMiles)} mi away · {c.location}</div> )}
+                           {c.distanceMiles != null && ( <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: C.blue, marginBottom: 8, fontWeight: 700 }}><Icon name="pin" size={13} color={C.blue} />{Math.round(c.distanceMiles)} mi away · {c.location}</div> )}
                             {c.reasons?.length > 0 && (
                               <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: C.green, marginBottom: 8, fontWeight: 700 }}>
                                 <Icon name="check" size={13} color={C.green} />Matched on: {c.reasons.join(", ")}

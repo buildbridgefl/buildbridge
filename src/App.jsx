@@ -93,6 +93,27 @@ async function fetchApprovedPosts() {
     return await r.json();
   } catch (e) { return []; }
 }
+async function fetchApprovedReviews() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/reviews?select=*&approved=eq.true&order=created_at.desc`, { headers: sbHeaders });
+    const rows = await r.json();
+    return rows.map(v => ({
+      id: v.id,
+      contractorId: v.contractor_id,
+      author: v.author,
+      rating: v.rating,
+      project: v.project || "",
+      text: v.text,
+      date: daysAgo(v.created_at)
+    }));
+  } catch (e) { return []; }
+}
+async function submitReview(review) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/reviews`, { method: "POST", headers: sbHeaders, body: JSON.stringify(review) });
+    return r.ok;
+  } catch (e) { return false; }
+}
 async function sendMagicLink(email) {   try {     const r = await fetch(`${SB_URL}/auth/v1/otp?redirect_to=${encodeURIComponent(window.location.origin)}`, {       method: "POST",       headers: { apikey: SB_KEY, "Content-Type": "application/json" },       body: JSON.stringify({ email: email, create_user: true })     });     return r.ok;   } catch (e) { return false; } } async function getUser(token) {   try {     const r = await fetch(`${SB_URL}/auth/v1/user`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${token}` } });     if (!r.ok) return null;     return await r.json();   } catch (e) { return null; } } function readTokenFromUrl() {   const hash = window.location.hash;   if (!hash.includes("access_token")) return null;   const params = new URLSearchParams(hash.slice(1));   const token = params.get("access_token");   if (token) {     localStorage.setItem("bb-token", token);     window.history.replaceState(null, "", window.location.pathname);   }   return token; } function daysAgo(dateString) {
   if (!dateString) return "";
   const then = new Date(dateString);
@@ -443,6 +464,38 @@ function FeedPost({ post, contractor, onProfile }) {
     </article>
   );
 }
+function ReviewForm({ contractor, onToast }) {
+  const [author, setAuthor] = useState("");
+  const [rating, setRating] = useState(5);
+  const [project, setProject] = useState("");
+  const [text, setText] = useState("");
+  const [sent, setSent] = useState(false);
+  if (sent) return <div style={{ background: C.card, border: `1px solid ${C.green}44`, borderRadius: 12, padding: 20, textAlign: "center", fontSize: 13, color: C.dim }}>Thanks — your review is in the queue. We check every review before it goes live.</div>;
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
+      <div style={{ fontWeight: 800, fontSize: 15, color: C.white, marginBottom: 4 }}>Leave a review</div>
+      <div style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Worked with {contractor.name.split(" ")[0]}? Tell other homeowners how it went.</div>
+      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 12 }}>
+        {[1, 2, 3, 4, 5].map(i => (
+          <button key={i} onClick={() => setRating(i)} aria-label={`${i} star${i > 1 ? "s" : ""}`} style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
+            <Icon name="star" size={24} color={i <= rating ? C.orange : C.border} />
+          </button>
+        ))}
+        <span style={{ fontSize: 12.5, color: C.dim, marginLeft: 6, fontWeight: 700 }}>{rating}.0</span>
+      </div>
+      <input value={author} onChange={e => setAuthor(e.target.value)} placeholder="Your name *" aria-label="Your name" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none", marginBottom: 8 }} />
+      <input value={project} onChange={e => setProject(e.target.value)} placeholder="What was the job? (e.g. Water heater install)" aria-label="Project" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none", marginBottom: 8 }} />
+      <textarea value={text} onChange={e => setText(e.target.value)} placeholder="How did it go? Quality, communication, timeline, price…" aria-label="Your review" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 90, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
+      <button className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 13.5 }} onClick={async () => {
+        if (!author.trim() || !text.trim()) { onToast && onToast("Please add your name and a few words"); return; }
+        track("review_submit", contractor.company);
+        const ok = await submitReview({ contractor_id: contractor.id, author, rating, project, text });
+        if (ok) { setSent(true); } else { onToast && onToast("Hmm, that didn't send — try again in a minute."); }
+      }}>Submit review</button>
+    </div>
+  );
+}
+
 
 // ── Contractor profile ───────────────────────────────────────────────────────
 function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack, onToast, onTrust }) {
@@ -575,12 +628,12 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
               <p style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.6, fontStyle: "italic" }}>"{r.text}"</p>
             </div>
           )) : (
-            <div style={{ textAlign: "center", padding: 40, color: C.muted, fontSize: 13, background: C.card, borderRadius: 12, border: `1px dashed ${C.line}` }}>
+           <div style={{ textAlign: "center", padding: 40, color: C.muted, fontSize: 13, background: C.card, borderRadius: 12, border: `1px dashed ${C.line}`, marginBottom: 14 }}>
               No reviews yet. Hire {contractor.name.split(" ")[0]} and be the first to leave one.
             </div>
           )
         )}
-
+{tab === "reviews" && <ReviewForm contractor={contractor} onToast={onToast} />}
         {tab === "contact" && (
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
             <div style={{ fontWeight: 800, fontSize: 15, color: C.white, marginBottom: 14 }}>Send a message</div>
@@ -624,7 +677,7 @@ useEffect(() => {
     const ALL = useMemo(() => [...CONTRACTORS, ...dbVendors], [dbVendors]);
     const ALL_SUPPLIERS = useMemo(() => [...SUPPLIERS, ...dbSuppliers], [dbSuppliers]);
   const [dbPosts, setDbPosts] = useState([]);
-  useEffect(() => { fetchApprovedPosts().then(setDbPosts); }, []);
+  useEffect(() => { fetchApprovedPosts().then(setDbPosts); }, []);   const [dbReviews, setDbReviews] = useState([]);   useEffect(() => { fetchApprovedReviews().then(setDbReviews); }, []);
   const [newPost, setNewPost] = useState("");   const [newContact, setNewContact] = useState("");
   const [toast, setToast] = useState(null);
   const [networkQuery, setNetworkQuery] = useState("");
@@ -794,7 +847,7 @@ useEffect(() => {
         <main className="main-col">
           <div className="scroll-col">
             {view === "profile" && activeProfile ? (
-              <ContractorProfile contractor={activeProfile} reviews={REVIEWS} roster={ALL.filter(c => !c.hidden)} onSelect={openProfile} onBack={() => goView("feed")} onToast={showToast} onTrust={() => goView("trust")} />
+              <ContractorProfile contractor={activeProfile} reviews={[...REVIEWS, ...dbReviews]} roster={ALL.filter(c => !c.hidden)} onSelect={openProfile} onBack={() => goView("feed")} onToast={showToast} onTrust={() => goView("trust")} />
 
             ) : view === "feed" ? (
               <>

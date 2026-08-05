@@ -30,7 +30,7 @@ async function submitBid(bid) {     try {       const r = await fetch(`${SB_URL}
     return r.ok;
   } catch (e) { return false; }
 }
-async function updateMyVendorRow(token, id, fields) {
+async function submitClaimRequest(claim) {   try {     const r = await fetch(`${SB_URL}/rest/v1/claim_requests`, { method: "POST", headers: sbHeaders, body: JSON.stringify(claim) });     return r.ok;   } catch (e) { return false; } } async function updateMyVendorRow(token, id, fields) {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?id=eq.${id}`, {
       method: "PATCH",
@@ -509,7 +509,7 @@ function ReviewForm({ contractor, onToast }) {
 
 
 // ── Contractor profile ───────────────────────────────────────────────────────
-function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack, onToast, onTrust }) {
+function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack, onToast, onTrust, onClaim }) {
   const [tab, setTab] = useState("portfolio");
   const myReviews = reviews.filter(r => r.contractorId === contractor.id);
   const tel = contractor.phone?.replace(/\D/g, "");
@@ -558,14 +558,24 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
           {contractor.website && <a href={`${contractor.website}?utm_source=buildbridge&utm_medium=profile`} target="_blank" rel="noopener" onClick={() => track("website_click", contractor.company)} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13, textDecoration: "none" }}>Website</a>} 
         </div>
 
+       {contractor.claimed === false && (
+          <div style={{ background: C.card, border: `1px solid ${C.blue}55`, borderLeft: `4px solid ${C.blue}`, borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.white, marginBottom: 4 }}>This listing hasn't been claimed yet</div>
+          <div style={{ fontSize: 12, color: C.dim, lineHeight: 1.55, marginBottom: 12 }}>We built this page from public record — license and business registration verified. {contractor.company} hasn't added their own details yet.</div>
+            {onClaim && <button onClick={() => onClaim(contractor)} className="btn-primary" style={{ padding: "9px 18px", fontSize: 12.5 }}>Is this your business? Claim it</button>}
+          </div>  
+        )}
+
+        {contractor.claimed !== false && (
         <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
           {[["Rating", contractor.rating.toFixed(1)], ["Jobs done", contractor.jobs], ["Followers", <LiveFollowers id={contractor.id} fallback={contractor.followers} />], ["Reviews", contractor.reviews]].map(([label, val]) => (
             <div key={label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
               <div className="display" style={{ fontWeight: 800, fontSize: 20, color: C.orange }}>{val}</div>
               <div style={{ fontSize: 10.5, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>{label}</div>
             </div>
-          ))}
+         ))}
         </div>
+        )}
 
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
           <div className="eyebrow" style={{ marginBottom: 8 }}>About</div>
@@ -664,7 +674,7 @@ export default function BuildBridgeSocial() {
   const [postModal, setPostModal] = useState(false);
   const [postType, setPostType] = useState("Project");
   const [vendorModal, setVendorModal] = useState(false);   const [bidModal, setBidModal] = useState(null);   const [bidForm, setBidForm] = useState({ bidder_name: "", phone: "", email: "", bid_amount: "", message: "" });
-  const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "", type: "contractor" });
+  const [vApp, setVApp] = useState({ name: "", company: "", trade: "", phone: "", email: "", website: "", license: "", bio: "", type: "contractor" });   const [claimTarget, setClaimTarget] = useState(null);   const [claimForm, setClaimForm] = useState({ claimant_name: "", role: "", email: "", phone: "", note: "" });
   const [dbVendors, setDbVendors] = useState([]);     const [dbSuppliers, setDbSuppliers] = useState([]);
 useEffect(() => {
  async function fetchVendorVideos() {
@@ -820,6 +830,27 @@ useEffect(() => {
         </div>
       </header>
 
+   {/* Claim listing modal */}
+{claimTarget && (
+<div role="dialog" aria-modal="true" aria-label="Claim this listing" style={{ position: "fixed", inset: 0, background: "rgba(4,8,16,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }}>
+<div className="fade-in" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, width: "100%", maxWidth: 460, padding: 24, maxHeight: "90vh", overflowY: "auto" }}>
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+<div className="display" style={{ fontWeight: 800, fontSize: 18, color: C.white }}>Claim {claimTarget.company}</div>
+<button onClick={() => setClaimTarget(null)} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: C.muted, padding: 4 }}><Icon name="x" size={18} /></button>
+</div>
+<div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Tell us who you are and we'll confirm you're with the business before handing over the page. Usually same day. Free — claiming costs nothing, ever.</div>
+{[["claimant_name","Your name *"],["role","Your role (owner, manager…) *"],["email","Business email *"],["phone","Phone *"]].map(([k, label]) => (
+<input key={k} value={claimForm[k]} onChange={e => setClaimForm({ ...claimForm, [k]: e.target.value })} placeholder={label} aria-label={label} style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none", marginBottom: 8 }} />
+))}
+<textarea value={claimForm.note} onChange={e => setClaimForm({ ...claimForm, note: e.target.value })} placeholder="Anything that helps us verify — license #, years in business, website…" aria-label="Verification note" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, resize: "vertical", minHeight: 70, fontFamily: "inherit", outline: "none", marginBottom: 12 }} />
+<div style={{ display: "flex", gap: 10 }}>
+<button onClick={() => setClaimTarget(null)} className="btn-ghost" style={{ flex: 1, padding: 11, fontSize: 13 }}>Cancel</button>
+<button onClick={async () => { if (!claimForm.claimant_name.trim() || !claimForm.role.trim() || !claimForm.email.trim() || !claimForm.phone.trim()) { showToast("Please fill the required fields (*)"); return; } track("claim_submit", claimTarget.company); const ok = await submitClaimRequest({ vendor_id: claimTarget.id - 1000, company: claimTarget.company, ...claimForm }); if (ok) { setClaimTarget(null); setClaimForm({ claimant_name: "", role: "", email: "", phone: "", note: "" }); showToast("Claim sent — we'll verify and be in touch shortly."); } else { showToast("Hmm, that didn't send — try again in a minute."); } }} className="btn-primary" style={{ flex: 2, padding: 11, fontSize: 13 }}>Submit claim</button>
+</div>
+</div>
+</div>
+)}
+
      {/* Vendor application modal */}
 {vendorModal && (
 <div role="dialog" aria-modal="true" aria-label="Apply to get listed" style={{ position: "fixed", inset: 0, background: "rgba(4,8,16,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }}>
@@ -872,7 +903,7 @@ useEffect(() => {
         <main className="main-col">
           <div className="scroll-col">
             {view === "profile" && activeProfile ? (
-              <ContractorProfile contractor={activeProfile} reviews={[...REVIEWS, ...dbReviews]} roster={ALL.filter(c => !c.hidden)} onSelect={openProfile} onBack={() => goView("feed")} onToast={showToast} onTrust={() => goView("trust")} />
+              <ContractorProfile contractor={activeProfile} reviews={[...REVIEWS, ...dbReviews]} roster={ALL.filter(c => !c.hidden)} onSelect={openProfile} onBack={() => goView("feed")} onToast={showToast} onTrust={() => goView("trust")} onClaim={c => { track("claim_click", c.company); setClaimTarget(c); }} />
 
             ) : view === "feed" ? (
               <>
@@ -1043,8 +1074,14 @@ useEffect(() => {
                       </div>
                       <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>
                       <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                        <Stars rating={c.rating} />
-                        <span style={{ fontSize: 12, color: C.muted }}>{c.jobs} jobs · {c.followers} followers</span>
+                       {c.claimed === false ? (
+                          <span style={{ fontSize: 11.5, color: C.muted, fontStyle: "italic" }}>Listed from public record — not yet claimed</span>
+                        ) : (
+                          <>
+                            <Stars rating={c.rating} />
+                            <span style={{ fontSize: 12, color: C.muted }}>{c.jobs} jobs · {c.followers} followers</span>
+                          </>
+                        )}
                       </div>
                       <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
                         <button onClick={() => openProfile(c)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>

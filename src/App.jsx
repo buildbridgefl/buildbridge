@@ -114,6 +114,14 @@ async function submitReview(review) {
     return r.ok;
   } catch (e) { return false; }
 }
+function milesBetween(lat1, lng1, lat2, lng2) {
+  if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+  const R = 3958.8;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 async function sendMagicLink(email) {   try {     const r = await fetch(`${SB_URL}/auth/v1/otp?redirect_to=${encodeURIComponent(window.location.origin)}`, {       method: "POST",       headers: { apikey: SB_KEY, "Content-Type": "application/json" },       body: JSON.stringify({ email: email, create_user: true })     });     return r.ok;   } catch (e) { return false; } } async function getUser(token) {   try {     const r = await fetch(`${SB_URL}/auth/v1/user`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${token}` } });     if (!r.ok) return null;     return await r.json();   } catch (e) { return null; } } function readTokenFromUrl() {   const hash = window.location.hash;   if (!hash.includes("access_token")) return null;   const params = new URLSearchParams(hash.slice(1));   const token = params.get("access_token");   if (token) {     localStorage.setItem("bb-token", token);     window.history.replaceState(null, "", window.location.pathname);   }   return token; } function daysAgo(dateString) {
   if (!dateString) return "";
   const then = new Date(dateString);
@@ -195,6 +203,7 @@ const TRADE_KEYWORDS = {
   "Project Management": ["manage", "budget", "permit", "oversee", "coordinate", "project manager", "inception", "closeout", "architect", "new home", "custom home", "ground up", "vet", "hire a builder", "general oversight"],
 };
 
+const TOWNS = [ { name: "Beverly Hills", lat: 28.9169, lng: -82.4576 }, { name: "Citrus Springs", lat: 28.9994, lng: -82.4593 }, { name: "Crystal River", lat: 28.9025, lng: -82.5926 }, { name: "Dunnellon", lat: 29.0489, lng: -82.4593 }, { name: "Floral City", lat: 28.7494, lng: -82.2965 }, { name: "Hernando", lat: 28.9028, lng: -82.3776 }, { name: "Homosassa", lat: 28.7811, lng: -82.6134 }, { name: "Homosassa Springs", lat: 28.8003, lng: -82.5765 }, { name: "Inverness", lat: 28.8358, lng: -82.3304 }, { name: "Lecanto", lat: 28.8517, lng: -82.4870 }, { name: "Sugarmill Woods", lat: 28.7364, lng: -82.5140 } ];
 function scoreContractors(input, list) {
   const text = input.toLowerCase();
   return list
@@ -683,7 +692,7 @@ useEffect(() => {
   const [networkQuery, setNetworkQuery] = useState("");
   const [matchInput, setMatchInput] = useState("");
   const [matchBudget, setMatchBudget] = useState("");
-  const [matchTimeline, setMatchTimeline] = useState("");
+  const [matchTimeline, setMatchTimeline] = useState("");   const [matchTown, setMatchTown] = useState("");
   const [matchResults, setMatchResults] = useState(null); // null = not searched yet
   const [matchLoading, setMatchLoading] = useState(false);
   const [matchSummary, setMatchSummary] = useState("");
@@ -698,9 +707,23 @@ useEffect(() => {
     return ALL.filter(c => !c.hidden && [c.name, c.company, c.trade, c.location, ...c.specialties].join(" ").toLowerCase().includes(q));
   }, [networkQuery, ALL]);
 
+ const applyDistance = list => {
+    const town = TOWNS.find(t => t.name === matchTown);
+    if (!town) return list;
+    return list
+      .map(c => ({ ...c, distanceMiles: milesBetween(town.lat, town.lng, c.lat, c.lng) }))
+      .filter(c => c.distanceMiles == null || c.distanceMiles <= (c.serviceRadiusMiles || 50))
+      .sort((a, b) => {
+        if (a.distanceMiles == null) return 1;
+        if (b.distanceMiles == null) return -1;
+        return a.distanceMiles - b.distanceMiles;
+      });
+  };
+
   const keywordFallback = () => {
     const scored = scoreContractors(matchInput, ALL.filter(c => !c.hidden));
-    setMatchResults(scored.length > 0 ? scored : ALL.filter(c => !c.hidden).sort((a, b) => b.rating - a.rating));
+    const base = scored.length > 0 ? scored : ALL.filter(c => !c.hidden).sort((a, b) => b.rating - a.rating);
+    setMatchResults(applyDistance(base));
     setMatchSummary("");
   };
 
@@ -729,7 +752,7 @@ useEffect(() => {
         })
         .filter(Boolean);
       if (matched.length === 0) throw new Error("empty");
-      setMatchResults(matched);
+      setMatchResults(applyDistance(matched));
       setMatchSummary(data.summary || "");
     } catch {
       keywordFallback(); // API down or no key set — keyword matcher still works
@@ -1093,10 +1116,17 @@ useEffect(() => {
                       <div className="eyebrow" style={{ fontSize: 10, marginBottom: 6, color: C.muted }}>Timeline</div>
                       <select value={matchTimeline} onChange={e => setMatchTimeline(e.target.value)} aria-label="Timeline" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
                         <option value="">Select…</option>
-                        {["ASAP", "1 month", "3 months", "Flexible"].map(o => <option key={o}>{o}</option>)}
+                    {["ASAP", "1 month", "3 months", "Flexible"].map(o => <option key={o}>{o}</option>)}
                       </select>
                     </div>
-                  </div>
+                    <div style={{ gridColumn: "1 / -1" }}>
+                      <div className="eyebrow" style={{ fontSize: 10, marginBottom: 6, color: C.muted }}>Your area</div>
+                      <select value={matchTown} onChange={e => setMatchTown(e.target.value)} aria-label="Your area" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
+                        <option value="">Select your town…</option>
+                        {TOWNS.map(t => <option key={t.name}>{t.name}</option>)}
+                      </select>
+                    </div>
+                  </div>  
                   <button onClick={runMatch} disabled={matchLoading} className="btn-primary" style={{ width: "100%", padding: 13, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: matchLoading ? 0.7 : 1 }}>
                     <Icon name="sparkles" size={16} color="#14100A" />{matchLoading ? "Matching…" : "Find matching contractors"}{!matchLoading && <Icon name="arrowRight" size={16} color="#14100A" />}
                   </button>
@@ -1127,6 +1157,7 @@ useEffect(() => {
                               <Stars rating={c.rating} />
                             </div>
                             <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>
+                           {c.distanceMiles != null && ( <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: C.blue, marginBottom: 8, fontWeight: 700 }}><Icon name="mapPin" size={13} color={C.blue} />{Math.round(c.distanceMiles)} mi away · {c.location}</div> )}
                             {c.reasons?.length > 0 && (
                               <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: C.green, marginBottom: 8, fontWeight: 700 }}>
                                 <Icon name="check" size={13} color={C.green} />Matched on: {c.reasons.join(", ")}

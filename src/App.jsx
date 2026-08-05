@@ -114,14 +114,16 @@ async function submitReview(review) {
     return r.ok;
   } catch (e) { return false; }
 }
+ const TARGET_TRADES = ["HVAC", "Electrical", "Plumbing", "Roofing", "General Contractor", "Tile & Masonry", "Painting", "Flooring", "Concrete", "Fencing", "Tree Service", "Pool Service", "Septic", "Well / Water", "Handyman", "Appliance Repair", "Pressure Washing", "Windows & Doors", "Drywall", "Garage Doors", "Pest Control", "Irrigation", "Landscaping", "Junk Removal", "Solar", "Gutters", "Screen Enclosure", "Insulation", "Locksmith", "Mobile Home Service"];
 function milesBetween(lat1, lng1, lat2, lng2) {
-  if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+  if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null
   const R = 3958.8;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLng = (lng2 - lng1) * Math.PI / 180;
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
+function CoverageDashboard({ roster, onBack }) { const counts = TARGET_TRADES.map(t => { const key = t.toLowerCase().split(" ")[0].replace(/[^a-z]/g, ""); const matches = roster.filter(c => (c.trade || "").toLowerCase().includes(key) || t.toLowerCase().includes((c.trade || "").toLowerCase().split(" ")[0])); return { trade: t, n: matches.length, who: matches.map(m => m.company) }; }).sort((a, b) => a.n - b.n || a.trade.localeCompare(b.trade)); const gaps = counts.filter(c => c.n === 0).length; const thin = counts.filter(c => c.n === 1).length; const covered = counts.filter(c => c.n >= 2).length; const box = (label, n, color) => (<div style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, textAlign: "center" }}><div className="display" style={{ fontSize: 26, fontWeight: 800, color }}>{n}</div><div className="eyebrow" style={{ fontSize: 10, marginTop: 2 }}>{label}</div></div>); return (<div className="fade-in" style={{ maxWidth: 760, margin: "0 auto", padding: "20px 0" }}><button onClick={onBack} className="btn-ghost" style={{ padding: "7px 14px", fontSize: 12, marginBottom: 14 }}>← Back to site</button><div className="eyebrow" style={{ marginBottom: 4 }}>Internal · not linked publicly</div><div className="display" style={{ fontSize: 26, fontWeight: 800, color: C.white, marginBottom: 4 }}>ROSTER COVERAGE</div><div style={{ fontSize: 13, color: C.dim, marginBottom: 18 }}>{roster.length} contractors across {TARGET_TRADES.length} tracked trades. Recruit the red rows first.</div><div style={{ display: "flex", gap: 10, marginBottom: 20 }}>{box("No coverage", gaps, C.orange)}{box("Single point", thin, "#E8B33A")}{box("Covered", covered, C.green)}</div>{counts.map(c => { const color = c.n === 0 ? C.orange : c.n === 1 ? "#E8B33A" : C.green; return (<div key={c.trade} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", background: C.card, border: `1px solid ${C.border}`, borderLeft: `3px solid ${color}`, borderRadius: 8, marginBottom: 6 }}><div style={{ width: 26, textAlign: "center", fontWeight: 800, fontSize: 15, color }}>{c.n}</div><div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 13.5, fontWeight: 700, color: C.white }}>{c.trade}</div>{c.who.length > 0 && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>{c.who.join(" · ")}</div>}</div>{c.n === 0 && <div style={{ fontSize: 10.5, fontWeight: 800, color: C.orange, letterSpacing: 0.5 }}>RECRUIT</div>}</div>); })}</div>); }
 async function sendMagicLink(email) {   try {     const r = await fetch(`${SB_URL}/auth/v1/otp?redirect_to=${encodeURIComponent(window.location.origin)}`, {       method: "POST",       headers: { apikey: SB_KEY, "Content-Type": "application/json" },       body: JSON.stringify({ email: email, create_user: true })     });     return r.ok;   } catch (e) { return false; } } async function getUser(token) {   try {     const r = await fetch(`${SB_URL}/auth/v1/user`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${token}` } });     if (!r.ok) return null;     return await r.json();   } catch (e) { return null; } } function readTokenFromUrl() {   const hash = window.location.hash;   if (!hash.includes("access_token")) return null;   const params = new URLSearchParams(hash.slice(1));   const token = params.get("access_token");   if (token) {     localStorage.setItem("bb-token", token);     window.history.replaceState(null, "", window.location.pathname);   }   return token; } function daysAgo(dateString) {
   if (!dateString) return "";
   const then = new Date(dateString);
@@ -699,7 +701,7 @@ useEffect(() => {
 
   const [theme, setTheme] = useState(() => localStorage.getItem("bb-theme") || "dark");   useEffect(() => { Object.assign(C, theme === "light" ? LIGHT : DARK); }, [theme]);   const toggleTheme = () => { const next = theme === "light" ? "dark" : "light"; Object.assign(C, next === "light" ? LIGHT : DARK); localStorage.setItem("bb-theme", next); setTheme(next); };   const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2500); };
   const openProfile = c => { setActiveProfile(c); setView("profile"); };
-  const goView = id => { setView(id); setActiveProfile(null); };
+  const goView = id => { setView(id); setActiveProfile(null); };   const [coverageMode, setCoverageMode] = useState(() => new URLSearchParams(window.location.search).get("coverage") === "1");
 
   const filteredNetwork = useMemo(() => {
     const q = networkQuery.trim().toLowerCase();
@@ -761,7 +763,7 @@ useEffect(() => {
     }
   };
 
-  const navItems = [
+  if (coverageMode) return <div style={{ background: C.bg, minHeight: "100vh", padding: 20 }}><CoverageDashboard roster={ALL.filter(c => !c.hidden)} onBack={() => { window.history.replaceState(null, "", window.location.pathname); setCoverageMode(false); }} /></div>;    const navItems = [
   { id: "feed", icon: "home", label: "Feed" },
 { id: "match", icon: "sparkles", label: "AI Match" },
 { id: "jobs", icon: "hammer", label: "Find Work" },

@@ -65,7 +65,7 @@ async function fetchApprovedVendors() {
       avatar: v.avatar || (v.company || "??").split(" ").map(w => w[0]).join("").slice(0, 3).toUpperCase(),
       rating: 5.0, jobs: 0, followers: 0, following: 0,
       verified: true, premium: false,
-      license: v.license || null,
+      license: v.license || null,         lat: v.lat || null,         lng: v.lng || null,         serviceRadiusMiles: v.service_radius_miles || 50,
       reviews: 0, videoTitle: v.video_title || null, videoUrl: v.video_url || null,
       specialties: v.specialties ? v.specialties.split(",").map(s => s.trim()) : [],
       bio: v.bio || ""

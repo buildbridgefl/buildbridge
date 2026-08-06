@@ -1001,7 +1001,7 @@ useEffect(() => {
                   <div key={v.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 14 }}>
                     <div style={{ fontSize: 17, fontWeight: 800, color: C.white, marginBottom: 4 }}>{v.company}</div>
                     <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 16 }}>{v.name} · {v.trade}</div>
-                    {[["phone","Phone"],["email","Email"],["website","Website"]].map(([k, label]) => (
+                    {[["phone","Phone"],["website","Website"]].map(([k, label]) => (
                       <div key={k} style={{ marginBottom: 10 }}>
                         <div className="eyebrow" style={{ fontSize: 10, color: C.muted, marginBottom: 5 }}>{label}</div>
                         <input value={editForm[k]} onChange={e => setEditForm({ ...editForm, [k]: e.target.value })} aria-label={label} style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }} />
@@ -1009,7 +1009,7 @@ useEffect(() => {
                     ))}
                     <div className="eyebrow" style={{ fontSize: 10, color: C.muted, marginBottom: 5 }}>About your business</div>
                     <textarea value={editForm.bio} onChange={e => setEditForm({ ...editForm, bio: e.target.value })} aria-label="About your business" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, minHeight: 100, resize: "vertical", fontFamily: "inherit", outline: "none", marginBottom: 14 }} />
-                    <div style={{ background: C.panel, border: `1px dashed ${C.line}`, borderRadius: 10, padding: 12, marginBottom: 14, fontSize: 12, color: C.dim, lineHeight: 1.5 }}>Business name, trade, and license number are locked. Contact BuildBridge to change those — they're tied to your verification.</div>
+                    <div style={{ background: C.panel, border: `1px dashed ${C.line}`, borderRadius: 10, padding: 12, marginBottom: 14, fontSize: 12, color: C.dim, lineHeight: 1.5 }}>Business name, trade, license number, and email are locked. Your email is your sign-in — contact BuildBridge to change it.</div>
                     <button onClick={async () => { const token = localStorage.getItem("bb-token"); const ok = await updateMyVendorRow(token, v.id, editForm); showToast(ok ? "Saved" : "Couldn't save — try again"); if (ok) track("profile_self_edit", v.company); }} className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 13.5 }}>Save changes</button>
                   </div>
                 ))}

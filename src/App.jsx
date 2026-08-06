@@ -926,8 +926,23 @@ useEffect(() => {
             <div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 4 }}>Permit Prep is here — HB 803 exemptions</div>
             <div style={{ fontSize: 12, color: C.dim, lineHeight: 1.5 }}>Projects under $7,500 may not need a permit anymore. We check and file for you. Contractors: first filing free.</div>
           </div>
-          <button className="btn-primary" onClick={() => (track("permit_banner_click", "banner"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSefxtPbcIOzoAEZYCuQa8f-HTVmxd1pIQ5WYPtAdxhBcZ1jjg/viewform"))} style={{ padding: "10px 16px", fontSize: 12.5, whiteSpace: "nowrap" }}>Check My Project</button>
+         <button className="btn-primary" onClick={() => (track("permit_prep_sidebar_click", "sidebar"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSefxtPbcIOzoAEZYCuQa8f-HTVmxd1pIQ5WYPtAdxhBcZ1jjg/viewform"))} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>Ask About My Project</button>
         </div>
+
+            {/* Resources CTA */}
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
+          <div className="eyebrow" style={{ marginBottom: 8 }}>Resources we recommend</div>
+          <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Tools contractors on our network use to run their business — not paid placements, just what we've seen work.</div>
+          {[
+            { name: "Business insurance (NEXT)", url: "https://www.nextinsurance.com/" },
+            { name: "Business insurance (Thimble)", url: "https://www.thimble.com/" },
+            { name: "Scheduling & invoicing (Housecall Pro)", url: "https://www.housecallpro.com/" },
+          ].map((r, i) => (
+            <a key={r.name} href={r.url} target="_blank" rel="noopener noreferrer" onClick={() => track("resource_link_click", r.name)} style={{ display: "block", fontSize: 12.5, color: C.blue, textDecoration: "none", padding: "7px 0", borderBottom: i < 2 ? `1px dashed ${C.line}` : "none" }}>{r.name} →</a>
+          ))}
+        </div>
+
+            {/* Suggested */}
                {/* Get Listed banner */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16 }}>
           <div style={{ flex: 1, minWidth: 220 }}>

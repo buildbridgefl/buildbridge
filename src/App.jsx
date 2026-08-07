@@ -390,8 +390,8 @@ function Pablo({ size = 96 }) {
       <ellipse cx="340" cy="96" rx="52" ry="9" fill="#FF8A1E" />
       <circle cx="329" cy="120" r="3.5" fill="#0B1220" />
       <circle cx="353" cy="120" r="3.5" fill="#0B1220" />
-      <path d="M326 135 Q 340 146 354 135" stroke="#0B1220" strokeWidth="6" fill="none" strokeLinecap="round" />
-      <path d="M332 147 Q 340 152 348 147" stroke="#B07A4E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      <path d="M323 133 Q 331 130 340 136 Q 349 130 357 133 Q 350 143 340 141 Q 330 143 323 133 Z" fill="#0B1220" />
+      <path d="M333 152 Q 340 157 347 152" stroke="#B07A4E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       <rect x="384" y="188" width="48" height="58" rx="4" fill="#F2EDE4" />
       <rect x="399" y="183" width="18" height="9" rx="2" fill="#8894A8" />
       <rect x="392" y="204" width="32" height="3.5" rx="1.75" fill="#B9C2CF" />

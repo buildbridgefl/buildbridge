@@ -668,7 +668,126 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
 }
 
 // ── Coverage finder (map-first front door) ─────────────────────────────────── 
-function CoverageFinder({ roster, onProfile }) {   const [town, setTown] = useState(null);   const t = TOWNS.find(x => x.name === town);   const results = !t ? [] : roster     .map(c => ({ ...c, d: milesBetween(t.lat, t.lng, c.lat, c.lng) }))     .filter(c => c.d == null || c.d <= (c.serviceRadiusMiles || 50))     .sort((a, b) => (a.d == null ? 9999 : a.d) - (b.d == null ? 9999 : b.d));    return (     <div style={{ background: `linear-gradient(120deg, ${C.card}, ${C.panel})`, border: `1px solid ${C.orange}55`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 18, position: "relative", overflow: "hidden" }}>       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />       <div className="eyebrow" style={{ marginBottom: 6, marginTop: 4 }}>Start here</div>       <div className="display" style={{ fontWeight: 800, fontSize: 22, color: C.white, lineHeight: 1.15, marginBottom: 6 }}>Where's the job?</div>       <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Tap your town. You'll see every verified contractor who actually covers it — not just the ones with an address nearby.</div>        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: town ? 16 : 0 }}>         {TOWNS.map(x => (           <button key={x.name} onClick={() => { track("coverage_town_click", x.name); setTown(town === x.name ? null : x.name); }}             style={{ background: town === x.name ? C.orange : "transparent", color: town === x.name ? "#14100A" : C.dim, border: `1px solid ${town === x.name ? C.orange : C.border}`, borderRadius: 20, padding: "7px 13px", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{x.name}</button>         ))}       </div>        {town && (         <div className="fade-in">           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>             <div className="eyebrow" style={{ color: C.green }}>{results.length} verified contractor{results.length !== 1 ? "s" : ""} cover {town}</div>             <button onClick={() => setTown(null)} style={{ background: "none", border: "none", color: C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Clear</button>           </div>            {results.length === 0 && (             <div style={{ background: C.panel, border: `1px dashed ${C.line}`, borderRadius: 12, padding: "22px 16px", textAlign: "center", fontSize: 12.5, color: C.muted, lineHeight: 1.55 }}>               Nobody on the roster covers {town} yet. We're adding verified contractors every week — try a nearby town, or browse the full network below.             </div>           )}            {results.map(c => (             <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12, marginBottom: 8, display: "flex", gap: 11, alignItems: "center" }}>               <button onClick={() => onProfile(c)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label={`View ${c.name}'s profile`}>                 <Avatar initials={c.avatar} size={42} premium={c.premium} />               </button>               <div style={{ flex: 1, minWidth: 0 }}>                 <button onClick={() => onProfile(c)} style={{ background: "none", border: "none", fontWeight: 800, fontSize: 14, color: C.white, cursor: "pointer", padding: 0, textAlign: "left" }}>{c.company}</button>                 <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>{c.trade}</div>                 <div style={{ fontSize: 11.5, color: C.blue, fontWeight: 700, marginTop: 3, display: "inline-flex", alignItems: "center", gap: 4 }}>                   <Icon name="pin" size={12} color={C.blue} />{c.d == null ? "Serves Citrus County" : `${Math.round(c.d)} mi away`}                 </div>               </div>               <a href={`tel:${c.phone?.replace(/\D/g, "")}`} onClick={() => track("coverage_call_click", c.company)} className="btn-primary" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>                 <Icon name="phone" size={13} color="#14100A" />Call               </a>             </div>           ))}         </div>       )}     </div>   ); }  // ── Main app ─────────────────────────────────────────────────────────────────
+// ── Leaflet loader (CDN, no package.json change) ─────────────────────────────
+function useLeaflet() {
+  const [ready, setReady] = useState(typeof window !== "undefined" && !!window.L);
+  useEffect(() => {
+    if (typeof window === "undefined" || window.L) { setReady(true); return; }
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css"; link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    }
+    let s = document.getElementById("leaflet-js");
+    if (!s) {
+      s = document.createElement("script");
+      s.id = "leaflet-js";
+      s.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      s.async = true;
+      document.body.appendChild(s);
+    }
+    const onLoad = () => setReady(true);
+    s.addEventListener("load", onLoad);
+    return () => s.removeEventListener("load", onLoad);
+  }, []);
+  return ready;
+}
+
+// ── Coverage map ─────────────────────────────────────────────────────────────
+function CoverageMap({ results, townObj }) {
+  const ready = useLeaflet();
+  const elRef = useRef(null);
+  const mapRef = useRef(null);
+  const layerRef = useRef(null);
+
+  useEffect(() => {
+    if (!ready || !elRef.current || mapRef.current) return;
+    const L = window.L;
+    const map = L.map(elRef.current, { scrollWheelZoom: false, zoomControl: true }).setView([28.87, -82.45], 9);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19, subdomains: "abcd"
+    }).addTo(map);
+    mapRef.current = map;
+    layerRef.current = L.layerGroup().addTo(map);
+    setTimeout(() => map.invalidateSize(), 60);
+  }, [ready]);
+
+  useEffect(() => {
+    if (!ready || !mapRef.current || !layerRef.current) return;
+    const L = window.L;
+    const map = mapRef.current;
+    layerRef.current.clearLayers();
+    const pts = [];
+
+    if (townObj) {
+      const jobIcon = L.divIcon({
+        className: "",
+        html: `<div style="width:20px;height:20px;border-radius:50%;background:#2f6b3f;border:3px solid #fff;box-shadow:0 0 0 4px rgba(47,107,63,.35)"></div>`,
+        iconSize: [20, 20], iconAnchor: [10, 10]
+      });
+      L.marker([townObj.lat, townObj.lng], { icon: jobIcon, zIndexOffset: 500 })
+        .bindPopup(`<b>${townObj.name}</b><br/>Your job site`)
+        .addTo(layerRef.current);
+      pts.push([townObj.lat, townObj.lng]);
+    }
+
+    results.forEach(c => {
+      if (c.lat == null || c.lng == null) return;
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="min-width:30px;height:30px;padding:0 5px;border-radius:15px;background:#E8862E;border:2px solid #14100A;color:#14100A;font:800 11px/26px system-ui,sans-serif;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.5)">${c.avatar || "?"}</div>`,
+        iconSize: [30, 30], iconAnchor: [15, 15]
+      });
+      const tel = (c.phone || "").replace(/\D/g, "");
+      L.marker([c.lat, c.lng], { icon })
+        .bindPopup(
+          `<div style="font:600 13px system-ui,sans-serif;min-width:150px">` +
+          `<b style="font-size:14px">${c.company}</b><br/>` +
+          `<span style="color:#555">${c.trade || ""}</span><br/>` +
+          (c.d == null ? "" : `<span style="color:#555">${Math.round(c.d)} mi from ${townObj ? townObj.name : "you"}</span><br/>`) +
+          (tel ? `<a href="tel:${tel}" style="display:inline-block;margin-top:6px;background:#E8862E;color:#14100A;padding:5px 12px;border-radius:6px;text-decoration:none;font-weight:800">Call</a>` : "") +
+          `</div>`
+        )
+        .addTo(layerRef.current);
+      pts.push([c.lat, c.lng]);
+    });
+
+    if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.25));
+    else if (pts.length === 1) map.setView(pts[0], 11);
+    setTimeout(() => map.invalidateSize(), 60);
+  }, [ready, results, townObj]);
+
+  return (
+    <div style={{ position: "relative", marginBottom: 12 }}>
+      <div ref={elRef} style={{ height: 300, width: "100%", borderRadius: 12, border: `1px solid ${C.border}`, background: C.panel, zIndex: 0 }} />
+      {!ready && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.muted, pointerEvents: "none" }}>Loading map…</div>
+      )}
+    </div>
+  );
+}
+
+function tradeBucket(trade) {
+  const t = (trade || "").toLowerCase();
+  const alias = [["hvac","HVAC"],["air condition","HVAC"],["heating","HVAC"],["cooling","HVAC"],["roof","Roofing"],["plumb","Plumbing"],["electric","Electrical"],["pest","Pest Control"],["termite","Pest Control"],["irrigation","Irrigation"],["sprinkler","Irrigation"],["landscap","Landscaping"],["lawn","Landscaping"],["junk","Junk Removal"],["debris","Junk Removal"],["haul","Junk Removal"],["garage","Garage Doors"],["cabinet","Cabinets"],["fence","Fencing"],["tile","Tile & Masonry"],["masonry","Tile & Masonry"],["concrete","Tile & Masonry"],["general contractor","General Contractor"]];
+  const a = alias.find(([k]) => t.includes(k));
+  return a ? a[1] : (trade || "General").split(/[,&\/]/)[0].trim();
+}
+
+function CoverageFinder({ roster, onProfile }) {   const [town, setTown] = useState(null); const [trade, setTrade] = useState(null); const t = TOWNS.find(x => x.name === town);   const inTown = !t ? [] : roster     .map(c => ({ ...c, d: milesBetween(t.lat, t.lng, c.lat, c.lng) }))     .filter(c => c.d == null || c.d <= (c.serviceRadiusMiles || 50))     .sort((a, b) => (a.d == null ? 9999 : a.d) - (b.d == null ? 9999 : b.d));   const tradeList = [...new Set(inTown.map(c => tradeBucket(c.trade)))].sort();   const results = trade ? inTown.filter(c => tradeBucket(c.trade) === trade) : inTown;    return (     <div style={{ background: `linear-gradient(120deg, ${C.card}, ${C.panel})`, border: `1px solid ${C.orange}55`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 18, position: "relative", overflow: "hidden" }}>       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />       <div className="eyebrow" style={{ marginBottom: 6, marginTop: 4 }}>Start here</div>       <div className="display" style={{ fontWeight: 800, fontSize: 22, color: C.white, lineHeight: 1.15, marginBottom: 6 }}>Where's the job?</div>       <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Tap your town. You'll see every verified contractor who actually covers it — not just the ones with an address nearby.</div>        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: town ? 16 : 0 }}>         {TOWNS.map(x => (           <button key={x.name} onClick={() => { track("coverage_town_click", x.name); setTrade(null); setTown(town === x.name ? null : x.name); }}             style={{ background: town === x.name ? C.orange : "transparent", color: town === x.name ? "#14100A" : C.dim, border: `1px solid ${town === x.name ? C.orange : C.border}`, borderRadius: 20, padding: "7px 13px", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{x.name}</button>         ))}       </div>        {town && (         <div className="fade-in">           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>             <div className="eyebrow" style={{ color: C.green }}>{results.length} verified contractor{results.length !== 1 ? "s" : ""} {trade ? `for ${trade} in ${town}` : `cover ${town}`}</div>             <button onClick={() => { setTrade(null); setTown(null); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Clear</button>           </div>
+
+          <CoverageMap results={results} townObj={t} />
+
+          {tradeList.length > 1 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+              <button onClick={() => setTrade(null)} style={{ background: !trade ? C.blue : "transparent", color: !trade ? "#14100A" : C.muted, border: `1px solid ${!trade ? C.blue : C.line}`, borderRadius: 20, padding: "5px 11px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>All trades</button>
+              {tradeList.map(tr => (
+                <button key={tr} onClick={() => { track("coverage_trade_click", tr); setTrade(trade === tr ? null : tr); }} style={{ background: trade === tr ? C.blue : "transparent", color: trade === tr ? "#14100A" : C.muted, border: `1px solid ${trade === tr ? C.blue : C.line}`, borderRadius: 20, padding: "5px 11px", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{tr}</button>
+              ))}
+            </div>
+          )}            {results.length === 0 && (             <div style={{ background: C.panel, border: `1px dashed ${C.line}`, borderRadius: 12, padding: "22px 16px", textAlign: "center", fontSize: 12.5, color: C.muted, lineHeight: 1.55 }}>               Nobody on the roster covers {town} yet. We're adding verified contractors every week — try a nearby town, or browse the full network below.             </div>           )}            {results.map(c => (             <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 12, marginBottom: 8, display: "flex", gap: 11, alignItems: "center" }}>               <button onClick={() => onProfile(c)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label={`View ${c.name}'s profile`}>                 <Avatar initials={c.avatar} size={42} premium={c.premium} />               </button>               <div style={{ flex: 1, minWidth: 0 }}>                 <button onClick={() => onProfile(c)} style={{ background: "none", border: "none", fontWeight: 800, fontSize: 14, color: C.white, cursor: "pointer", padding: 0, textAlign: "left" }}>{c.company}</button>                 <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>{c.trade}</div>                 <div style={{ fontSize: 11.5, color: C.blue, fontWeight: 700, marginTop: 3, display: "inline-flex", alignItems: "center", gap: 4 }}>                   <Icon name="pin" size={12} color={C.blue} />{c.d == null ? "Serves Citrus County" : `${Math.round(c.d)} mi away`}                 </div>               </div>               <a href={`tel:${c.phone?.replace(/\D/g, "")}`} onClick={() => track("coverage_call_click", c.company)} className="btn-primary" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>                 <Icon name="phone" size={13} color="#14100A" />Call               </a>             </div>           ))}         </div>       )}     </div>   ); }  // ── Main app ─────────────────────────────────────────────────────────────────
 export default function BuildBridgeSocial() {
   const [view, setView] = useState("feed");   const [authUser, setAuthUser] = useState(null);   const [loginModal, setLoginModal] = useState(false);   const [loginEmail, setLoginEmail] = useState("");   const [myRow, setMyRow] = useState(null);   const [editForm, setEditForm] = useState({ phone: "", email: "", website: "", bio: "" });   useEffect(() => {     if (!authUser) { setMyRow(null); return; }     const token = localStorage.getItem("bb-token");     if (token) fetchMyVendorRow(token).then(rows => { setMyRow(rows); if (rows[0]) setEditForm({ phone: rows[0].phone || "", email: rows[0].email || "", website: rows[0].website || "", bio: rows[0].bio || "" }); });   }, [authUser]);   useEffect(() => {     const token = readTokenFromUrl() || localStorage.getItem("bb-token");     if (token) getUser(token).then(u => { if (u && u.email) setAuthUser(u); else localStorage.removeItem("bb-token"); });   }, []);
   const [activeProfile, setActiveProfile] = useState(null);

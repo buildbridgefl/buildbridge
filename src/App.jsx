@@ -371,6 +371,37 @@ function Stars({ rating }) {
   );
 }
 
+// ── Pablo ────────────────────────────────────────────────────────────────────
+function Pablo({ size = 96 }) {
+  return (
+    <svg width={size} height={size * 1.1} viewBox="270 60 175 195" aria-hidden="true" style={{ flexShrink: 0, display: "block" }}>
+      <rect x="288" y="168" width="16" height="58" rx="8" fill="#2C4E8A" />
+      <rect x="376" y="168" width="16" height="58" rx="8" fill="#2C4E8A" />
+      <circle cx="296" cy="230" r="9" fill="#D6A278" />
+      <rect x="302" y="158" width="76" height="86" rx="15" fill="#2C4E8A" />
+      <rect x="305" y="163" width="21" height="78" rx="6" fill="#E8862E" />
+      <rect x="354" y="163" width="21" height="78" rx="6" fill="#E8862E" />
+      <rect x="305" y="196" width="21" height="6" fill="#F7D9B8" />
+      <rect x="354" y="196" width="21" height="6" fill="#F7D9B8" />
+      <rect x="332" y="148" width="16" height="14" fill="#C08C63" />
+      <circle cx="340" cy="120" r="34" fill="#D6A278" />
+      <path d="M308 96 A 32 30 0 0 1 372 96 Z" fill="#E8862E" />
+      <path d="M336 68 L 344 68 L 344 96 L 336 96 Z" fill="#FF8A1E" />
+      <ellipse cx="340" cy="96" rx="52" ry="9" fill="#FF8A1E" />
+      <circle cx="329" cy="120" r="3.5" fill="#0B1220" />
+      <circle cx="353" cy="120" r="3.5" fill="#0B1220" />
+      <path d="M326 135 Q 340 146 354 135" stroke="#0B1220" strokeWidth="6" fill="none" strokeLinecap="round" />
+      <path d="M332 147 Q 340 152 348 147" stroke="#B07A4E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      <rect x="384" y="188" width="48" height="58" rx="4" fill="#F2EDE4" />
+      <rect x="399" y="183" width="18" height="9" rx="2" fill="#8894A8" />
+      <rect x="392" y="204" width="32" height="3.5" rx="1.75" fill="#B9C2CF" />
+      <rect x="392" y="215" width="32" height="3.5" rx="1.75" fill="#B9C2CF" />
+      <rect x="392" y="226" width="20" height="3.5" rx="1.75" fill="#B9C2CF" />
+      <circle cx="386" cy="228" r="9" fill="#D6A278" />
+    </svg>
+  );
+}
+
 function SectionHead({ eyebrow, title, sub }) {
   return (
     <div style={{ marginBottom: 18 }}>
@@ -1383,7 +1414,14 @@ useEffect(() => {
 
             ) : view === "match" ? (
               <>
-                <SectionHead eyebrow="Ask Pablo" title="Tell Pablo about your project" sub="Describe it in plain words — Pablo finds the verified contractors who cover your town" />
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
+                  <Pablo size={92} />
+                  <div>
+                    <div className="eyebrow" style={{ marginBottom: 4 }}>Ask Pablo</div>
+                    <div className="display" style={{ fontWeight: 800, fontSize: 24, color: C.white, lineHeight: 1.1 }}>Tell Pablo about your project</div>
+                    <div style={{ fontSize: 13, color: C.dim, marginTop: 6 }}>Describe it in plain words — Pablo finds the verified contractors who cover your town</div>
+                  </div>
+                </div>
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
                   <textarea value={matchInput} onChange={e => setMatchInput(e.target.value)} aria-label="Describe your project"
                     placeholder='Example: "My lanai screen ripped in the storm and the roof is leaking near the back bedroom. Crystal River area, want it fixed this month."'

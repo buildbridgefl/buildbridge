@@ -743,14 +743,14 @@ function CoverageMap({ results, townObj }) {
   const ready = useLeaflet();
   const elRef = useRef(null);
   const mapRef = useRef(null);
-  const layerRef = useRef(null);
+  const layerRef = useRef(null);   const tileRef = useRef(null);   const isLight = C.bg === LIGHT.bg;   useEffect(() => { if (tileRef.current) tileRef.current.setUrl(`https://{s}.basemaps.cartocdn.com/${isLight ? "light_all" : "dark_all"}/{z}/{x}/{y}{r}.png`); }, [isLight]);
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     if (!ready || !elRef.current || mapRef.current) return;
     const L = window.L;
     const map = L.map(elRef.current, { scrollWheelZoom: false, zoomControl: true }).setView([28.87, -82.45], 9);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    tileRef.current = L.tileLayer(`https://{s}.basemaps.cartocdn.com/${isLight ? "light_all" : "dark_all"}/{z}/{x}/{y}{r}.png`, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 19, subdomains: "abcd"
     }).addTo(map);

@@ -1192,7 +1192,7 @@ useEffect(() => {
           <div className="eyebrow" style={{ marginBottom: 8 }}>Resources we recommend</div>
           <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Tools contractors on our network use to run their business. Nobody pays to be recommended here — this is just what we've seen work.</div>
           {[
-            { name: "Business insurance (NEXT)", url: "https://www.nextinsurance.com/" },
+            { name: "Business insurance (NEXT)", url: "https://nextinsurance.sjv.io/c/7573151/1148969/14516" },
             { name: "Business insurance (Thimble)", url: "https://www.thimble.com/" },
             { name: "Scheduling & invoicing (Housecall Pro)", url: "https://www.housecallpro.com/" },
           ].map((r, i) => (

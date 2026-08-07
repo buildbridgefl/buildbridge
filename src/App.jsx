@@ -679,6 +679,18 @@ function useLeaflet() {
       link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
       document.head.appendChild(link);
     }
+    if (!document.getElementById("leaflet-theme")) {
+      const st = document.createElement("style");
+      st.id = "leaflet-theme";
+      st.textContent = `
+        .leaflet-control-zoom a{background:#0f1f3d!important;color:#E8862E!important;border:1px solid #24314f!important;font-weight:800!important}
+        .leaflet-control-zoom a:hover{background:#E8862E!important;color:#14100A!important}
+        .leaflet-control-attribution{background:rgba(11,18,32,.75)!important;color:#7b8aa6!important;font-size:9.5px!important}
+        .leaflet-control-attribution a{color:#9fb2d0!important}
+        .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;border-radius:10px}
+      `;
+      document.head.appendChild(st);
+    }
     let s = document.getElementById("leaflet-js");
     if (!s) {
       s = document.createElement("script");
@@ -700,6 +712,7 @@ function CoverageMap({ results, townObj }) {
   const elRef = useRef(null);
   const mapRef = useRef(null);
   const layerRef = useRef(null);
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     if (!ready || !elRef.current || mapRef.current) return;
@@ -759,11 +772,38 @@ function CoverageMap({ results, townObj }) {
     setTimeout(() => map.invalidateSize(), 60);
   }, [ready, results, townObj]);
 
+  const zoomToTown = () => {
+    const map = mapRef.current;
+    if (!map || !townObj) return;
+    track("coverage_map_zoom", townObj.name);
+    map.setView([townObj.lat, townObj.lng], 12, { animate: true });
+    setFocused(true);
+  };
+
+  const showRegion = () => {
+    const map = mapRef.current;
+    const L = window.L;
+    if (!map || !L) return;
+    const pts = results.filter(c => c.lat != null && c.lng != null).map(c => [c.lat, c.lng]);
+    if (townObj) pts.push([townObj.lat, townObj.lng]);
+    if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.25), { animate: true });
+    else if (pts.length === 1) map.setView(pts[0], 11, { animate: true });
+    setFocused(false);
+  };
+
+  const zoomBtn = { background: C.card, color: C.white, border: `1px solid ${C.border}`, borderRadius: 8, padding: "7px 12px", fontSize: 11.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,.45)", whiteSpace: "nowrap" };
+
   return (
     <div style={{ position: "relative", marginBottom: 12 }}>
       <div ref={elRef} style={{ height: 300, width: "100%", borderRadius: 12, border: `1px solid ${C.border}`, background: C.panel, zIndex: 0 }} />
       {!ready && (
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.muted, pointerEvents: "none" }}>Loading map…</div>
+      )}
+      {ready && townObj && (
+        <div style={{ position: "absolute", left: 10, bottom: 10, display: "flex", gap: 6, zIndex: 400 }}>
+          <button onClick={zoomToTown} style={{ ...zoomBtn, background: focused ? C.orange : C.card, color: focused ? "#14100A" : C.white, borderColor: focused ? C.orange : C.border }}>Zoom to {townObj.name}</button>
+          <button onClick={showRegion} style={{ ...zoomBtn, background: !focused ? C.orange : C.card, color: !focused ? "#14100A" : C.white, borderColor: !focused ? C.orange : C.border }}>Whole region</button>
+        </div>
       )}
     </div>
   );

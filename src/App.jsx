@@ -557,7 +557,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
     <div className="fade-in"
       onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
       onTouchEnd={e => { const dx = e.changedTouches[0].clientX - touchX.current; if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1); }}>
-      <div style={{ background: `linear-gradient(135deg, ${C.panel}, ${C.line})`, height: 116, borderRadius: 16, border: `1px solid ${C.border}`, position: "relative", marginBottom: -30 }}>
+      <div style={{ background: `linear-gradient(135deg, ${C.panel}, ${C.line})`, height: 96, borderRadius: 16, border: `1px solid ${C.border}`, position: "relative", marginBottom: -14 }}>
         <div style={{ position: "absolute", top: 14, left: 14, display: "flex", gap: 8, alignItems: "center" }}>
           <button onClick={onBack} className="btn-ghost" style={{ padding: "6px 14px", fontSize: 13, background: `${C.bg}CC` }}>← Back</button>
           {canNav && <button onClick={() => go(-1)} aria-label="Previous contractor" className="btn-ghost" style={{ padding: "6px 12px", fontSize: 15, background: `${C.bg}CC` }}>‹</button>}
@@ -571,11 +571,11 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
       </div>
 
       <div style={{ padding: "0 6px" }}>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginBottom: 18, paddingLeft: 12 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginBottom: 18, paddingLeft: 12, position: "relative", zIndex: 1 }}>
           <Avatar initials={contractor.avatar} size={76} premium={contractor.premium} />
           <div style={{ flex: 1, paddingBottom: 4, minWidth: 0 }}>
-            <div className="display" style={{ fontWeight: 800, fontSize: 22, color: C.white }}>{contractor.name}</div>
-            <div style={{ fontSize: 13, color: C.dim }}>{contractor.company} · {contractor.trade}</div>
+            <div className="display" style={{ fontWeight: 800, fontSize: 22, color: C.white, lineHeight: 1.25 }}>{contractor.name}</div>
+            <div style={{ fontSize: 13, color: C.dim, marginTop: 2 }}>{contractor.company} · {contractor.trade}</div>
           </div>
         </div>
 

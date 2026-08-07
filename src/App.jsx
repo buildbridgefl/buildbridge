@@ -672,13 +672,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
 function useLeaflet() {
   const [ready, setReady] = useState(typeof window !== "undefined" && !!window.L);
   useEffect(() => {
-    if (typeof window === "undefined" || window.L) { setReady(true); return; }
-    if (!document.getElementById("leaflet-css")) {
-      const link = document.createElement("link");
-      link.id = "leaflet-css"; link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-      document.head.appendChild(link);
-    }
+    if (typeof window === "undefined") return;
     if (!document.getElementById("leaflet-theme")) {
       const st = document.createElement("style");
       st.id = "leaflet-theme";
@@ -690,6 +684,13 @@ function useLeaflet() {
         .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;border-radius:10px}
       `;
       document.head.appendChild(st);
+    }
+    if (window.L) { setReady(true); return; }
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css"; link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
     }
     let s = document.getElementById("leaflet-js");
     if (!s) {
@@ -805,6 +806,71 @@ function CoverageMap({ results, townObj }) {
           <button onClick={showRegion} style={{ ...zoomBtn, background: !focused ? C.orange : C.card, color: !focused ? "#14100A" : C.white, borderColor: !focused ? C.orange : C.border }}>Whole region</button>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Coverage gap report (admin: add ?gaps=1 to the URL) ──────────────────────
+function CoverageGaps({ roster }) {
+  const trades = useMemo(() => [...new Set(roster.map(c => tradeBucket(c.trade)))].sort(), [roster]);
+  const grid = useMemo(() => TOWNS.map(t => {
+    const covering = roster
+      .map(c => ({ ...c, d: milesBetween(t.lat, t.lng, c.lat, c.lng) }))
+      .filter(c => c.d == null || c.d <= (c.serviceRadiusMiles || 50));
+    const counts = {};
+    trades.forEach(tr => { counts[tr] = covering.filter(c => tradeBucket(c.trade) === tr).length; });
+    return { town: t.name, counts, total: covering.length };
+  }), [roster, trades]);
+
+  const holes = [];
+  grid.forEach(row => trades.forEach(tr => { if (row.counts[tr] === 0) holes.push({ town: row.town, trade: tr }); }));
+  const byTrade = {};
+  holes.forEach(h => { byTrade[h.trade] = (byTrade[h.trade] || 0) + 1; });
+  const ranked = Object.entries(byTrade).sort((a, b) => b[1] - a[1]);
+
+  const th = { padding: "6px 8px", fontSize: 10, fontWeight: 800, color: C.muted, textAlign: "center", whiteSpace: "nowrap", textTransform: "uppercase", letterSpacing: ".04em" };
+  const td = n => ({ padding: "6px 8px", fontSize: 12, fontWeight: 800, textAlign: "center", color: n === 0 ? "#ff6b6b" : n === 1 ? "#E8862E" : C.green, background: n === 0 ? "rgba(255,107,107,.10)" : "transparent" });
+
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.orange}55`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
+      <div className="eyebrow" style={{ color: C.orange, marginBottom: 4 }}>Internal · recruiting</div>
+      <div className="display" style={{ fontWeight: 800, fontSize: 20, color: C.white, marginBottom: 4 }}>Coverage gaps</div>
+      <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>
+        {roster.length} contractors across {trades.length} trades. Red cells are towns with nobody in that trade — {holes.length} gap{holes.length !== 1 ? "s" : ""} total.
+      </div>
+
+      {ranked.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div className="eyebrow" style={{ marginBottom: 8 }}>Recruit these first</div>
+          {ranked.slice(0, 6).map(([tr, n]) => (
+            <div key={tr} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 10px", background: C.panel, border: `1px solid ${C.line}`, borderRadius: 8, marginBottom: 5, fontSize: 12.5 }}>
+              <span style={{ color: C.white, fontWeight: 700 }}>{tr}</span>
+              <span style={{ color: n === TOWNS.length ? "#ff6b6b" : C.muted, fontWeight: 700 }}>
+                {n === TOWNS.length ? "no coverage anywhere" : `missing in ${n} of ${TOWNS.length} towns`}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 520 }}>
+          <thead>
+            <tr>
+              <th style={{ ...th, textAlign: "left" }}>Town</th>
+              {trades.map(tr => <th key={tr} style={th}>{tr}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {grid.map(row => (
+              <tr key={row.town} style={{ borderTop: `1px solid ${C.line}` }}>
+                <td style={{ padding: "6px 8px", fontSize: 12, fontWeight: 700, color: C.white, whiteSpace: "nowrap" }}>{row.town}</td>
+                {trades.map(tr => <td key={tr} style={td(row.counts[tr])}>{row.counts[tr]}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -1218,6 +1284,9 @@ useEffect(() => {
             ) : view === "network" ? (
               <>
                 <SectionHead eyebrow="The directory" title="Contractor network" sub="Verified local professionals in Citrus County" />
+                {typeof window !== "undefined" && window.location.search.includes("gaps=1") && (
+                  <CoverageGaps roster={ALL.filter(c => !c.hidden)} />
+                )}
               
       
           
@@ -1314,7 +1383,7 @@ useEffect(() => {
 
             ) : view === "match" ? (
               <>
-                <SectionHead eyebrow="Smart matching" title="AI project matching" sub="Describe your project in plain words — we find the right contractor instantly" />
+                <SectionHead eyebrow="Ask Pablo" title="Tell Pablo about your project" sub="Describe it in plain words — Pablo finds the verified contractors who cover your town" />
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
                   <textarea value={matchInput} onChange={e => setMatchInput(e.target.value)} aria-label="Describe your project"
                     placeholder='Example: "My lanai screen ripped in the storm and the roof is leaking near the back bedroom. Crystal River area, want it fixed this month."'
@@ -1343,7 +1412,7 @@ useEffect(() => {
                     </div>
                   </div>  
                   <button onClick={runMatch} disabled={matchLoading} className="btn-primary" style={{ width: "100%", padding: 13, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: matchLoading ? 0.7 : 1 }}>
-                    <Icon name="sparkles" size={16} color="#14100A" />{matchLoading ? "Matching…" : "Find matching contractors"}{!matchLoading && <Icon name="arrowRight" size={16} color="#14100A" />}
+                    <Icon name="sparkles" size={16} color="#14100A" />{matchLoading ? "Pablo's looking…" : "Ask Pablo"}{!matchLoading && <Icon name="arrowRight" size={16} color="#14100A" />}
                   </button>
                 </div>
 
@@ -1352,7 +1421,7 @@ useEffect(() => {
                     {matchSummary && (
                       <div style={{ background: C.card, border: `1px solid ${C.blue}44`, borderRadius: 12, padding: "12px 16px", marginBottom: 14, fontSize: 13.5, color: C.dim, lineHeight: 1.5, display: "flex", gap: 10, alignItems: "flex-start" }}>
                         <Icon name="sparkles" size={16} color={C.blue} style={{ marginTop: 2 }} />
-                        <span><span style={{ color: C.white, fontWeight: 700 }}>AI assessment: </span>{matchSummary}</span>
+                        <span><span style={{ color: C.white, fontWeight: 700 }}>Pablo says: </span>{matchSummary}</span>
                       </div>
                     )}
                     <div className="eyebrow" style={{ marginBottom: 12 }}>{matchResults.length} matched contractor{matchResults.length !== 1 ? "s" : ""}{matchTimeline === "ASAP" ? " · sorted for fast starts" : ""}</div>

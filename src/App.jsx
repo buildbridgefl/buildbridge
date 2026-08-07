@@ -1190,14 +1190,17 @@ useEffect(() => {
             {/* Resources CTA */}
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
           <div className="eyebrow" style={{ marginBottom: 8 }}>Resources we recommend</div>
-          <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Tools contractors on our network use to run their business — not paid placements, just what we've seen work.</div>
+          <div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Tools contractors on our network use to run their business. Nobody pays to be recommended here — this is just what we've seen work.</div>
           {[
             { name: "Business insurance (NEXT)", url: "https://www.nextinsurance.com/" },
             { name: "Business insurance (Thimble)", url: "https://www.thimble.com/" },
             { name: "Scheduling & invoicing (Housecall Pro)", url: "https://www.housecallpro.com/" },
           ].map((r, i) => (
-            <a key={r.name} href={r.url} target="_blank" rel="noopener noreferrer" onClick={() => track("resource_link_click", r.name)} style={{ display: "block", fontSize: 12.5, color: C.blue, textDecoration: "none", padding: "7px 0", borderBottom: i < 2 ? `1px dashed ${C.line}` : "none" }}>{r.name} →</a>
+            <a key={r.name} href={r.url} target="_blank" rel="noopener noreferrer sponsored" onClick={() => track("resource_link_click", r.name)} style={{ display: "block", fontSize: 12.5, color: C.blue, textDecoration: "none", padding: "7px 0", borderBottom: i < 2 ? `1px dashed ${C.line}` : "none" }}>{r.name} →</a>
           ))}
+          <div style={{ fontSize: 11, color: C.muted, marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.line}`, lineHeight: 1.5 }}>
+            Some of these are affiliate links — if you sign up, we may earn a commission at no extra cost to you. It never affects who gets listed in our contractor directory.
+          </div>
         </div>
 
             {/* Suggested */}

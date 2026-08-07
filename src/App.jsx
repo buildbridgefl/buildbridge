@@ -906,7 +906,8 @@ useEffect(() => {
               <ContractorProfile contractor={activeProfile} reviews={[...REVIEWS, ...dbReviews]} roster={ALL.filter(c => !c.hidden)} onSelect={openProfile} onBack={() => goView("feed")} onToast={showToast} onTrust={() => goView("trust")} onClaim={c => { track("claim_click", c.company); setClaimTarget(c); }} />
 
             ) : view === "feed" ? (
-              <>
+             <>
+                <CoverageFinder roster={ALL.filter(c => !c.hidden)} onProfile={openProfile} />
                 {/* Homeowner quick-start */}
                 <div style={{ background: `linear-gradient(120deg, ${C.card}, ${C.panel})`, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 18, position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />

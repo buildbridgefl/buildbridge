@@ -799,7 +799,7 @@ function CoverageMap({ results, townObj }) {
       pts.push([c.lat, c.lng]);
     });
 
-    if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.25));
+    if (townObj) map.setView([townObj.lat, townObj.lng], 10);     else if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.25));
     else if (pts.length === 1) map.setView(pts[0], 11);
     setTimeout(() => map.invalidateSize(), 60);
   }, [ready, results, townObj]);

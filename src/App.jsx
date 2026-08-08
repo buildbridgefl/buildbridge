@@ -708,9 +708,9 @@ function useLeaflet() {
       const st = document.createElement("style");
       st.id = "leaflet-theme";
       st.textContent = `
-        .leaflet-control-zoom a{background:#0f1f3d!important;color:#E8862E!important;border:1px solid #24314f!important;font-weight:800!important}
+        .leaflet-control-zoom a{background:rgba(11,18,32,.92)!important;color:#FF8A1E!important;border:1px solid rgba(255,255,255,.22)!important;font-weight:800!important;box-shadow:0 2px 8px rgba(0,0,0,.5)!important}
         .leaflet-control-zoom a:hover{background:#E8862E!important;color:#14100A!important}
-        .leaflet-control-attribution{background:rgba(11,18,32,.75)!important;color:#7b8aa6!important;font-size:9.5px!important}
+        .leaflet-control-attribution{background:rgba(0,0,0,.55)!important;color:#e8e8e8!important;font-size:9.5px!important}
         .leaflet-control-attribution a{color:#9fb2d0!important}
         .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;border-radius:10px}
       `;

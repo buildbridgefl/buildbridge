@@ -841,7 +841,7 @@ function CoverageMap({ results, townObj }) {
   );
 
 
-// ── Coverage gap report (admin: add ?gaps=1 to the URL) ──────────────────────
+}  // ── Coverage gap report (admin: add ?gaps=1 to the URL) ──────────────────────
 function CoverageGaps({ roster }) {
   const trades = useMemo(() => [...new Set(roster.map(c => tradeBucket(c.trade)))].sort(), [roster]);
   const grid = useMemo(() => TOWNS.map(t => {

@@ -184,8 +184,7 @@ const FEED_POSTS = [
 const REVIEWS = [
 ];
 
-const PROJECTS = [   { id: 1, type: "Lawn Mowing & Yard Maintenance", urgent: false, owner: "Homeowner", posted: "Today", budget: "Open to quotes", bids: 0, location: "Sugarmill Woods area", description: "Homeowner looking for regular lawn mowing service. Contact BuildBridge to be connected." },
-
+const PROJECTS = [
 ];
 
 const JOBS = [

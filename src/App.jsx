@@ -989,7 +989,7 @@ useEffect(() => {
   };
 
   const keywordFallback = () => {
-    const scored = scoreContractors(matchInput, ALL.filter(c => !c.hidden));
+    const scored = scoreContractors(matchTimeline === "ASAP" ? matchInput + " emergency urgent same day" : matchInput, ALL.filter(c => !c.hidden));
     const base = scored.length > 0 ? scored : ALL.filter(c => !c.hidden).sort((a, b) => b.rating - a.rating);
     setMatchResults(applyDistance(base));
     setMatchSummary("");

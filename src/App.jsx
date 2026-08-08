@@ -834,12 +834,12 @@ function CoverageMap({ results, townObj }) {
       {ready && townObj && (
         <div style={{ position: "absolute", left: 10, bottom: 10, display: "flex", gap: 6, zIndex: 400 }}>
           <button onClick={zoomToTown} style={{ ...zoomBtn, background: focused ? C.orange : C.card, color: focused ? "#14100A" : C.white, borderColor: focused ? C.orange : C.border }}>Zoom to {townObj.name}</button>
-          <button onClick={showRegion} style={{ ...zoomBtn, background: !focused ? C.orange : C.card, color: !focused ? "#14100A" : C.white, borderColor: !focused ? C.orange : C.border }}>Whole region</button>           <button onClick={() => { track("coverage_map_basemap", sat ? "map" : "satellite"); setSat(!sat); }} style={{ ...zoomBtn, background: sat ? C.orange : C.card, color: sat ? "#14100A" : C.white, borderColor: sat ? C.orange : C.border }}>{sat ? "Map" : "Satellite"}</button>           <button onClick={() => { track("coverage_map_basemap", sat ? "map" : "satellite"); setSat(!sat); }} style={{ ...zoomBtn, background: sat ? C.orange : C.card, color: sat ? "#14100A" : C.white, borderColor: sat ? C.orange : C.border }}>{sat ? "Map" : "Satellite"}</button>           <button onClick={() => { track("coverage_map_basemap", sat ? "map" : "satellite"); setSat(!sat); }} style={{ ...zoomBtn, background: sat ? C.orange : C.card, color: sat ? "#14100A" : C.white, borderColor: sat ? C.orange : C.border }}>{sat ? "Map" : "Satellite"}</button>
+          <button onClick={showRegion} style={{ ...zoomBtn, background: !focused ? C.orange : C.card, color: !focused ? "#14100A" : C.white, borderColor: !focused ? C.orange : C.border }}>Whole region</button>           <button onClick={() => { track("coverage_map_basemap", sat ? "map" : "satellite"); setSat(!sat); }} style={{ ...zoomBtn, background: sat ? C.orange : C.card, color: sat ? "#14100A" : C.white, borderColor: sat ? C.orange : C.border }}>{sat ? "Map" : "Satellite"}</button>          
         </div>
       )}
     </div>
   );
-}
+
 
 // ── Coverage gap report (admin: add ?gaps=1 to the URL) ──────────────────────
 function CoverageGaps({ roster }) {

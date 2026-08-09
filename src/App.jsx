@@ -191,7 +191,7 @@ const JOBS = [
 ];
 
 const SUPPLIERS = [
-  { id: 1, name: "Nature Coast Fence Supply", category: "Fencing Materials", location: "Weeki Wachee, FL", website: "https://naturecoastfencesupply.com", phone: "", bio: "Wholesale vinyl, chain link, and aluminum fence materials. Over 90% manufactured in the USA — vinyl fence profiles extruded right in Hernando County. Family-owned since 2018." },
+  { id: 1, name: "Nature Coast Fence Supply", category: "Fencing Materials", location: "Weeki Wachee, FL", website: "https://naturecoastfencesupply.com", phone: "352-710-9991", bio: "Wholesale vinyl, chain link, and aluminum fence materials. Over 90% manufactured in the USA — vinyl fence profiles extruded right in Hernando County. Family-owned since 2018." },
 ];
 
 // ── Matching engine (expanded plain-language keyword map) ────────────────────

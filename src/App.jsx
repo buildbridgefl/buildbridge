@@ -350,7 +350,7 @@ const makeCss = () => `
       background: ${C.panel}F2; backdrop-filter: blur(10px);
       border-top: 1px solid ${C.border};
       padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
-      justify-content: space-around;
+      justify-content: flex-start; overflow-x: auto; scrollbar-width: none;
     }
     .scroll-col { height: calc(100vh - 64px); padding: 14px 12px 110px; }
     .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }

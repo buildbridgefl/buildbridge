@@ -18,6 +18,56 @@ async function addFollow(vendorId) {
     return await r.json();
   } catch (e) { return null; }
 }
+async function compressImage(file, maxEdge = 1600, quality = 0.8) {
+  const bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const scale = Math.min(1, maxEdge / Math.max(bmp.width, bmp.height));
+  const w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w; canvas.height = h;
+  canvas.getContext("2d").drawImage(bmp, 0, 0, w, h);
+  return await new Promise(res => canvas.toBlob(res, "image/jpeg", quality));
+}
+async function uploadVendorPhoto(token, vendorId, file, caption) {
+  try {
+    const blob = await compressImage(file);
+    const path = `${vendorId}/${crypto.randomUUID()}.jpg`;
+    const up = await fetch(`${SB_URL}/storage/v1/object/vendor-photos/${path}`, {
+      method: "POST",
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${token}`, "Content-Type": "image/jpeg" },
+      body: blob
+    });
+    if (!up.ok) return false;
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_photos`, {
+      method: "POST",
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ vendor_id: vendorId, path: path, caption: caption || null })
+    });
+    return r.ok;
+  } catch (e) { return false; }
+}
+
+function PhotoUploader({ vendorId, onToast }) {
+  const [busy, setBusy] = useState(false);
+  const [caption, setCaption] = useState("");
+  const inputRef = useRef(null);
+  const pick = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setBusy(true);
+    const token = localStorage.getItem("bb-token");
+    const ok = await uploadVendorPhoto(token, vendorId, file, caption);
+    setBusy(false); setCaption(""); e.target.value = "";
+    onToast(ok ? "Photo uploaded — we review photos before they go live." : "Upload failed — try a different photo.");
+  };
+  return (
+    <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+      <div className="eyebrow" style={{ fontSize: 10, color: C.muted, marginBottom: 5 }}>Add a job photo</div>
+      <input value={caption} onChange={e => setCaption(e.target.value)} placeholder="What was the job? (optional)" aria-label="Photo caption" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none", marginBottom: 10 }} />
+      <input ref={inputRef} type="file" accept="image/*" onChange={pick} style={{ display: "none" }} />
+      <button onClick={() => inputRef.current.click()} disabled={busy} className="btn-ghost" style={{ width: "100%", padding: 11, fontSize: 13 }}>{busy ? "Uploading…" : "Choose photo"}</button>
+    </div>
+  );
+}
 async function submitProjectPost(postType, content, contact) {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/project_posts`, { method: "POST", headers: sbHeaders, body: JSON.stringify({ post_type: postType, content: content, contact: contact || null }) });
@@ -51,7 +101,7 @@ async function fetchMyVendorRow(token) {
 }
 async function fetchApprovedVendors() {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*&approved=eq.true&type=eq.contractor`, { headers: sbHeaders });
+    const r = await fetch(`${SB_URL}/rest/v1/vendor_applications?select=*,vendor_photos(path,caption)&approved=eq.true&type=eq.contractor`, { headers: sbHeaders });
     const rows = await r.json();
     return rows.map(v => ({
       id: 1000 + v.id,
@@ -68,6 +118,7 @@ async function fetchApprovedVendors() {
       license: v.license || null,         lat: v.lat || null,         lng: v.lng || null,         serviceRadiusMiles: v.service_radius_miles || 33,
       reviews: 0, videoTitle: v.video_title || null, videoUrl: v.video_url || null,
       specialties: v.specialties ? v.specialties.split(",").map(s => s.trim()) : [],
+      photos: (v.vendor_photos || []).map(p => ({ url: `${SB_URL}/storage/v1/object/public/vendor-photos/${p.path}`, caption: p.caption })),
       bio: v.bio || ""
    }));
   } catch (e) { return []; }
@@ -651,6 +702,12 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
 
         {tab === "portfolio" && (
           <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+           {(contractor.photos || []).map(p => (
+  <div key={p.url} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
+    <img src={p.url} alt={p.caption || "Project photo"} loading="lazy" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} />
+    {p.caption && <div style={{ padding: "10px 12px", fontWeight: 700, fontSize: 13, color: C.white }}>{p.caption}</div>}
+  </div>
+))}
             {(contractor.projects || []).map((proj, i) => (
               <div key={proj} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
                 <div style={{ height: 84, background: `linear-gradient(135deg, ${[C.blue, C.green, C.red, C.purple][i]}22, ${C.panel})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -662,7 +719,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
                 </div>
               </div>
             ))}
-            {(!contractor.projects || contractor.projects.length === 0) && (
+            {(!contractor.projects || contractor.projects.length === 0)&& !(contractor.photos || []).length && (
           <div style={{ gridColumn: "1 / -1", padding: 24, textAlign: "center", color: C.muted, fontSize: 13 }}>No projects posted yet — check back soon.</div>
           )}
           </div>
@@ -1286,6 +1343,7 @@ useEffect(() => {
                     <textarea value={editForm.bio} onChange={e => setEditForm({ ...editForm, bio: e.target.value })} aria-label="About your business" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13, minHeight: 100, resize: "vertical", fontFamily: "inherit", outline: "none", marginBottom: 14 }} />
                     <div style={{ background: C.panel, border: `1px dashed ${C.line}`, borderRadius: 10, padding: 12, marginBottom: 14, fontSize: 12, color: C.dim, lineHeight: 1.5 }}>Business name, trade, license number, and email are locked. Your email is your sign-in — contact BuildBridge to change it.</div>
                     <button onClick={async () => { const token = localStorage.getItem("bb-token"); const ok = await updateMyVendorRow(token, v.id, editForm); showToast(ok ? "Saved" : "Couldn't save — try again"); if (ok) track("profile_self_edit", v.company); }} className="btn-primary" style={{ width: "100%", padding: 12, fontSize: 13.5 }}>Save changes</button>
+                    <PhotoUploader vendorId={v.id} onToast={showToast} />
                   </div>
                 ))}
               </>

@@ -344,7 +344,7 @@ const makeCss = () => `
 
   @media (max-width: 1000px) { .side-col { display: none; } .main-col { border-right: none; } }
   @media (max-width: 760px) {
-    .top-nav { display: none; }     .menu-btn { display: flex; }     .top-actions .btn-ghost { display: none; }     .top-actions .fb-btn { display: inline-flex; font-size: 11px; padding: 6px 10px; line-height: 1.2; text-align: center; }     .post-btn { display: none !important; }     .logo-btn { position: absolute; left: 50%; transform: translateX(-50%); }     .fb-stack { display: inline; }     .hide-mobile-inline { display: none; }     .logo-svg { width: 140px; }
+    .top-nav { display: none; }     .menu-btn { display: flex; }     .top-actions .btn-ghost { display: none; }     .top-actions .fb-btn { display: inline-flex; font-size: 11px; padding: 6px 10px; line-height: 1.2; text-align: center; }     .post-btn { display: none !important; }     .logo-btn { position: absolute; left: 50%; transform: translateX(-50%); }     .fb-stack { display: inline; }     .hide-mobile-inline { display: none; }     .logo-svg { width: 150px; }
     .bottom-nav {
       display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
       background: ${C.panel}F2; backdrop-filter: blur(10px);

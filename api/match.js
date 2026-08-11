@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { description, budget, timeline, contractors, history } = req.body || {};
+  const { description, budget, timeline, town, contractors, history } = req.body || {};
 
   // Build a normalized turn list. Old callers send only `description`.
   const turns = Array.isArray(history) && history.length > 0
@@ -68,7 +68,7 @@ Conversation so far:
 ${transcript}
 
 Budget: ${budget || "not specified"}
-Timeline: ${timeline || "not specified"}
+Timeline: ${timeline || "not specified"} Homeowner's town: ${town || "not specified"}
 
 ${questionRules}
 

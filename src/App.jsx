@@ -1076,7 +1076,7 @@ useEffect(() => {
           return c ? { ...c, reasons: m.reason ? [m.reason] : [] } : null;
         })
         .filter(Boolean);
-      if (matched.length === 0) throw new Error("empty");
+      if (matched.length === 0 && !data.summary) throw new Error("empty");
       setMatchResults(applyDistance(matched));
       setMatchSummary(data.summary || ""); setMatchOutreach(data.outreach || ""); setMatchQuestions(data.questions || []);
     } catch {

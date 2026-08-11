@@ -1482,7 +1482,7 @@ useEffect(() => {
                     <div style={{ fontSize: 13, color: C.dim, marginTop: 6 }}>Describe it in plain words — Pablo finds the verified contractors who cover your town</div>
                   </div>
                 </div>
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20 }}>
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20, marginBottom: 20, opacity: pabloQuestion ? 0.45 : 1, transition: "opacity 0.25s ease" }}>
                   <textarea value={matchInput} onChange={e => setMatchInput(e.target.value)} aria-label="Describe your project"
                     placeholder='Example: "My lanai screen ripped in the storm and the roof is leaking near the back bedroom. Crystal River area, want it fixed this month."'
                     style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 14, color: C.text, fontSize: 13.5, resize: "vertical", minHeight: 110, fontFamily: "inherit", outline: "none", marginBottom: 14, lineHeight: 1.55 }} />

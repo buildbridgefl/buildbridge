@@ -1064,7 +1064,7 @@ useEffect(() => {
         body: JSON.stringify({
           history: turns,
           budget: matchBudget,
-          timeline: matchTimeline,
+          timeline: matchTimeline, town: matchTown,
           contractors: ALL.filter(c => !c.hidden).map(({ id, name, company, trade, specialties, location, rating, jobs, verified }) => ({ id, name, company, trade, specialties, location, rating, jobs, verified })),
         }),
       });

@@ -340,11 +340,11 @@ const makeCss = () => `
   .side-col { width: 300px; flex-shrink: 0; }
   .scroll-col { overflow-y: auto; height: calc(100vh - 64px); padding: 20px 18px 90px; }
   .top-nav { display: flex; gap: 2px; }
-  .bottom-nav { display: none; }
+  .bottom-nav { display: none; }   .menu-btn { display: none; }   .drawer-backdrop { position: fixed; inset: 0; background: rgba(4,8,16,0.6); z-index: 190; }   .drawer {     position: fixed; top: 0; left: 0; bottom: 0; width: 82%; max-width: 320px;     background: ${C.panel}; border-right: 1px solid ${C.border};     z-index: 191; overflow-y: auto; padding-bottom: 24px;     animation: slideIn 0.2s ease;   }   @keyframes slideIn { from { transform: translateX(-100%); } to { transform: none; } }
 
   @media (max-width: 1000px) { .side-col { display: none; } .main-col { border-right: none; } }
   @media (max-width: 760px) {
-    .top-nav { display: none; }
+    .top-nav { display: none; }     .menu-btn { display: flex; }
     .bottom-nav {
       display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
       background: ${C.panel}F2; backdrop-filter: blur(10px);
@@ -383,7 +383,7 @@ function Icon({ name, size = 18, color = "currentColor", style }) {
     search: <><circle {...P} cx="10.5" cy="10.5" r="6.5" /><path {...P} d="m15.5 15.5 5 5" /></>,
     dollar: <path {...P} d="M12 2.5v19M16.5 6.5c-.8-1.3-2.4-2-4.5-2-2.5 0-4.5 1.3-4.5 3.4 0 4.6 9 2.6 9 7.2 0 2.1-2 3.4-4.5 3.4-2.1 0-3.7-.7-4.5-2" />,
     arrowRight: <path {...P} d="M4 12h16m0 0-6-6m6 6-6 6" />,
-    x: <path {...P} d="M6 6l12 12M18 6 6 18" />,
+    x: <path {...P} d="M6 6l12 12M18 6 6 18" />,     menu: <path {...P} d="M4 7h16M4 12h16M4 17h16" />,
   };
   return <svg width={size} height={size} viewBox="0 0 24 24" style={{ flexShrink: 0, display: "block", ...style }} aria-hidden="true">{paths[name]}</svg>;
 }
@@ -1086,7 +1086,7 @@ useEffect(() => {
     }
   };
 
-  if (coverageMode) return <div style={{ background: C.bg, minHeight: "100vh", padding: 20 }}><CoverageDashboard roster={ALL.filter(c => !c.hidden)} onBack={() => { window.history.replaceState(null, "", window.location.pathname); setCoverageMode(false); }} /></div>;    const navItems = [
+  if (coverageMode) return <div style={{ background: C.bg, minHeight: "100vh", padding: 20 }}><CoverageDashboard roster={ALL.filter(c => !c.hidden)} onBack={() => { window.history.replaceState(null, "", window.location.pathname); setCoverageMode(false); }} /></div>;    const [drawerOpen, setDrawerOpen] = useState(false);     const navItems = [
   { id: "feed", icon: "home", label: "Feed" },
 { id: "match", icon: "sparkles", label: "AI Match" },
 { id: "jobs", icon: "hammer", label: "Find Work" },
@@ -1096,7 +1096,7 @@ useEffect(() => {
 { id: "suppliers", icon: "truck", label: "Suppliers" }, { id: "myprofile", icon: "clipboard", label: "My Profile" },  
   ];
 
-  const NavButtons = ({ vertical = false }) =>
+  const MOBILE_TABS = [     { id: "feed", icon: "home", label: "Home" },     { id: "match", icon: "sparkles", label: "Match" },     { id: "network", icon: "users", label: "Contractors" },     { id: "suppliers", icon: "truck", label: "Suppliers" },   ];    const DRAWER_SECTIONS = [     { heading: "Find a pro", items: [       { id: "feed", icon: "home", label: "Home" },       { id: "match", icon: "sparkles", label: "AI Match" },       { id: "network", icon: "users", label: "Browse contractors" },       { id: "suppliers", icon: "truck", label: "Material suppliers" },     ]},     { heading: "Guides & resources", items: [       { id: "permits", icon: "clipboard", label: "Permit Prep (HB 803)" },     ]},     { heading: "For contractors", items: [       { id: "jobs", icon: "hammer", label: "Find work" },       { id: "projects", icon: "clipboard", label: "Projects" },       { id: "myprofile", icon: "clipboard", label: "My profile" },     ]},   ];    const NavButtons = ({ vertical = false }) =>
     navItems.map(n => {
       const active = view === n.id || (view === "profile" && n.id === "feed");
       return (
@@ -1121,7 +1121,7 @@ useEffect(() => {
 
       {/* Header */}
       <header style={{ background: `${C.panel}F0`, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.border}`, height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", position: "sticky", top: 0, zIndex: 100 }}>
-        <button onClick={() => goView("feed")} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label="BuildBridge home">
+        <button className="menu-btn" onClick={() => setDrawerOpen(true)} aria-label="Open menu" style={{ background: "none", border: "none", cursor: "pointer", color: C.text, padding: 4, marginRight: 4, alignItems: "center" }}><Icon name="menu" size={24} /></button>         <button onClick={() => goView("feed")} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label="BuildBridge home">
           <svg width="150" height="34" viewBox="0 0 900 260" style={{ flexShrink: 0 }}>
 <text x="450" y="130" fontFamily="Arial, Helvetica, sans-serif" fontSize="86" fontWeight="700" textAnchor="middle" fill={C.text}>Build<tspan fill={C.orange}>Bridge</tspan></text>
   <path d="M 200 175 Q 450 130 700 175" fill="none" stroke={C.orangeDk} strokeWidth="4" />
@@ -1141,7 +1141,7 @@ useEffect(() => {
             <Icon name="plus" size={14} color="#14100A" /><span className="hide-mobile">Post</span>
           </button>
         </div>
-      </header>
+      </header>        {drawerOpen && (         <>           <div className="drawer-backdrop" onClick={() => setDrawerOpen(false)} />           <nav className="drawer" aria-label="Menu">             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, padding: "0 16px", borderBottom: `1px solid ${C.border}` }}>               <div className="display" style={{ fontWeight: 800, fontSize: 16, color: C.white }}>Menu</div>               <button onClick={() => setDrawerOpen(false)} aria-label="Close menu" style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 999, cursor: "pointer", color: C.muted, padding: 6, display: "flex" }}><Icon name="x" size={16} /></button>             </div>             {DRAWER_SECTIONS.map(sec => (               <div key={sec.heading} style={{ padding: "18px 0 4px", borderBottom: `1px solid ${C.border}` }}>                 <div className="eyebrow" style={{ padding: "0 18px 10px", color: C.muted }}>{sec.heading}</div>                 {sec.items.map(it => (                   <button key={it.id + it.label} onClick={() => { setDrawerOpen(false); goView(it.id); }} style={{ display: "flex", alignItems: "center", gap: 14, width: "100%", background: view === it.id ? `${C.orange}14` : "transparent", border: "none", padding: "12px 18px", cursor: "pointer", color: view === it.id ? C.orange : C.text, fontSize: 14.5, fontWeight: 600, textAlign: "left" }}>                     <Icon name={it.icon} size={19} color={view === it.id ? C.orange : C.muted} />{it.label}                   </button>                 ))}               </div>             ))}             <div style={{ padding: "18px 18px 8px" }}>               <button onClick={() => { setDrawerOpen(false); authUser ? (localStorage.removeItem("bb-token"), setAuthUser(null), showToast("Signed out")) : setLoginModal(true); }} className="btn-ghost" style={{ width: "100%", padding: 11, fontSize: 13, marginBottom: 8 }}>{authUser ? "Sign out" : "Contractor login"}</button>               <button onClick={() => (track("facebook_follow_click", "drawer"), window.open("https://www.facebook.com/profile.php?id=61591959271748"))} className="btn-ghost" style={{ width: "100%", padding: 11, fontSize: 13, color: C.blue, marginBottom: 8 }}>Follow us on Facebook</button>               <button onClick={() => (track("facebook_group_click", "drawer"), window.open("https://www.facebook.com/groups/1454402876451068/"))} className="btn-ghost" style={{ width: "100%", padding: 11, fontSize: 13, color: C.orange, marginBottom: 8 }}>Join the group</button>               <button onClick={toggleTheme} className="btn-ghost" style={{ width: "100%", padding: 11, fontSize: 13 }}>{theme === "light" ? "🌙  Dark mode" : "☀️  Light mode"}</button>             </div>           </nav>         </>       )}
 
    {/* Claim listing modal */}
 {claimTarget && (

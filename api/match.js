@@ -77,7 +77,7 @@ When you return matches:
 - If the project spans multiple trades or needs coordination, include the Project Management contractor and say why.
 - Rank best fit first. Only include genuinely relevant contractors (1 to 4 of them).
 - Keep each reason to one short sentence a homeowner would understand.
-- If nobody on the roster genuinely fits, return an empty matches array and say so plainly in the summary.
+- If nobody on the roster genuinely fits, return an empty matches array and say so plainly in the summary.  Also write "outreach": a short message the HOMEOWNER can send to the contractor. Rules for it: - Write it in first person as the homeowner ("My water heater stopped..."). - Plain, calm, specific. Four to six sentences, no more. - Include: what's wrong, the town, the timeline, and anything the homeowner told you in the conversation that a contractor would need before quoting. - No greeting with a name, no sign-off, no invented details, no phone number or address. - Do not mention BuildBridge, Pablo, or that AI wrote it.
 
 Respond with ONLY valid JSON, no markdown, no backticks, in exactly ONE of these two shapes:
 
@@ -85,7 +85,7 @@ To ask a follow-up question:
 {"question": "your one short question here"}
 
 To return matches:
-{"summary": "one sentence describing what this project needs", "matches": [{"id": 3, "reason": "one short sentence why this contractor fits"}]}`;
+{"summary": "one sentence describing what this project needs", "outreach": "the homeowner's message to send", "matches": [{"id": 3, "reason": "one short sentence why this contractor fits"}]}`;
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -97,7 +97,7 @@ To return matches:
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 700,
+        max_tokens: 900,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -133,7 +133,7 @@ To return matches:
     }
 
     return res.status(200).json({
-      summary: typeof parsed.summary === "string" ? parsed.summary : "",
+      summary: typeof parsed.summary === "string" ? parsed.summary : "",       outreach: typeof parsed.outreach === "string" ? parsed.outreach : "",
       matches: parsed.matches
         .filter(m => m && typeof m.id === "number")
         .map(m => ({ id: m.id, reason: String(m.reason || "") })),

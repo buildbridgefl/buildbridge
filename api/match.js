@@ -77,7 +77,7 @@ When you return matches:
 - If the project spans multiple trades or needs coordination, include the Project Management contractor and say why.
 - Rank best fit first. Only include genuinely relevant contractors (1 to 4 of them).
 - Keep each reason to one short sentence a homeowner would understand.
-- If nobody on the roster genuinely fits, return an empty matches array and say so plainly in the summary.  Also write "outreach": a short message the HOMEOWNER can send to the contractor. Rules for it: - Write it in first person as the homeowner ("My water heater stopped..."). - Plain, calm, specific. Four to six sentences, no more. - Include: what's wrong, the town, the timeline, and anything the homeowner told you in the conversation that a contractor would need before quoting. - No greeting with a name, no sign-off, no invented details, no phone number or address. - Do not mention BuildBridge, Pablo, or that AI wrote it.
+- If nobody on the roster genuinely fits, return an empty matches array and say so plainly in the summary.  Also write "outreach": a short message the HOMEOWNER can send to the contractor. Rules for it: - Write it in first person as the homeowner ("My water heater stopped..."). - Plain, calm, specific. Four to six sentences, no more. - Include: what's wrong, the town, the timeline, and anything the homeowner told you in the conversation that a contractor would need before quoting. - No greeting with a name, no sign-off, no invented details, no phone number or address. - Do not mention BuildBridge, Pablo, or that AI wrote it.  Also write "questions": 3 or 4 questions the homeowner should ask the contractor. Rules for these: - Specific to THIS trade and THIS job. A roof leak and a water heater swap get completely different questions. Never generic ones like "are you licensed" or "how long have you been in business." - Aim at things that change the price or the outcome: scope, what's included vs. extra, materials, who pulls the permit, warranty terms, what happens if they find something worse underneath. - Frame them as getting on the same page, NEVER as catching a dishonest contractor. A good contractor should be glad to be asked. - One sentence each, plain homeowner language, no jargon.
 
 Respond with ONLY valid JSON, no markdown, no backticks, in exactly ONE of these two shapes:
 
@@ -85,7 +85,7 @@ To ask a follow-up question:
 {"question": "your one short question here"}
 
 To return matches:
-{"summary": "one sentence describing what this project needs", "outreach": "the homeowner's message to send", "matches": [{"id": 3, "reason": "one short sentence why this contractor fits"}]}`;
+{"summary": "one sentence describing what this project needs", "outreach": "the homeowner's message to send", "questions": ["question one", "question two", "question three"], "matches": [{"id": 3, "reason": "one short sentence why this contractor fits"}]}`;
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -97,7 +97,7 @@ To return matches:
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 900,
+        max_tokens: 1200,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -133,7 +133,7 @@ To return matches:
     }
 
     return res.status(200).json({
-      summary: typeof parsed.summary === "string" ? parsed.summary : "",       outreach: typeof parsed.outreach === "string" ? parsed.outreach : "",
+      summary: typeof parsed.summary === "string" ? parsed.summary : "",       outreach: typeof parsed.outreach === "string" ? parsed.outreach : "",       questions: Array.isArray(parsed.questions) ? parsed.questions.filter(q => typeof q === "string").slice(0, 4) : [],
       matches: parsed.matches
         .filter(m => m && typeof m.id === "number")
         .map(m => ({ id: m.id, reason: String(m.reason || "") })),

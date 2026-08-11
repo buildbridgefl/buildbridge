@@ -1052,8 +1052,8 @@ useEffect(() => {
     setMatchSummary("");
   };
 
-  const runMatch = async () => {
-    if (!matchInput.trim()) { showToast("Describe your project first"); return; }
+  const runMatch = () => {     if (!matchInput.trim()) return showToast("Describe your project first");     const turns = [{ role: "user", content: matchInput }];     setPabloTurns(turns);     setPabloAnswer("");     askPablo(turns);   };    const answerPablo = () => {     if (!pabloAnswer.trim()) return showToast("Type your answer first");     const turns = [...pabloTurns, { role: "assistant", content: pabloQuestion }, { role: "user", content: pabloAnswer }];     setPabloTurns(turns);     setPabloAnswer("");     askPablo(turns);   };    const skipPablo = () => {     const turns = [...pabloTurns, { role: "assistant", content: pabloQuestion }, { role: "user", content: "Skip — just show me contractors." }];     setPabloTurns(turns);     setPabloAnswer("");     askPablo(turns);   };    const askPablo = async (turns) => {
+    setPabloQuestion("");
     setMatchLoading(true);
     setMatchResults(null);
     setMatchSummary("");
@@ -1062,14 +1062,14 @@ useEffect(() => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          description: matchInput,
+          history: turns,
           budget: matchBudget,
           timeline: matchTimeline,
           contractors: ALL.filter(c => !c.hidden).map(({ id, name, company, trade, specialties, location, rating, jobs, verified }) => ({ id, name, company, trade, specialties, location, rating, jobs, verified })),
         }),
       });
       if (!r.ok) throw new Error("api");
-      const data = await r.json();
+      const data = await r.json();       if (data.question) { setPabloQuestion(data.question); return; }
       const matched = (data.matches || [])
         .map(m => {
           const c = ALL.find(x => x.id === m.id && !x.hidden);

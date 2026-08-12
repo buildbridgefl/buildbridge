@@ -8,7 +8,7 @@
 //   dry=1  → returns what WOULD be sent, sends nothing.
 
 const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
-const FROM = "BuildBridge FL <noreply@send.buildbridgefl.com>";
+const FROM = "BuildBridge FL <noreply@buildbridgefl.com>";
 const SITE = "https://buildbridgefl.com";
 const LOOKBACK_HOURS = 24;
 

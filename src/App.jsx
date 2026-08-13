@@ -1420,7 +1420,7 @@ useEffect(() => {
                         )}
                       </div>
                       <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                        <button onClick={() => openProfile(c)} className={c.phone ? "btn-ghost" : "btn-primary"} style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
+                        <button onClick={() => openProfile(c)} className={c.phone ? "btn-primary" : "btn-primary"} style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
                         <a href={`tel:${c.phone?.replace(/\D/g, "")}`} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
                           <Icon name="phone" size={13} />Call
                         </a>
@@ -1546,7 +1546,7 @@ useEffect(() => {
                               </div>
                             )}
                             <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-                              <button onClick={() => openProfile(c)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
+                              <button onClick={() => openProfile(c)} className={c.phone ? "btn-ghost" : "btn-primary"} style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
                               <button onClick={() => c.email ? (window.location.href = `mailto:${c.email}?subject=BuildBridge Inquiry`) : showToast(`Call ${c.name} to connect`)} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12 }}>Message</button>{c.phone && <a href={`tel:${c.phone.replace(/\D/g, "")}`} onClick={() => track("match_call_click", c.company)} className="btn-primary" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}><Icon name="phone" size={13} color="#14100A" />Call {c.phone}</a>}
                             </div>
                           </div>

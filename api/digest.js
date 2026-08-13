@@ -68,7 +68,7 @@ export default async function handler(req, res) {
 
     const dayName = new Date().toLocaleDateString("en-US", { weekday: "long", timeZone: "America/New_York" });
     const count = posts.length;
-    const subject = `New ${count === 1 ? "project" : "projects"} in Citrus County — ${dayName}`;
+    const subject = `New ${count === 1 ? "project" : "projects"} — ${dayName}`;
 
     const opener = count === 1
       ? "One homeowner posted a project yesterday. Here's what came in."

@@ -70,7 +70,7 @@ ${transcript}
 Budget: ${budget || "not specified"}
 Timeline: ${timeline || "not specified"} Homeowner's town: ${town || "not specified"}
 
-${questionRules} ${isDanger ? `SAFETY OVERRIDE — this outranks every other instruction below. The homeowner has described a possible gas leak, sparking, burning, or smoke. Do NOT recommend any contractor. Return an empty "matches" array, an empty string for "outreach" and "permit", and an empty array for "questions". In "summary", tell them plainly to leave the house now and call 911 — and the gas company too if they smell gas. Nothing else.` : isUrgent ? `URGENT JOB — this is happening right now, not a project being planned. Do not ask a follow-up question. Override the "1 to 4" limit below and return 4 or 5 genuinely qualified contractors: at this hour many will not pick up, and the homeowner needs a list to work down rather than one number. Still never include a contractor whose trade does not actually cover the work. In "summary", lead with telling them to start calling now, in the order listed, instead of waiting on a reply. Write "outreach" as something short enough to leave as a voicemail or text.` : ""}
+${questionRules} ${isDanger ? `SAFETY OVERRIDE — this outranks every other instruction below. The homeowner has described a possible gas leak, sparking, burning, or smoke. Do NOT recommend any contractor. Return an empty "matches" array, an empty string for "outreach" and "permit", and an empty array for "questions". In "summary", tell them plainly to leave the house now and call 911 — and the gas company too if they smell gas. Do not begin the summary with 'SAFETY OVERRIDE' or any other label — start directly with what they should do. Nothing else.` : isUrgent ? `URGENT JOB — this is happening right now, not a project being planned. Do not ask a follow-up question. Override the "1 to 4" limit below and return 4 or 5 genuinely qualified contractors: at this hour many will not pick up, and the homeowner needs a list to work down rather than one number. Still never include a contractor whose trade does not actually cover the work. In "summary", lead with telling them to start calling now, in the order listed, instead of waiting on a reply. Write "outreach" as something short enough to leave as a voicemail or text.` : ""}
 
 When you return matches:
 - Identify the trade(s) the project actually needs, even if the homeowner uses vague or plain language.
@@ -134,7 +134,7 @@ To return matches:
 
     return res.status(200).json({
       summary: typeof parsed.summary === "string" ? parsed.summary : "",       outreach: typeof parsed.outreach === "string" ? parsed.outreach : "",       questions: Array.isArray(parsed.questions) ? parsed.questions.filter(q => typeof q === "string").slice(0, 4) : [],       permit: typeof parsed.permit === "string" ? parsed.permit : "",
-      matches: parsed.matches
+      emergency: isUrgent,       danger: isDanger,       matches: parsed.matches
         .filter(m => m && typeof m.id === "number")
         .map(m => ({ id: m.id, reason: String(m.reason || "") })),
     });

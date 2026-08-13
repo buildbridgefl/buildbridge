@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
   // How many questions has Pablo already asked in this conversation?
   const askedCount = turns.filter(m => m.role === "assistant").length;
-  const mustAnswerNow = askedCount >= MAX_QUESTIONS;
+  const homeownerSaid = turns.filter(m => m.role === "user").map(m => m.content).join(" ").toLowerCase(); const isDanger = /smell(s|ing)? gas|gas leak|sparking|burning smell|smell(s|ing)? smoke|smoke coming/.test(homeownerSaid); const isUrgent = !isDanger && /actively leaking|leaking everywhere|water everywhere|flooding|flooded|gushing|burst pipe|pipe burst|sewage|backing up|backed up|no a\/?c|no air condition|not cooling|no power/.test(homeownerSaid); const mustAnswerNow = askedCount >= MAX_QUESTIONS || isUrgent || isDanger;
 
   const roster = contractors
     .map(c => `id:${c.id} | ${c.name} — ${c.company} | trade: ${c.trade} | specialties: ${(c.specialties || []).join(", ")} | location: ${c.location} | rating: ${c.rating} | jobs: ${c.jobs} | licensed: ${c.verified ? "yes" : "no"}`)

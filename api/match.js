@@ -134,7 +134,7 @@ To return matches:
 
     return res.status(200).json({
       summary: typeof parsed.summary === "string" ? parsed.summary : "",       outreach: typeof parsed.outreach === "string" ? parsed.outreach : "",       questions: Array.isArray(parsed.questions) ? parsed.questions.filter(q => typeof q === "string").slice(0, 4) : [],       permit: typeof parsed.permit === "string" ? parsed.permit : "",
-      emergency: isUrgent,       danger: isDanger,       matches: parsed.matches
+      emergency: isUrgent,       danger: isDanger,       emergency: isUrgent,       danger: isDanger,       emergency: isUrgent,       danger: isDanger,       matches: parsed.matches
         .filter(m => m && typeof m.id === "number")
         .map(m => ({ id: m.id, reason: String(m.reason || "") })),
     });

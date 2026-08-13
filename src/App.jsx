@@ -1420,7 +1420,7 @@ useEffect(() => {
                         )}
                       </div>
                       <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                        <button onClick={() => openProfile(c)} className="btn-primary" style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
+                        <button onClick={() => openProfile(c)} className={c.phone ? "btn-ghost" : "btn-primary"} style={{ padding: "8px 16px", fontSize: 12 }}>View profile</button>
                         <a href={`tel:${c.phone?.replace(/\D/g, "")}`} className="btn-ghost" style={{ padding: "8px 14px", fontSize: 12, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
                           <Icon name="phone" size={13} />Call
                         </a>

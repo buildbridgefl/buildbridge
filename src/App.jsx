@@ -68,9 +68,9 @@ function PhotoUploader({ vendorId, onToast }) {
     </div>
   );
 }
-async function submitProjectPost(postType, content, contact) {
+async function submitProjectPost(postType, content, contact, trade) {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/project_posts`, { method: "POST", headers: sbHeaders, body: JSON.stringify({ post_type: postType, content: content, contact: contact || null }) });
+    const r = await fetch(`${SB_URL}/rest/v1/project_posts`, { method: "POST", headers: sbHeaders, body: JSON.stringify({ post_type: postType, content: content, contact: contact || null, trade: trade || null }) });
     return r.ok;
   } catch (e) { return false; }
 }

@@ -59,7 +59,7 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
               Citrus &amp; Hernando · License-verified · Free
             </div>
           </div>
-          <button onClick={onBack} className="btn-ghost" style={{ padding: "7px 13px", fontSize: 12 }}>Full site</button>
+          <div style={{ display: "flex", gap: 7 }}><button onClick={toggleTheme} aria-label="Toggle light or dark" className="btn-ghost" style={{ padding: "7px 11px", fontSize: 13 }}>{theme === "light" ? "\u263E" : "\u2600"}</button><button onClick={onBack} className="btn-ghost" style={{ padding: "7px 13px", fontSize: 12 }}>Full site</button></div>
         </div>
 
         <div style={{

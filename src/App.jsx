@@ -1088,6 +1088,7 @@ useEffect(() => {
     }
   };
 
+ if (prosMode) return <ProsPage roster={ALL.filter(c => !c.hidden && c.lat != null)} towns={TOWNS} bucket={tradeBucket} dist={milesBetween} C={C} onBack={() => { window.history.replaceState(null, "", window.location.pathname); setProsMode(false); }} onAskPablo={() => { window.history.replaceState(null, "", window.location.pathname); setProsMode(false); goView("match"); }} />;
   if (coverageMode) return <div style={{ background: C.bg, minHeight: "100vh", padding: 20 }}><CoverageDashboard roster={ALL.filter(c => !c.hidden)} onBack={() => { window.history.replaceState(null, "", window.location.pathname); setCoverageMode(false); }} /></div>;    const [drawerOpen, setDrawerOpen] = useState(false);     const navItems = [
   { id: "feed", icon: "home", label: "Feed" },
 { id: "match", icon: "sparkles", label: "AI Match" },

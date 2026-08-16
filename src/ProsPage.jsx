@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 
-export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAskPablo }) {
+export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAskPablo, theme, toggleTheme }) {
   const RADIUS = 33;
   const SHOW_PER_TRADE = 3;
 

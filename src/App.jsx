@@ -283,7 +283,7 @@ const DARK = {
   blue: "#5B9DFF",
   green: "#34D178",
   red: "#FF5C5C",
-  purple: "#A78BFA",
+  purple: "#A78BFA",   gold: "#D9AE3B",
   text: "#DCE4F2",
   dim: "#93A3C0",
  muted: "#5D6E8F",
@@ -1405,7 +1405,7 @@ useEffect(() => {
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
                           {c.verified && <Badge text={c.license ? "Licensed" : "Verified"} color={c.license ? C.green : C.blue} icon="badge" />}
-                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}
+                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}                           {c.claimed !== false && <Badge text="Claimed" color={C.gold} icon="badge" />}
                         </div>
                       </div>
                       <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>

@@ -1026,7 +1026,7 @@ useEffect(() => {
   const [theme, setTheme] = useState(() => localStorage.getItem("bb-theme") || "dark");   useEffect(() => { Object.assign(C, theme === "light" ? LIGHT : DARK); }, [theme]);   const toggleTheme = () => { const next = theme === "light" ? "dark" : "light"; Object.assign(C, next === "light" ? LIGHT : DARK); localStorage.setItem("bb-theme", next); setTheme(next); };   const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2500); };
   const openProfile = c => { setActiveProfile(c); setView("profile"); };
   const goView = id => { setView(id); setActiveProfile(null); };   const [coverageMode, setCoverageMode] = useState(() => new URLSearchParams(window.location.search).get("coverage") === "1");
-  const [prosMode, setProsMode] = useState(() => new URLSearchParams(window.location.search).get("pros") === "1");
+  const [prosMode, setProsMode] = useState(() => new URLSearchParams(window.location.search).get("pros") === "1" || window.location.pathname.replace(/\/$/, "") === "/pros");
 
   const filteredNetwork = useMemo(() => {
     const q = networkQuery.trim().toLowerCase();

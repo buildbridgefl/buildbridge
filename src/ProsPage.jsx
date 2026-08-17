@@ -37,11 +37,11 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
       display: "inline-flex", alignItems: "center", gap: 5,
       fontSize: 10, fontWeight: 800, letterSpacing: "0.08em",
       textTransform: "uppercase", padding: "3px 8px", borderRadius: 20,
-      background: gold ? "#D9AE3B" : "transparent",
-      border: `1px solid ${gold ? "#B8901A" : C.border}`,
-      color: gold ? "#1A1305" : C.muted, whiteSpace: "nowrap",
+      background: gold ? `${C.gold}1F` : "transparent",
+      border: `1px solid ${gold ? C.gold + "77" : C.border}`,
+      color: gold ? C.gold : C.muted, whiteSpace: "nowrap",
     }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: gold ? "#1A1305" : C.muted }} />
+      <span style={{ width: 5, height: 5, borderRadius: "50%", background: gold ? C.gold : C.muted }} />
       {text}
     </span>
   );

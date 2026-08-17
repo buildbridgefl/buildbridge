@@ -292,7 +292,7 @@ const DARK = {
 };
 
 const LIGHT = {
-  bg: "#F1F5FA", panel: "#F8FAFD", card: "#FFFFFF", border: "#DDE4EF", line: "#E6ECF4",
+  bg: "#E3EAF3", panel: "#F8FAFD", card: "#FFFFFF", border: "#DDE4EF", line: "#E6ECF4",
   orange: "#F07800", orangeDk: "#B85400", blue: "#2563EB", green: "#0E8A4C", red: "#D63333",
   purple: "#7C4DE0", text: "#111A2B", dim: "#4B5B76", muted: "#78889F", white: "#0A1220",
 };

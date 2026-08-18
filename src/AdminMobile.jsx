@@ -1,5 +1,5 @@
 // src/AdminMobile.jsx — BuildBridge mobile admin
-// Step 2: key gate + pending claims list.
+// Step 4: key gate + pending claims list + approve & claim.
 // Talks only to /api/admin, never to Supabase directly.
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -43,6 +43,9 @@ export default function AdminMobile() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [confirmId, setConfirmId] = useState(null);   // claim awaiting confirmation
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [done, setDone] = useState(null);             // { company, email } after approval
 
   const load = useCallback(async (key) => {
     setBusy(true);
@@ -80,6 +83,41 @@ export default function AdminMobile() {
       if (remember) {
         try { window.localStorage.setItem(KEY_STORE, key); } catch (e) {}
       }
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const startConfirm = (c) => {
+    setErr("");
+    setConfirmId(c.claim_id);
+    setConfirmEmail(c.email || "");
+  };
+
+  const cancelConfirm = () => {
+    setConfirmId(null);
+    setConfirmEmail("");
+  };
+
+  const doApprove = async (c) => {
+    setBusy(true);
+    setErr("");
+    try {
+      const r = await callAdmin(secret, "approve", {
+        claim_id: c.claim_id,
+        vendor_id: c.vendor_id,
+        email: confirmEmail,
+      });
+      setPending((p) => p.filter((x) => x.claim_id !== c.claim_id));
+      setConfirmId(null);
+      setOpenId(null);
+      setDone({
+        company: c.company,
+        email: r.vendor ? r.vendor.email : confirmEmail,
+        vendor_id: c.vendor_id,
+      });
     } catch (e) {
       setErr(String(e.message || e));
     } finally {
@@ -150,6 +188,47 @@ export default function AdminMobile() {
     );
   }
 
+  // ---------- Just approved ----------
+  if (done) {
+    return (
+      <div style={wrap}>
+        <div style={{ textAlign: "center", padding: "40px 0 26px" }}>
+          <div style={{ fontSize: 46, marginBottom: 10 }}>✅</div>
+          <div style={{ fontSize: 23, fontWeight: 800, marginBottom: 6 }}>
+            {done.company} is live
+          </div>
+          <div style={{ fontSize: 14, color: C.dim }}>
+            Claimed and verified. The gold badge is on the listing now.
+          </div>
+        </div>
+        <div style={cardBox}>
+          <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+            His login email
+          </div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: C.orange, wordBreak: "break-all", marginBottom: 12 }}>
+            {done.email}
+          </div>
+          <div style={{ fontSize: 13, color: C.dim, lineHeight: 1.55 }}>
+            Tell him: go to buildbridgefl.com, tap Sign in, enter that address,
+            and click the link in his email. No password to remember.
+          </div>
+        </div>
+        <a
+          href="/"
+          style={{ ...btn, display: "block", textAlign: "center", textDecoration: "none", marginBottom: 10 }}
+        >
+          Open his listing
+        </a>
+        <button
+          onClick={() => { setDone(null); load(secret); }}
+          style={{ width: "100%", padding: 12, fontSize: 14, background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 10, cursor: "pointer" }}
+        >
+          Back to pending claims
+        </button>
+      </div>
+    );
+  }
+
   // ---------- Pending list ----------
   return (
     <div style={wrap}>
@@ -181,10 +260,11 @@ export default function AdminMobile() {
 
       {pending.map((c) => {
         const open = openId === c.claim_id;
+        const confirming = confirmId === c.claim_id;
         return (
           <div key={c.claim_id} style={cardBox}>
             <div
-              onClick={() => setOpenId(open ? null : c.claim_id)}
+              onClick={() => { setOpenId(open ? null : c.claim_id); cancelConfirm(); }}
               style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}
             >
               <div style={{ minWidth: 0 }}>
@@ -224,9 +304,45 @@ export default function AdminMobile() {
                 <Row label="Vendor ID" value={String(c.vendor_id)} />
                 {c.note ? <Row label="Note" value={c.note} /> : null}
 
-                <div style={{ marginTop: 14, padding: 12, background: C.panel, borderRadius: 8, fontSize: 12, color: C.muted, textAlign: "center" }}>
-                  Approve button lands in the next step.
-                </div>
+                {confirming ? (
+                  <div style={{ marginTop: 14, padding: 14, background: C.panel, border: `1px solid ${C.orange}66`, borderRadius: 10 }}>
+                    <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5, marginBottom: 10 }}>
+                      This becomes his permanent login. He can't change it later —
+                      fix any typo now.
+                    </div>
+                    <input
+                      type="email"
+                      value={confirmEmail}
+                      onChange={(e) => setConfirmEmail(e.target.value)}
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      style={{ width: "100%", padding: 12, fontSize: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, outline: "none", marginBottom: 12 }}
+                    />
+                    <button
+                      onClick={() => doApprove(c)}
+                      disabled={busy}
+                      style={{ width: "100%", padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: busy ? 0.6 : 1, marginBottom: 8 }}
+                    >
+                      {busy ? "Working…" : "Confirm & Claim"}
+                    </button>
+                    <button
+                      onClick={cancelConfirm}
+                      disabled={busy}
+                      style={{ width: "100%", padding: 11, fontSize: 13, background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => startConfirm(c)}
+                    disabled={busy}
+                    style={{ width: "100%", marginTop: 14, padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: busy ? 0.6 : 1 }}
+                  >
+                    Approve &amp; Claim
+                  </button>
+                )}
               </div>
             ) : null}
           </div>

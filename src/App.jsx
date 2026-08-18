@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import ProsPage from "./ProsPage";
+import ProsPage from "./ProsPage"; import AdminMobile from "./AdminMobile";
 const track = (action, vendor) => { if (window.gtag) window.gtag("event", action, { vendor: vendor }); };
 const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicHd4ZmFhemV0ZmNid3hybXRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1OTU5NjcsImV4cCI6MjEwMDE3MTk2N30.5Ptc17G4dJ5iXiaWDupto0gTHhS2ltyLgDLaDBFKppM";
@@ -1088,7 +1088,7 @@ useEffect(() => {
     }
   };
 
- if (prosMode) return <><style>{makeCss()}</style><link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet" /><ProsPage roster={ALL.filter(c => !c.hidden && c.lat != null)} towns={TOWNS} bucket={tradeBucket} dist={milesBetween} C={C} onBack={() => { window.location.href = "/"; }} onAskPablo={() => { window.location.href = "/?view=match"; }} theme={theme} toggleTheme={toggleTheme} /></>;
+ const adminMode = new URLSearchParams(window.location.search).get("admin") === "1" || window.location.pathname.replace(/\/$/, "") === "/admin"; if (adminMode) return <AdminMobile />; if (prosMode) return <><style>{makeCss()}</style><link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet" /><ProsPage roster={ALL.filter(c => !c.hidden && c.lat != null)} towns={TOWNS} bucket={tradeBucket} dist={milesBetween} C={C} onBack={() => { window.location.href = "/"; }} onAskPablo={() => { window.location.href = "/?view=match"; }} theme={theme} toggleTheme={toggleTheme} /></>;
   if (coverageMode) return <div style={{ background: C.bg, minHeight: "100vh", padding: 20 }}><CoverageDashboard roster={ALL.filter(c => !c.hidden)} onBack={() => { window.history.replaceState(null, "", window.location.pathname); setCoverageMode(false); }} /></div>;    const [drawerOpen, setDrawerOpen] = useState(false);     const navItems = [
   { id: "feed", icon: "home", label: "Feed" },
 { id: "match", icon: "sparkles", label: "AI Match" },

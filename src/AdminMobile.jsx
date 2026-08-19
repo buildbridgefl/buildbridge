@@ -1,5 +1,5 @@
 // src/AdminMobile.jsx — BuildBridge mobile admin
-// Step 7: key gate + claims + photo review + camera capture + lead handoff.
+// Step 8: adds reopen-a-lead and properly dimmed placeholders.
 // Talks only to /api/admin, never to Supabase directly.
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -431,6 +431,7 @@ export default function AdminMobile() {
   // ---------- Queue ----------
   return (
     <div style={wrap}>
+      <style>{`input::placeholder { color: ${C.muted}; opacity: 0.55; font-style: italic; }`}</style>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
         <div style={{ fontSize: 20, fontWeight: 800 }}>Admin</div>
         <button
@@ -563,7 +564,15 @@ export default function AdminMobile() {
                           </div>
                         </div>
                       </div>
-                      {l.status !== "won" && l.status !== "lost" ? (
+                      {l.status === "won" || l.status === "lost" ? (
+                        <button
+                          onClick={() => setLeadStatus(l, "sent")}
+                          disabled={acting}
+                          style={{ width: "100%", marginTop: 11, padding: 10, fontSize: 12.5, background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, cursor: "pointer", opacity: acting ? 0.6 : 1 }}
+                        >
+                          {acting ? "…" : "Reopen"}
+                        </button>
+                      ) : (
                         <div style={{ display: "flex", gap: 7, marginTop: 12 }}>
                           <button
                             onClick={() => setLeadStatus(l, "won")}
@@ -587,7 +596,7 @@ export default function AdminMobile() {
                             Lost
                           </button>
                         </div>
-                      ) : null}
+                      )}
                     </div>
                   );
                 })}
@@ -617,26 +626,26 @@ export default function AdminMobile() {
               label="The job"
               value={leadForm.job}
               onChange={(v) => setLeadForm({ ...leadForm, job: v })}
-              placeholder="Tankless water heater install"
+              placeholder="e.g. Tankless water heater install"
             />
             <LeadField
               label="Homeowner"
               value={leadForm.homeowner_name}
               onChange={(v) => setLeadForm({ ...leadForm, homeowner_name: v })}
-              placeholder="Bob Reyes"
+              placeholder="e.g. Bob Reyes"
             />
             <LeadField
               label="Phone"
               value={leadForm.homeowner_phone}
               onChange={(v) => setLeadForm({ ...leadForm, homeowner_phone: v })}
-              placeholder="352-555-0134"
+              placeholder="e.g. 352-555-0134"
               type="tel"
             />
             <LeadField
               label="Town"
               value={leadForm.town}
               onChange={(v) => setLeadForm({ ...leadForm, town: v })}
-              placeholder="Lecanto"
+              placeholder="e.g. Lecanto"
             />
 
             <button

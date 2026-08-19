@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BB Admin">
 <title>BB Admin</title>
-<script>location.replace("/?admin=1");</script>
+<script>if(window.navigator.standalone){location.replace("/?admin=1");}</script>
 </head>
 <body style="background:#0B1220"></body>
 </html>

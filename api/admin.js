@@ -6,9 +6,11 @@
 // Manual test:  https://buildbridgefl.com/api/admin?secret=YOUR_ADMIN_SECRET&action=list
 //
 // Actions:
-//   list     → pending claim requests, each with its matching vendor row
-//   approve  → writes email + claimed=true on the vendor, marks the claim approved
-//   (photo comes later — step 6)
+//   list           → pending claim requests, each with its matching vendor row
+//   approve        → writes email + claimed=true on the vendor, marks the claim approved
+//   photos         → pending (unapproved) photos with vendor name and public URL
+//   photo_approve  → flips approved=true on one photo
+//   photo_reject   → deletes the storage object and the vendor_photos row
 
 const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
 
@@ -156,6 +158,104 @@ export default async function handler(req, res) {
         vendor: updated[0],
         claim_marked: claimMarked,
       });
+    }
+
+    // ---------- photos (pending queue) ----------
+    if (action === "photos") {
+      const photoRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_photos?select=*&approved=eq.false&order=created_at.desc`,
+        { headers: sbHeaders }
+      );
+      if (!photoRes.ok) {
+        throw new Error(`vendor_photos query failed: ${photoRes.status}`);
+      }
+      const photos = await photoRes.json();
+
+      if (!photos.length) {
+        return res.status(200).json({ photos: [], count: 0 });
+      }
+
+      const pIds = [...new Set(photos.map((p) => p.vendor_id).filter(Boolean))];
+      let pVendors = [];
+      if (pIds.length) {
+        const pvRes = await fetch(
+          `${SB_URL}/rest/v1/vendor_applications?select=id,name,company,trade,city&id=in.(${pIds.join(",")})`,
+          { headers: sbHeaders }
+        );
+        if (pvRes.ok) pVendors = await pvRes.json();
+      }
+      const pvById = {};
+      pVendors.forEach((v) => { pvById[v.id] = v; });
+
+      const photoOut = photos.map((p) => ({
+        photo_id: p.id,
+        vendor_id: p.vendor_id,
+        path: p.path,
+        caption: p.caption || "",
+        submitted: p.created_at || null,
+        url: `${SB_URL}/storage/v1/object/public/vendor-photos/${p.path}`,
+        company: (pvById[p.vendor_id] || {}).company || `Vendor ${p.vendor_id}`,
+        city: (pvById[p.vendor_id] || {}).city || "",
+        trade: (pvById[p.vendor_id] || {}).trade || "",
+      }));
+
+      return res.status(200).json({ photos: photoOut, count: photoOut.length });
+    }
+
+    // ---------- photo_approve ----------
+    if (action === "photo_approve") {
+      const photoId = body.photo_id;
+      if (!photoId) {
+        return res.status(400).json({ error: "photo_id is required" });
+      }
+      const okRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_photos?id=eq.${photoId}`,
+        {
+          method: "PATCH",
+          headers: { ...sbHeaders, Prefer: "return=representation" },
+          body: JSON.stringify({ approved: true }),
+        }
+      );
+      if (!okRes.ok) {
+        const detail = await okRes.text();
+        throw new Error(`photo approve failed (${okRes.status}): ${detail}`);
+      }
+      const okRows = await okRes.json();
+      if (!okRows.length) {
+        return res.status(404).json({ error: `No photo with id ${photoId}` });
+      }
+      return res.status(200).json({ ok: true, photo: okRows[0] });
+    }
+
+    // ---------- photo_reject ----------
+    if (action === "photo_reject") {
+      const photoId = body.photo_id;
+      const photoPath = body.path;
+      if (!photoId) {
+        return res.status(400).json({ error: "photo_id is required" });
+      }
+
+      // Storage object first. If it fails we still drop the row — an orphaned
+      // file is harmless, an orphaned row shows a broken image in the queue.
+      let fileDeleted = true;
+      if (photoPath) {
+        const delRes = await fetch(
+          `${SB_URL}/storage/v1/object/vendor-photos/${photoPath}`,
+          { method: "DELETE", headers: sbHeaders }
+        );
+        if (!delRes.ok) fileDeleted = false;
+      }
+
+      const rowRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_photos?id=eq.${photoId}`,
+        { method: "DELETE", headers: { ...sbHeaders, Prefer: "return=minimal" } }
+      );
+      if (!rowRes.ok) {
+        const detail = await rowRes.text();
+        throw new Error(`photo delete failed (${rowRes.status}): ${detail}`);
+      }
+
+      return res.status(200).json({ ok: true, file_deleted: fileDeleted });
     }
 
     return res.status(400).json({ error: "Unknown action", action });

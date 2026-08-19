@@ -11,6 +11,8 @@
 //   photos         → pending (unapproved) photos with vendor name and public URL
 //   photo_approve  → flips approved=true on one photo
 //   photo_reject   → deletes the storage object and the vendor_photos row
+//   vendors        → approved roster, for the capture picker
+//   photo_upload   → base64 JPEG from Alex's camera, lands pre-approved
 
 const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
 
@@ -256,6 +258,94 @@ export default async function handler(req, res) {
       }
 
       return res.status(200).json({ ok: true, file_deleted: fileDeleted });
+    }
+
+    // ---------- vendors (roster for the capture picker) ----------
+    if (action === "vendors") {
+      const vRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_applications?select=id,company,name,trade,city&approved=eq.true&order=company.asc`,
+        { headers: sbHeaders }
+      );
+      if (!vRes.ok) throw new Error(`vendor roster query failed: ${vRes.status}`);
+      const rows = await vRes.json();
+      const roster = rows.map((v) => ({
+        id: v.id,
+        company: v.company || v.name || `Vendor ${v.id}`,
+        trade: v.trade || "",
+        city: v.city || "",
+      }));
+      return res.status(200).json({ vendors: roster, count: roster.length });
+    }
+
+    // ---------- photo_upload (Alex's camera, pre-approved) ----------
+    if (action === "photo_upload") {
+      const vendorId = body.vendor_id;
+      const caption = String(body.caption || "").trim();
+      const dataUrl = String(body.image || "");
+
+      if (!vendorId) {
+        return res.status(400).json({ error: "vendor_id is required" });
+      }
+      // Client sends a data URL from the canvas. Strip the prefix if present.
+      const b64 = dataUrl.includes(",") ? dataUrl.split(",").pop() : dataUrl;
+      if (!b64 || b64.length < 100) {
+        return res.status(400).json({ error: "No image received" });
+      }
+
+      const bytes = Buffer.from(b64, "base64");
+      // Vercel caps the request body around 4.5MB; the client compresses well
+      // under that, so anything this big means compression didn't run.
+      if (bytes.length > 4000000) {
+        return res.status(413).json({ error: "Image too large — retake it" });
+      }
+
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.jpg`;
+      const path = `${vendorId}/${fileName}`;
+
+      const upRes = await fetch(
+        `${SB_URL}/storage/v1/object/vendor-photos/${path}`,
+        {
+          method: "POST",
+          headers: {
+            apikey: SERVICE_KEY,
+            Authorization: `Bearer ${SERVICE_KEY}`,
+            "Content-Type": "image/jpeg",
+            "x-upsert": "false",
+          },
+          body: bytes,
+        }
+      );
+      if (!upRes.ok) {
+        const detail = await upRes.text();
+        throw new Error(`storage upload failed (${upRes.status}): ${detail}`);
+      }
+
+      const rowRes = await fetch(`${SB_URL}/rest/v1/vendor_photos`, {
+        method: "POST",
+        headers: { ...sbHeaders, Prefer: "return=representation" },
+        body: JSON.stringify({
+          vendor_id: vendorId,
+          path: path,
+          caption: caption,
+          approved: true,
+        }),
+      });
+      if (!rowRes.ok) {
+        const detail = await rowRes.text();
+        // Row insert failed — don't leave the file orphaned in the bucket.
+        await fetch(`${SB_URL}/storage/v1/object/vendor-photos/${path}`, {
+          method: "DELETE",
+          headers: sbHeaders,
+        }).catch(() => {});
+        throw new Error(`photo row insert failed (${rowRes.status}): ${detail}`);
+      }
+      const rows = await rowRes.json();
+
+      return res.status(200).json({
+        ok: true,
+        photo: rows[0] || null,
+        url: `${SB_URL}/storage/v1/object/public/vendor-photos/${path}`,
+      });
     }
 
     return res.status(400).json({ error: "Unknown action", action });

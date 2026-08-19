@@ -1,5 +1,5 @@
 // src/AdminMobile.jsx — BuildBridge mobile admin
-// Step 5: key gate + pending claims + pending photo review.
+// Step 6: key gate + pending claims + photo review + on-site camera capture.
 // Talks only to /api/admin, never to Supabase directly.
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -34,6 +34,24 @@ function fmtWhen(iso) {
   return d.toLocaleDateString();
 }
 
+// Shrink before upload. Vercel caps the request body around 4.5MB and a raw
+// iPhone shot blows past that on its own.
+async function compressImage(file, maxEdge, quality) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  let { width, height } = bitmap;
+  const longest = Math.max(width, height);
+  if (longest > maxEdge) {
+    const scale = maxEdge / longest;
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", quality);
+}
+
 export default function AdminMobile() {
   const [secret, setSecret] = useState("");
   const [entry, setEntry] = useState("");
@@ -50,6 +68,14 @@ export default function AdminMobile() {
   const [confirmId, setConfirmId] = useState(null);
   const [confirmEmail, setConfirmEmail] = useState("");
   const [done, setDone] = useState(null);
+  const [roster, setRoster] = useState([]);
+  const [rosterLoaded, setRosterLoaded] = useState(false);
+  const [search, setSearch] = useState("");
+  const [pickedVendor, setPickedVendor] = useState(null);
+  const [shot, setShot] = useState("");          // compressed data URL
+  const [shotCaption, setShotCaption] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploaded, setUploaded] = useState(null);
 
   // Pulls both queues. A photo failure shouldn't blank the claims list.
   const load = useCallback(async (key) => {
@@ -152,12 +178,72 @@ export default function AdminMobile() {
     }
   };
 
+  const loadRoster = useCallback(async (key) => {
+    try {
+      const data = await callAdmin(key, "vendors");
+      setRoster(data.vendors || []);
+      setRosterLoaded(true);
+    } catch (e) {
+      setErr(String(e.message || e));
+    }
+  }, []);
+
+  const openCapture = () => {
+    setTab("capture");
+    setErr("");
+    if (!rosterLoaded && secret) loadRoster(secret);
+  };
+
+  const takeShot = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setErr("");
+    try {
+      const dataUrl = await compressImage(file, 1600, 0.8);
+      setShot(dataUrl);
+    } catch (ex) {
+      setErr("Couldn't read that photo. Try again.");
+    }
+  };
+
+  const uploadShot = async () => {
+    if (!pickedVendor || !shot) return;
+    setUploading(true);
+    setErr("");
+    try {
+      const r = await callAdmin(secret, "photo_upload", {
+        vendor_id: pickedVendor.id,
+        caption: shotCaption,
+        image: shot,
+      });
+      setUploaded({ company: pickedVendor.company, url: r.url });
+      setShot("");
+      setShotCaption("");
+    } catch (ex) {
+      setErr(String(ex.message || ex));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const resetCapture = () => {
+    setUploaded(null);
+    setShot("");
+    setShotCaption("");
+  };
+
   const forget = () => {
     try { window.localStorage.removeItem(KEY_STORE); } catch (e) {}
     setSecret("");
     setEntry("");
     setPending([]);
     setPhotos([]);
+    setRoster([]);
+    setRosterLoaded(false);
+    setPickedVendor(null);
+    setShot("");
+    setUploaded(null);
     setLoaded(false);
     setOpenId(null);
   };
@@ -286,10 +372,160 @@ export default function AdminMobile() {
         <button onClick={() => { setTab("photos"); setErr(""); }} style={tabBtn(tab === "photos")}>
           Photos{photos.length ? ` (${photos.length})` : ""}
         </button>
+        <button onClick={openCapture} style={tabBtn(tab === "capture")}>
+          Capture
+        </button>
       </div>
 
       {err ? (
         <div style={{ ...cardBox, borderColor: C.red, color: C.red, fontSize: 13 }}>{err}</div>
+      ) : null}
+
+      {tab === "capture" ? (
+        uploaded ? (
+          <>
+            <div style={{ textAlign: "center", padding: "26px 0 20px" }}>
+              <div style={{ fontSize: 42, marginBottom: 8 }}>✅</div>
+              <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>
+                Added to {uploaded.company}
+              </div>
+              <div style={{ fontSize: 13, color: C.dim }}>
+                Live on the portfolio now — no approval needed.
+              </div>
+            </div>
+            {uploaded.url ? (
+              <img
+                src={uploaded.url}
+                alt="Uploaded"
+                style={{ width: "100%", borderRadius: 12, display: "block", marginBottom: 12 }}
+              />
+            ) : null}
+            <button onClick={resetCapture} style={{ ...btn, marginBottom: 10 }}>
+              Take another
+            </button>
+            <button
+              onClick={() => { resetCapture(); setPickedVendor(null); }}
+              style={{ width: "100%", padding: 12, fontSize: 14, background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 10, cursor: "pointer" }}
+            >
+              Different contractor
+            </button>
+          </>
+        ) : !pickedVendor ? (
+          <>
+            <div style={{ fontSize: 13, color: C.dim, marginBottom: 10 }}>
+              Whose work is this?
+            </div>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search contractors"
+              autoCapitalize="off"
+              autoCorrect="off"
+              style={{ width: "100%", padding: 13, fontSize: 16, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 9, color: C.text, outline: "none", marginBottom: 12 }}
+            />
+            {!rosterLoaded ? (
+              <div style={{ ...cardBox, textAlign: "center", color: C.muted, fontSize: 14, padding: 24 }}>
+                Loading roster…
+              </div>
+            ) : null}
+            {roster
+              .filter((v) => {
+                const q = search.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  v.company.toLowerCase().includes(q) ||
+                  (v.trade || "").toLowerCase().includes(q) ||
+                  (v.city || "").toLowerCase().includes(q)
+                );
+              })
+              .slice(0, 40)
+              .map((v) => (
+                <div
+                  key={v.id}
+                  onClick={() => { setPickedVendor(v); setSearch(""); }}
+                  style={{ ...cardBox, padding: 13, cursor: "pointer" }}
+                >
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>{v.company}</div>
+                  <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                    {[v.trade, v.city].filter(Boolean).join(" · ") || `Vendor ${v.id}`}
+                  </div>
+                </div>
+              ))}
+          </>
+        ) : (
+          <>
+            <div style={{ ...cardBox, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                  Adding to
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>
+                  {pickedVendor.company}
+                </div>
+              </div>
+              <button
+                onClick={() => { setPickedVendor(null); setShot(""); setShotCaption(""); }}
+                style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 8, padding: "7px 11px", fontSize: 12, cursor: "pointer", flexShrink: 0 }}
+              >
+                Change
+              </button>
+            </div>
+
+            {shot ? (
+              <>
+                <img
+                  src={shot}
+                  alt="Preview"
+                  style={{ width: "100%", borderRadius: 12, display: "block", marginBottom: 10 }}
+                />
+                <input
+                  value={shotCaption}
+                  onChange={(e) => setShotCaption(e.target.value)}
+                  placeholder="Caption — what and where"
+                  style={{ width: "100%", padding: 13, fontSize: 16, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 9, color: C.text, outline: "none", marginBottom: 12 }}
+                />
+                <button
+                  onClick={uploadShot}
+                  disabled={uploading}
+                  style={{ width: "100%", padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: uploading ? 0.6 : 1, marginBottom: 8 }}
+                >
+                  {uploading ? "Uploading…" : "Add to portfolio"}
+                </button>
+                <button
+                  onClick={() => setShot("")}
+                  disabled={uploading}
+                  style={{ width: "100%", padding: 11, fontSize: 13, background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}
+                >
+                  Retake
+                </button>
+              </>
+            ) : (
+              <>
+                <label style={{ ...btn, display: "block", textAlign: "center", marginBottom: 10 }}>
+                  Take photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={takeShot}
+                    style={{ display: "none" }}
+                  />
+                </label>
+                <label
+                  style={{ width: "100%", padding: 13, fontSize: 14, background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 10, cursor: "pointer", display: "block", textAlign: "center", boxSizing: "border-box" }}
+                >
+                  Choose from library
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={takeShot}
+                    style={{ display: "none" }}
+                  />
+                </label>
+              </>
+            )}
+          </>
+        )
       ) : null}
 
       {tab === "photos" ? (
@@ -315,8 +551,8 @@ export default function AdminMobile() {
                     {p.company}
                   </div>
                   <div style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>
-                    {[p.trade, p.city].filter(Boolean).join(" \u00b7 ")}
-                    {p.submitted ? ` \u00b7 ${fmtWhen(p.submitted)}` : ""}
+                    {[p.trade, p.city].filter(Boolean).join(" · ")}
+                    {p.submitted ? ` · ${fmtWhen(p.submitted)}` : ""}
                   </div>
                   {p.caption ? (
                     <div style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.5, marginBottom: 12 }}>
@@ -339,7 +575,7 @@ export default function AdminMobile() {
                         disabled={acting}
                         style={{ width: "100%", padding: 13, fontSize: 15, fontWeight: 800, background: C.red, color: "#0B1220", border: "none", borderRadius: 9, cursor: "pointer", opacity: acting ? 0.6 : 1, marginBottom: 8 }}
                       >
-                        {acting ? "Deleting\u2026" : "Yes, delete it"}
+                        {acting ? "Deleting…" : "Yes, delete it"}
                       </button>
                       <button
                         onClick={() => setRejectId(null)}
@@ -356,7 +592,7 @@ export default function AdminMobile() {
                         disabled={acting}
                         style={{ flex: 2, padding: 14, fontSize: 15, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 9, cursor: "pointer", opacity: acting ? 0.6 : 1 }}
                       >
-                        {acting ? "\u2026" : "Approve"}
+                        {acting ? "…" : "Approve"}
                       </button>
                       <button
                         onClick={() => setRejectId(p.photo_id)}
@@ -397,12 +633,12 @@ export default function AdminMobile() {
                     </div>
                     <div style={{ fontSize: 13, color: C.dim, marginTop: 2 }}>
                       {c.claimant_name}
-                      {c.role ? ` \u00b7 ${c.role}` : ""}
+                      {c.role ? ` · ${c.role}` : ""}
                     </div>
                   </div>
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div style={{ fontSize: 11, color: C.muted }}>{fmtWhen(c.submitted)}</div>
-                    <div style={{ fontSize: 18, color: C.dim, lineHeight: 1 }}>{open ? "\u2212" : "+"}</div>
+                    <div style={{ fontSize: 18, color: C.dim, lineHeight: 1 }}>{open ? "−" : "+"}</div>
                   </div>
                 </div>
 
@@ -448,7 +684,7 @@ export default function AdminMobile() {
                           disabled={busy}
                           style={{ width: "100%", padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: busy ? 0.6 : 1, marginBottom: 8 }}
                         >
-                          {busy ? "Working\u2026" : "Confirm & Claim"}
+                          {busy ? "Working…" : "Confirm & Claim"}
                         </button>
                         <button
                           onClick={cancelConfirm}

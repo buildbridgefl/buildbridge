@@ -16,7 +16,7 @@ const TOOLS = [
   { label: "Live site", url: "https://buildbridgefl.com" },
   { label: "Supabase", url: "https://supabase.com/dashboard/project/jbpwxfaazetfcbwxrmtc" },
   { label: "Vercel", url: "https://vercel.com/dashboard" },
-  { label: "GitHub", url: "https://github.com" },
+  { label: "GitHub", url: "https://github.com/buildbridgefl/buildbridge/blob/main/src/AdminMobile.jsx" },
   { label: "Resend", url: "https://resend.com/emails" },
   { label: "Zoho Mail", url: "https://mail.zoho.com" },
 ];

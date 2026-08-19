@@ -1,5 +1,5 @@
 // src/AdminMobile.jsx — BuildBridge mobile admin
-// Step 8: adds reopen-a-lead and properly dimmed placeholders.
+// Step 9: adds a tools footer — one tap to every dashboard this thing runs on.
 // Talks only to /api/admin, never to Supabase directly.
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -11,6 +11,15 @@ const C = {
 };
 
 const KEY_STORE = "bb_admin_key";
+
+const TOOLS = [
+  { label: "Live site", url: "https://buildbridgefl.com" },
+  { label: "Supabase", url: "https://supabase.com/dashboard/project/jbpwxfaazetfcbwxrmtc" },
+  { label: "Vercel", url: "https://vercel.com/dashboard" },
+  { label: "GitHub", url: "https://github.com" },
+  { label: "Resend", url: "https://resend.com/emails" },
+  { label: "Zoho Mail", url: "https://mail.zoho.com" },
+];
 
 async function callAdmin(secret, action, payload) {
   const r = await fetch("/api/admin", {
@@ -989,9 +998,28 @@ export default function AdminMobile() {
         </>
       ) : null}
 
+      <div style={{ marginTop: 26, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 9 }}>
+          Tools
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          {TOOLS.map((t) => (
+            <a
+              key={t.label}
+              href={t.url}
+              target="_blank"
+              rel="noreferrer"
+              style={{ padding: "9px 13px", fontSize: 13, fontWeight: 600, background: C.card, border: `1px solid ${C.border}`, color: C.dim, borderRadius: 8, textDecoration: "none" }}
+            >
+              {t.label}
+            </a>
+          ))}
+        </div>
+      </div>
+
       <button
         onClick={forget}
-        style={{ width: "100%", marginTop: 20, padding: 11, fontSize: 12, background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, cursor: "pointer" }}
+        style={{ width: "100%", marginTop: 18, padding: 11, fontSize: 12, background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, cursor: "pointer" }}
       >
         Forget key on this device
       </button>

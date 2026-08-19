@@ -1,5 +1,5 @@
 // src/AdminMobile.jsx — BuildBridge mobile admin
-// Step 6: key gate + pending claims + photo review + on-site camera capture.
+// Step 7: key gate + claims + photo review + camera capture + lead handoff.
 // Talks only to /api/admin, never to Supabase directly.
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -76,6 +76,14 @@ export default function AdminMobile() {
   const [shotCaption, setShotCaption] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(null);
+  const [leads, setLeads] = useState([]);
+  const [leadsLoaded, setLeadsLoaded] = useState(false);
+  const [leadVendor, setLeadVendor] = useState(null);
+  const [leadSearch, setLeadSearch] = useState("");
+  const [leadForm, setLeadForm] = useState({ job: "", homeowner_name: "", homeowner_phone: "", town: "" });
+  const [sending, setSending] = useState(false);
+  const [sentLead, setSentLead] = useState(null);
+  const [statusBusy, setStatusBusy] = useState(null);
 
   // Pulls both queues. A photo failure shouldn't blank the claims list.
   const load = useCallback(async (key) => {
@@ -233,6 +241,71 @@ export default function AdminMobile() {
     setShotCaption("");
   };
 
+  const loadLeads = useCallback(async (key) => {
+    try {
+      const data = await callAdmin(key, "leads");
+      setLeads(data.leads || []);
+      setLeadsLoaded(true);
+    } catch (e) {
+      setErr(String(e.message || e));
+    }
+  }, []);
+
+  const openLeads = () => {
+    setTab("leads");
+    setErr("");
+    if (!rosterLoaded && secret) loadRoster(secret);
+    if (!leadsLoaded && secret) loadLeads(secret);
+  };
+
+  const sendLead = async () => {
+    if (!leadVendor || !leadForm.job.trim()) return;
+    setSending(true);
+    setErr("");
+    try {
+      const r = await callAdmin(secret, "lead_send", {
+        vendor_id: leadVendor.id,
+        job: leadForm.job,
+        homeowner_name: leadForm.homeowner_name,
+        homeowner_phone: leadForm.homeowner_phone,
+        town: leadForm.town,
+      });
+      setSentLead({
+        company: r.company || leadVendor.company,
+        emailed: r.emailed,
+        reason: r.reason,
+        to: r.to || "",
+      });
+      setLeadForm({ job: "", homeowner_name: "", homeowner_phone: "", town: "" });
+      loadLeads(secret);
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const setLeadStatus = async (lead, status) => {
+    setStatusBusy(lead.lead_id);
+    setErr("");
+    try {
+      await callAdmin(secret, "lead_status", { lead_id: lead.lead_id, status: status });
+      setLeads((list) =>
+        list.map((l) => (l.lead_id === lead.lead_id ? { ...l, status: status } : l))
+      );
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setStatusBusy(null);
+    }
+  };
+
+  const resetLead = () => {
+    setSentLead(null);
+    setLeadVendor(null);
+    setLeadSearch("");
+  };
+
   const forget = () => {
     try { window.localStorage.removeItem(KEY_STORE); } catch (e) {}
     setSecret("");
@@ -244,6 +317,10 @@ export default function AdminMobile() {
     setPickedVendor(null);
     setShot("");
     setUploaded(null);
+    setLeads([]);
+    setLeadsLoaded(false);
+    setLeadVendor(null);
+    setSentLead(null);
     setLoaded(false);
     setOpenId(null);
   };
@@ -375,10 +452,202 @@ export default function AdminMobile() {
         <button onClick={openCapture} style={tabBtn(tab === "capture")}>
           Capture
         </button>
+        <button onClick={openLeads} style={tabBtn(tab === "leads")}>
+          Leads
+        </button>
       </div>
 
       {err ? (
         <div style={{ ...cardBox, borderColor: C.red, color: C.red, fontSize: 13 }}>{err}</div>
+      ) : null}
+
+      {tab === "leads" ? (
+        sentLead ? (
+          <>
+            <div style={{ textAlign: "center", padding: "26px 0 20px" }}>
+              <div style={{ fontSize: 42, marginBottom: 8 }}>{sentLead.emailed ? "✉️" : "⚠️"}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 6 }}>
+                {sentLead.emailed ? `Sent to ${sentLead.company}` : `Saved for ${sentLead.company}`}
+              </div>
+              <div style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.55, padding: "0 8px" }}>
+                {sentLead.emailed
+                  ? `His phone is buzzing right now. It went to ${sentLead.to}.`
+                  : sentLead.reason === "no_email"
+                    ? "No email on file for him, so nothing was sent. The lead is recorded — give him a call and pass it along yourself."
+                    : "The lead is recorded, but the email didn't go out. Call him directly."}
+              </div>
+            </div>
+            <button onClick={() => setSentLead(null)} style={{ ...btn, marginBottom: 10 }}>
+              Send another to {leadVendor ? leadVendor.company : "someone"}
+            </button>
+            <button
+              onClick={resetLead}
+              style={{ width: "100%", padding: 12, fontSize: 14, background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 10, cursor: "pointer" }}
+            >
+              Done
+            </button>
+          </>
+        ) : !leadVendor ? (
+          <>
+            <div style={{ fontSize: 13, color: C.dim, marginBottom: 10 }}>
+              Who gets this job?
+            </div>
+            <input
+              value={leadSearch}
+              onChange={(e) => setLeadSearch(e.target.value)}
+              placeholder="Search by trade, name, or town"
+              autoCapitalize="off"
+              autoCorrect="off"
+              style={{ width: "100%", padding: 13, fontSize: 16, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 9, color: C.text, outline: "none", marginBottom: 12 }}
+            />
+            {leadSearch.trim() ? (
+              roster
+                .filter((v) => {
+                  const q = leadSearch.trim().toLowerCase();
+                  return (
+                    v.company.toLowerCase().includes(q) ||
+                    (v.trade || "").toLowerCase().includes(q) ||
+                    (v.city || "").toLowerCase().includes(q)
+                  );
+                })
+                .slice(0, 25)
+                .map((v) => (
+                  <div
+                    key={v.id}
+                    onClick={() => { setLeadVendor(v); setLeadSearch(""); }}
+                    style={{ ...cardBox, padding: 13, cursor: "pointer" }}
+                  >
+                    <div style={{ fontSize: 15, fontWeight: 700 }}>{v.company}</div>
+                    <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+                      {[v.trade, v.city].filter(Boolean).join(" · ") || `Vendor ${v.id}`}
+                    </div>
+                  </div>
+                ))
+            ) : (
+              <>
+                <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5, margin: "18px 0 8px" }}>
+                  Sent so far{leads.length ? ` (${leads.length})` : ""}
+                </div>
+                {leads.length === 0 ? (
+                  <div style={{ ...cardBox, textAlign: "center", color: C.muted, fontSize: 14, padding: 26 }}>
+                    No leads sent yet.
+                  </div>
+                ) : null}
+                {leads.map((l) => {
+                  const acting = statusBusy === l.lead_id;
+                  const tone =
+                    l.status === "won" ? C.green :
+                    l.status === "lost" ? C.muted :
+                    l.status === "contacted" ? C.gold : C.orange;
+                  return (
+                    <div key={l.lead_id} style={cardBox}>
+                      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 15, fontWeight: 700 }}>{l.job}</div>
+                          <div style={{ fontSize: 12.5, color: C.dim, marginTop: 3 }}>
+                            {l.company}
+                            {l.town ? ` · ${l.town}` : ""}
+                          </div>
+                          {l.homeowner_name || l.homeowner_phone ? (
+                            <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
+                              {[l.homeowner_name, l.homeowner_phone].filter(Boolean).join(" · ")}
+                            </div>
+                          ) : null}
+                        </div>
+                        <div style={{ textAlign: "right", flexShrink: 0 }}>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: tone, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                            {l.status}
+                          </div>
+                          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
+                            {fmtWhen(l.created_at)}
+                          </div>
+                        </div>
+                      </div>
+                      {l.status !== "won" && l.status !== "lost" ? (
+                        <div style={{ display: "flex", gap: 7, marginTop: 12 }}>
+                          <button
+                            onClick={() => setLeadStatus(l, "won")}
+                            disabled={acting}
+                            style={{ flex: 1, padding: 11, fontSize: 13, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 8, cursor: "pointer", opacity: acting ? 0.6 : 1 }}
+                          >
+                            Won it
+                          </button>
+                          <button
+                            onClick={() => setLeadStatus(l, "contacted")}
+                            disabled={acting}
+                            style={{ flex: 1, padding: 11, fontSize: 13, fontWeight: 700, background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 8, cursor: "pointer" }}
+                          >
+                            Called
+                          </button>
+                          <button
+                            onClick={() => setLeadStatus(l, "lost")}
+                            disabled={acting}
+                            style={{ flex: 1, padding: 11, fontSize: 13, fontWeight: 700, background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 8, cursor: "pointer" }}
+                          >
+                            Lost
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            <div style={{ ...cardBox, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                  Sending to
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>
+                  {leadVendor.company}
+                </div>
+              </div>
+              <button
+                onClick={() => setLeadVendor(null)}
+                style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 8, padding: "7px 11px", fontSize: 12, cursor: "pointer", flexShrink: 0 }}
+              >
+                Change
+              </button>
+            </div>
+
+            <LeadField
+              label="The job"
+              value={leadForm.job}
+              onChange={(v) => setLeadForm({ ...leadForm, job: v })}
+              placeholder="Tankless water heater install"
+            />
+            <LeadField
+              label="Homeowner"
+              value={leadForm.homeowner_name}
+              onChange={(v) => setLeadForm({ ...leadForm, homeowner_name: v })}
+              placeholder="Bob Reyes"
+            />
+            <LeadField
+              label="Phone"
+              value={leadForm.homeowner_phone}
+              onChange={(v) => setLeadForm({ ...leadForm, homeowner_phone: v })}
+              placeholder="352-555-0134"
+              type="tel"
+            />
+            <LeadField
+              label="Town"
+              value={leadForm.town}
+              onChange={(v) => setLeadForm({ ...leadForm, town: v })}
+              placeholder="Lecanto"
+            />
+
+            <button
+              onClick={sendLead}
+              disabled={sending || !leadForm.job.trim()}
+              style={{ width: "100%", padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: sending || !leadForm.job.trim() ? 0.5 : 1, marginTop: 4 }}
+            >
+              {sending ? "Sending…" : "Send the lead"}
+            </button>
+          </>
+        )
       ) : null}
 
       {tab === "capture" ? (
@@ -717,6 +986,23 @@ export default function AdminMobile() {
       >
         Forget key on this device
       </button>
+    </div>
+  );
+}
+
+function LeadField({ label, value, onChange, placeholder, type }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>
+        {label}
+      </div>
+      <input
+        type={type || "text"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{ width: "100%", padding: 13, fontSize: 16, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 9, color: C.text, outline: "none", boxSizing: "border-box" }}
+      />
     </div>
   );
 }

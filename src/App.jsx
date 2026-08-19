@@ -1637,7 +1637,7 @@ useEffect(() => {
           </aside>
         </div>
        <footer style={{ padding: "24px 18px", textAlign: "center", fontSize: 11.5, color: C.dim, lineHeight: 1.6, borderTop: `1px solid ${C.border}`, marginTop: 24 }}>
-    BuildBridge verifies each contractor's license and business registration before listing them. The contract and the work are between you and the contractor — BuildBridge isn't the contractor and doesn't oversee, manage, or guarantee the work. <a href="/?admin=1" style={{ color: C.muted, textDecoration: "none" }}>Admin</a>
+    BuildBridge verifies each contractor's license and business registration before listing them. The contract and the work are between you and the contractor — BuildBridge isn't the contractor and doesn't oversee, manage, or guarantee the work. <a href="/?admin=1" style={{ color: C.orange, fontWeight: 700 }}>Admin</a>
     <div style={{ marginTop: 10 }}>
         <a href="https://www.facebook.com/groups/1454402876451068/" target="_blank" rel="noopener noreferrer" style={{ color: C.orange || "#ff8c1a" }}>
             Join the conversation → Citrus County Construction Network (Facebook group)

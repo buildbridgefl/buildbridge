@@ -1,5 +1,5 @@
 // src/AdminMobile.jsx — BuildBridge mobile admin
-// Step 4: key gate + pending claims list + approve & claim.
+// Step 5: key gate + pending claims + pending photo review.
 // Talks only to /api/admin, never to Supabase directly.
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -38,15 +38,20 @@ export default function AdminMobile() {
   const [secret, setSecret] = useState("");
   const [entry, setEntry] = useState("");
   const [remember, setRemember] = useState(true);
+  const [tab, setTab] = useState("claims");
   const [pending, setPending] = useState([]);
+  const [photos, setPhotos] = useState([]);
   const [openId, setOpenId] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(null);
+  const [rejectId, setRejectId] = useState(null);
   const [err, setErr] = useState("");
   const [loaded, setLoaded] = useState(false);
-  const [confirmId, setConfirmId] = useState(null);   // claim awaiting confirmation
+  const [confirmId, setConfirmId] = useState(null);
   const [confirmEmail, setConfirmEmail] = useState("");
-  const [done, setDone] = useState(null);             // { company, email } after approval
+  const [done, setDone] = useState(null);
 
+  // Pulls both queues. A photo failure shouldn't blank the claims list.
   const load = useCallback(async (key) => {
     setBusy(true);
     setErr("");
@@ -55,6 +60,12 @@ export default function AdminMobile() {
       setPending(data.pending || []);
       setSecret(key);
       setLoaded(true);
+      try {
+        const pdata = await callAdmin(key, "photos");
+        setPhotos(pdata.photos || []);
+      } catch (pe) {
+        setPhotos([]);
+      }
     } catch (e) {
       setErr(String(e.message || e));
       setLoaded(false);
@@ -73,20 +84,9 @@ export default function AdminMobile() {
   const unlock = async () => {
     const key = entry.trim();
     if (!key) return;
-    setBusy(true);
-    setErr("");
-    try {
-      const data = await callAdmin(key, "list");
-      setPending(data.pending || []);
-      setSecret(key);
-      setLoaded(true);
-      if (remember) {
-        try { window.localStorage.setItem(KEY_STORE, key); } catch (e) {}
-      }
-    } catch (e) {
-      setErr(String(e.message || e));
-    } finally {
-      setBusy(false);
+    await load(key);
+    if (remember) {
+      try { window.localStorage.setItem(KEY_STORE, key); } catch (e) {}
     }
   };
 
@@ -125,11 +125,39 @@ export default function AdminMobile() {
     }
   };
 
+  const approvePhoto = async (p) => {
+    setPhotoBusy(p.photo_id);
+    setErr("");
+    try {
+      await callAdmin(secret, "photo_approve", { photo_id: p.photo_id });
+      setPhotos((list) => list.filter((x) => x.photo_id !== p.photo_id));
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setPhotoBusy(null);
+    }
+  };
+
+  const rejectPhoto = async (p) => {
+    setPhotoBusy(p.photo_id);
+    setErr("");
+    try {
+      await callAdmin(secret, "photo_reject", { photo_id: p.photo_id, path: p.path });
+      setPhotos((list) => list.filter((x) => x.photo_id !== p.photo_id));
+      setRejectId(null);
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setPhotoBusy(null);
+    }
+  };
+
   const forget = () => {
     try { window.localStorage.removeItem(KEY_STORE); } catch (e) {}
     setSecret("");
     setEntry("");
     setPending([]);
+    setPhotos([]);
     setLoaded(false);
     setOpenId(null);
   };
@@ -223,22 +251,25 @@ export default function AdminMobile() {
           onClick={() => { setDone(null); load(secret); }}
           style={{ width: "100%", padding: 12, fontSize: 14, background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 10, cursor: "pointer" }}
         >
-          Back to pending claims
+          Back to the queue
         </button>
       </div>
     );
   }
 
-  // ---------- Pending list ----------
+  const tabBtn = (active) => ({
+    flex: 1, padding: "11px 8px", fontSize: 14, fontWeight: 700,
+    background: active ? C.card : "transparent",
+    color: active ? C.text : C.muted,
+    border: `1px solid ${active ? C.border : "transparent"}`,
+    borderRadius: 9, cursor: "pointer",
+  });
+
+  // ---------- Queue ----------
   return (
     <div style={wrap}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
-        <div>
-          <div style={{ fontSize: 20, fontWeight: 800 }}>Pending claims</div>
-          <div style={{ fontSize: 13, color: C.dim }}>
-            {pending.length === 0 ? "Nothing waiting" : `${pending.length} waiting`}
-          </div>
-        </div>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={{ fontSize: 20, fontWeight: 800 }}>Admin</div>
         <button
           onClick={() => load(secret)}
           disabled={busy}
@@ -248,106 +279,201 @@ export default function AdminMobile() {
         </button>
       </div>
 
+      <div style={{ display: "flex", gap: 6, background: C.panel, padding: 4, borderRadius: 11, marginBottom: 14 }}>
+        <button onClick={() => { setTab("claims"); setErr(""); }} style={tabBtn(tab === "claims")}>
+          Claims{pending.length ? ` (${pending.length})` : ""}
+        </button>
+        <button onClick={() => { setTab("photos"); setErr(""); }} style={tabBtn(tab === "photos")}>
+          Photos{photos.length ? ` (${photos.length})` : ""}
+        </button>
+      </div>
+
       {err ? (
         <div style={{ ...cardBox, borderColor: C.red, color: C.red, fontSize: 13 }}>{err}</div>
       ) : null}
 
-      {pending.length === 0 && !busy && !err ? (
-        <div style={{ ...cardBox, textAlign: "center", color: C.muted, fontSize: 14, padding: 30 }}>
-          No claims waiting.
-        </div>
+      {tab === "photos" ? (
+        <>
+          {photos.length === 0 && !busy ? (
+            <div style={{ ...cardBox, textAlign: "center", color: C.muted, fontSize: 14, padding: 30 }}>
+              No photos waiting.
+            </div>
+          ) : null}
+
+          {photos.map((p) => {
+            const acting = photoBusy === p.photo_id;
+            const confirmingReject = rejectId === p.photo_id;
+            return (
+              <div key={p.photo_id} style={{ ...cardBox, padding: 0, overflow: "hidden" }}>
+                <img
+                  src={p.url}
+                  alt={p.caption || "Pending photo"}
+                  style={{ width: "100%", display: "block", background: C.panel, maxHeight: 420, objectFit: "cover" }}
+                />
+                <div style={{ padding: 14 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 2 }}>
+                    {p.company}
+                  </div>
+                  <div style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>
+                    {[p.trade, p.city].filter(Boolean).join(" \u00b7 ")}
+                    {p.submitted ? ` \u00b7 ${fmtWhen(p.submitted)}` : ""}
+                  </div>
+                  {p.caption ? (
+                    <div style={{ fontSize: 13.5, color: C.dim, lineHeight: 1.5, marginBottom: 12 }}>
+                      {p.caption}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic", marginBottom: 12 }}>
+                      No caption
+                    </div>
+                  )}
+
+                  {confirmingReject ? (
+                    <div style={{ padding: 12, background: C.panel, border: `1px solid ${C.red}66`, borderRadius: 10 }}>
+                      <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5, marginBottom: 10 }}>
+                        This deletes the photo permanently. He won't be told, so
+                        it's worth a text if it's a good contractor.
+                      </div>
+                      <button
+                        onClick={() => rejectPhoto(p)}
+                        disabled={acting}
+                        style={{ width: "100%", padding: 13, fontSize: 15, fontWeight: 800, background: C.red, color: "#0B1220", border: "none", borderRadius: 9, cursor: "pointer", opacity: acting ? 0.6 : 1, marginBottom: 8 }}
+                      >
+                        {acting ? "Deleting\u2026" : "Yes, delete it"}
+                      </button>
+                      <button
+                        onClick={() => setRejectId(null)}
+                        disabled={acting}
+                        style={{ width: "100%", padding: 10, fontSize: 13, background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}
+                      >
+                        Keep it
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => approvePhoto(p)}
+                        disabled={acting}
+                        style={{ flex: 2, padding: 14, fontSize: 15, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 9, cursor: "pointer", opacity: acting ? 0.6 : 1 }}
+                      >
+                        {acting ? "\u2026" : "Approve"}
+                      </button>
+                      <button
+                        onClick={() => setRejectId(p.photo_id)}
+                        disabled={acting}
+                        style={{ flex: 1, padding: 14, fontSize: 14, fontWeight: 700, background: "transparent", border: `1px solid ${C.border}`, color: C.dim, borderRadius: 9, cursor: "pointer" }}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </>
       ) : null}
 
-      {pending.map((c) => {
-        const open = openId === c.claim_id;
-        const confirming = confirmId === c.claim_id;
-        return (
-          <div key={c.claim_id} style={cardBox}>
-            <div
-              onClick={() => { setOpenId(open ? null : c.claim_id); cancelConfirm(); }}
-              style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}
-            >
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {c.company || "(no company)"}
-                </div>
-                <div style={{ fontSize: 13, color: C.dim, marginTop: 2 }}>
-                  {c.claimant_name}
-                  {c.role ? ` · ${c.role}` : ""}
-                </div>
-              </div>
-              <div style={{ textAlign: "right", flexShrink: 0 }}>
-                <div style={{ fontSize: 11, color: C.muted }}>{fmtWhen(c.submitted)}</div>
-                <div style={{ fontSize: 18, color: C.dim, lineHeight: 1 }}>{open ? "\u2212" : "+"}</div>
-              </div>
+      {tab === "claims" ? (
+        <>
+          {pending.length === 0 && !busy ? (
+            <div style={{ ...cardBox, textAlign: "center", color: C.muted, fontSize: 14, padding: 30 }}>
+              No claims waiting.
             </div>
+          ) : null}
 
-            {c.already_claimed ? (
-              <div style={{ marginTop: 8, fontSize: 12, color: C.gold }}>
-                Already claimed — likely a duplicate
-              </div>
-            ) : null}
-
-            {open ? (
-              <div style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
-                <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                  Login email — read this back to him
-                </div>
-                <div style={{ fontSize: 19, fontWeight: 700, color: C.orange, wordBreak: "break-all", margin: "6px 0 14px" }}>
-                  {c.email || "(none given)"}
-                </div>
-
-                <Row label="Phone" value={c.phone} />
-                <Row label="Trade" value={c.vendor ? c.vendor.trade : ""} />
-                <Row label="City" value={c.vendor ? c.vendor.city : ""} />
-                <Row label="Listed phone" value={c.vendor ? c.vendor.phone : ""} />
-                <Row label="Vendor ID" value={String(c.vendor_id)} />
-                {c.note ? <Row label="Note" value={c.note} /> : null}
-
-                {confirming ? (
-                  <div style={{ marginTop: 14, padding: 14, background: C.panel, border: `1px solid ${C.orange}66`, borderRadius: 10 }}>
-                    <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5, marginBottom: 10 }}>
-                      This becomes his permanent login. He can't change it later —
-                      fix any typo now.
+          {pending.map((c) => {
+            const open = openId === c.claim_id;
+            const confirming = confirmId === c.claim_id;
+            return (
+              <div key={c.claim_id} style={cardBox}>
+                <div
+                  onClick={() => { setOpenId(open ? null : c.claim_id); cancelConfirm(); }}
+                  style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {c.company || "(no company)"}
                     </div>
-                    <input
-                      type="email"
-                      value={confirmEmail}
-                      onChange={(e) => setConfirmEmail(e.target.value)}
-                      autoCapitalize="off"
-                      autoCorrect="off"
-                      spellCheck={false}
-                      style={{ width: "100%", padding: 12, fontSize: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, outline: "none", marginBottom: 12 }}
-                    />
-                    <button
-                      onClick={() => doApprove(c)}
-                      disabled={busy}
-                      style={{ width: "100%", padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: busy ? 0.6 : 1, marginBottom: 8 }}
-                    >
-                      {busy ? "Working…" : "Confirm & Claim"}
-                    </button>
-                    <button
-                      onClick={cancelConfirm}
-                      disabled={busy}
-                      style={{ width: "100%", padding: 11, fontSize: 13, background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}
-                    >
-                      Cancel
-                    </button>
+                    <div style={{ fontSize: 13, color: C.dim, marginTop: 2 }}>
+                      {c.claimant_name}
+                      {c.role ? ` \u00b7 ${c.role}` : ""}
+                    </div>
                   </div>
-                ) : (
-                  <button
-                    onClick={() => startConfirm(c)}
-                    disabled={busy}
-                    style={{ width: "100%", marginTop: 14, padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: busy ? 0.6 : 1 }}
-                  >
-                    Approve &amp; Claim
-                  </button>
-                )}
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ fontSize: 11, color: C.muted }}>{fmtWhen(c.submitted)}</div>
+                    <div style={{ fontSize: 18, color: C.dim, lineHeight: 1 }}>{open ? "\u2212" : "+"}</div>
+                  </div>
+                </div>
+
+                {c.already_claimed ? (
+                  <div style={{ marginTop: 8, fontSize: 12, color: C.gold }}>
+                    Already claimed — likely a duplicate
+                  </div>
+                ) : null}
+
+                {open ? (
+                  <div style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                    <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                      Login email — read this back to him
+                    </div>
+                    <div style={{ fontSize: 19, fontWeight: 700, color: C.orange, wordBreak: "break-all", margin: "6px 0 14px" }}>
+                      {c.email || "(none given)"}
+                    </div>
+
+                    <Row label="Phone" value={c.phone} />
+                    <Row label="Trade" value={c.vendor ? c.vendor.trade : ""} />
+                    <Row label="City" value={c.vendor ? c.vendor.city : ""} />
+                    <Row label="Listed phone" value={c.vendor ? c.vendor.phone : ""} />
+                    <Row label="Vendor ID" value={String(c.vendor_id)} />
+                    {c.note ? <Row label="Note" value={c.note} /> : null}
+
+                    {confirming ? (
+                      <div style={{ marginTop: 14, padding: 14, background: C.panel, border: `1px solid ${C.orange}66`, borderRadius: 10 }}>
+                        <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5, marginBottom: 10 }}>
+                          This becomes his permanent login. He can't change it later,
+                          so fix any typo now.
+                        </div>
+                        <input
+                          type="email"
+                          value={confirmEmail}
+                          onChange={(e) => setConfirmEmail(e.target.value)}
+                          autoCapitalize="off"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          style={{ width: "100%", padding: 12, fontSize: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, outline: "none", marginBottom: 12 }}
+                        />
+                        <button
+                          onClick={() => doApprove(c)}
+                          disabled={busy}
+                          style={{ width: "100%", padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: busy ? 0.6 : 1, marginBottom: 8 }}
+                        >
+                          {busy ? "Working\u2026" : "Confirm & Claim"}
+                        </button>
+                        <button
+                          onClick={cancelConfirm}
+                          disabled={busy}
+                          style={{ width: "100%", padding: 11, fontSize: 13, background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => startConfirm(c)}
+                        disabled={busy}
+                        style={{ width: "100%", marginTop: 14, padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: busy ? 0.6 : 1 }}
+                      >
+                        Approve &amp; Claim
+                      </button>
+                    )}
+                  </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
-        );
-      })}
+            );
+          })}
+        </>
+      ) : null}
 
       <button
         onClick={forget}

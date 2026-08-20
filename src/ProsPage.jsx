@@ -111,7 +111,7 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
                   color: !openTrade ? "#0B1220" : C.dim,
                   border: `1px solid ${!openTrade ? C.blue : C.border}`,
                   borderRadius: 20, padding: "6px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                }}>All trades</button>
+                }}>Trades</button>
               {byTrade.map(g => (
                 <button key={g.trade} onClick={() => setOpenTrade(openTrade === g.trade ? null : g.trade)}
                   style={{
@@ -120,10 +120,12 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
                     border: `1px solid ${openTrade === g.trade ? C.blue : C.border}`,
                     borderRadius: 20, padding: "6px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer",
                   }}>{g.trade}</button>
-              ))}
+                            ))}
+              <button onClick={() => { setShowAll(!showAll); setOpenTrade(null); }} style={{ background: "transparent", color: C.dim, border: `1px dashed ${C.border}`, borderRadius: 20, padding: "6px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{showAll ? "← Emergency only" : "+ All other trades"}</button>
             </div>
 
             {visible.map(g => (
+        
               <div key={g.trade} style={{ marginBottom: 26 }}>
                 <div style={{
                   display: "flex", alignItems: "baseline", justifyContent: "space-between",

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 
 export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAskPablo, theme, toggleTheme }) {
   const RADIUS = 33;
-  const SHOW_PER_TRADE = 3; const EMERG = ["Plumbing", "Electrical", "HVAC", "Roofing", "Well", "Septic", "Garage Doors", "Locksmith", "Tree Service"];
+  const SHOW_PER_TRADE = 3; const EMERG = ["Plumbing", "Electrical", "HVAC", "Roofing", "Well", "Septic", "Garage Doors", "Locksmith", "Tree Service", "Water Damage"];
 
   const [town, setTown] = useState(null);
   const [openTrade, setOpenTrade] = useState(null); const [showAll, setShowAll] = useState(false);
@@ -23,7 +23,7 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
       const k = bucket(c.trade);
       (m[k] = m[k] || []).push(c);
     });
-      return Object.keys(m).filter(k => showAll || EMERG.includes(k)).sort((x, y) => EMERG.indexOf(x) - EMERG.indexOf(y)).map(k => ({
+      return Object.keys(m).filter(k => showAll || EMERG.includes(k)).sort((x, y) => (((EMERG.indexOf(x) + 1) || 99) - ((EMERG.indexOf(y) + 1) || 99)) || x.localeCompare(y)).map(k => ({
       trade: k,
       all: m[k],
       shown: m[k].slice(0, SHOW_PER_TRADE),

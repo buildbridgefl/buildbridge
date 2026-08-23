@@ -390,10 +390,10 @@ function Icon({ name, size = 18, color = "currentColor", style }) {
 }
 
 // ── Small components ─────────────────────────────────────────────────────────
-function Avatar({ initials, size = 40, premium = false }) {
+function Avatar({ initials, size = 40, premium = false, claimed = false }) {
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
-      <div style={{ width: size, height: size, borderRadius: "50%", background: `linear-gradient(135deg, ${C.orange}4D, ${C.blue}3A)`, border: `2px solid ${premium ? C.orange : C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.34, fontWeight: 800, color: C.orange }} className="display">
+      <div style={{ width: size, height: size, borderRadius: "50%", background: `linear-gradient(135deg, ${C.orange}4D, ${C.blue}3A)`, border: `2px solid ${premium ? C.orange : claimed ? C.gold : C.border}`, boxShadow: claimed && !premium ? `0 0 0 2px ${C.gold}33` : "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.34, fontWeight: 800, color: C.orange }} className="display">
        <span style={{ color: C.white, fontWeight: 800, fontSize: size * 0.34 }}>{initials}</span> 
       </div>
       {premium && (
@@ -1398,7 +1398,7 @@ useEffect(() => {
                 {filteredNetwork.map(c => (
                   <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 18, marginBottom: 14, display: "flex", gap: 14, alignItems: "flex-start" }}>
                     <button onClick={() => openProfile(c)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label={`View ${c.name}'s profile`}>
-                      <Avatar initials={c.avatar} size={52} premium={c.premium} />
+                      <Avatar initials={c.avatar} size={52} premium={c.premium} claimed={c.claimed !== false} />
                     </button>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>

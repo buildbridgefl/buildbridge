@@ -617,7 +617,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
         </div>
         <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 8 }}>
           {contractor.premium && <Badge text="Premium Pro" color={C.orange} icon="star" />}
-          {contractor.verified && <Badge text={contractor.license && contractor.license !== "N/A" ? "License Verified" : "Business Verified"} color={contractor.license && contractor.license !== "N/A" ? C.green : C.muted} icon="badge" />}{((contractor.photos || []).length >= 3 || (contractor.videos || []).length > 0 || contractor.videoUrl) && <Badge text="★ Showcase" color={C.gold} icon="star" />}
+          {contractor.verified && <Badge text={contractor.license && contractor.license !== "N/A" ? "License Verified" : "Business Verified"} color={contractor.license && contractor.license !== "N/A" ? C.green : C.muted} icon="badge" />}{((contractor.photos || []).length >= 3 || (contractor.videos || []).length > 0 || contractor.videoUrl) && <Badge text="See Their Work" color={C.gold} icon="star" />}
         </div>
       </div>
 
@@ -1408,7 +1408,7 @@ useEffect(() => {
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
                           
-                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}                           {c.claimed === false && <span style={{ fontSize: 9.5, color: C.muted, alignSelf: "center", whiteSpace: "nowrap" }}>Listed from public record</span>}{((c.photos || []).length >= 3 || (c.videos || []).length > 0 || c.videoUrl) && <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: C.gold, background: C.gold + "14", border: `1px solid ${C.gold}55`, borderRadius: 20, padding: "3px 9px", alignSelf: "center", whiteSpace: "nowrap" }}>★ Showcase</span>}
+                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}                           {c.claimed === false && <span style={{ fontSize: 9.5, color: C.muted, alignSelf: "center", whiteSpace: "nowrap" }}>Listed from public record</span>}{((c.photos || []).length >= 3 || (c.videos || []).length > 0 || c.videoUrl) && <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: C.gold, background: C.gold + "14", border: `1px solid ${C.gold}55`, borderRadius: 20, padding: "3px 9px", alignSelf: "center", whiteSpace: "nowrap" }}>★ See Their Work</span>}
                         </div>
                       </div>
                       <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>

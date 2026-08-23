@@ -10,7 +10,7 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
   const [geo, setGeo] = useState("asking");        // asking | ok | denied | off
   const [picking, setPicking] = useState(false);   // manual town picker open
   const [openTrade, setOpenTrade] = useState(null);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(false); const [copied, setCopied] = useState(null);
 
   // ---- try device location once on load, fall back to town chips ----
   useEffect(() => {
@@ -228,9 +228,9 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <div style={{ fontSize: 14.5, fontWeight: 800, color: C.white, lineHeight: 1.25 }}>{c.company}</div>
                           <div style={{ fontSize: 11, color: C.muted, marginTop: 3, fontFamily: "ui-monospace, monospace" }}>
-                            {c.license ? `${c.license} · ` : ""}{c.location || ""}{c.d != null ? ` · ${Math.round(c.d)} mi` : ""}
+                            {c.location || ""}{c.d != null ? ` · ${Math.round(c.d)} mi` : ""}
                           </div>
-                          <div style={{ marginTop: 7 }}>{pill(isClaimed ? "Claimed & Verified" : "License-verified", isClaimed)}</div>
+                          <div style={{ marginTop: 6, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>{c.license ? (<span onClick={() => { navigator.clipboard?.writeText(String(c.license).split(/[,&]/)[0].trim()); setCopied(c.id); setTimeout(() => setCopied(null), 2200); window.open("https://www.myfloridalicense.com/wl11.asp?mode=0&SID=", "_blank"); }} style={{ color: C.green, cursor: "pointer", textDecoration: "underline" }}>{"\u{1F6E1}"} License Verified · {c.license}</span>) : (<span style={{ color: C.muted }}>{"\u2713"} Business Verified · Sunbiz</span>)}{copied === c.id && <span style={{ color: C.dim, fontWeight: 600, fontSize: 10 }}>copied — paste into DBPR</span>}{isClaimed && <span style={{ color: C.muted, fontWeight: 600, fontSize: 10 }}>Claimed</span>}</div>
                         </div>
                       </div>
                       <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
@@ -258,8 +258,8 @@ export default function ProsPage({ roster, towns, bucket, dist, C, onBack, onAsk
             border: `1px solid ${C.border}`, borderRadius: 12, padding: "14px 16px",
             fontSize: 12, color: C.dim, lineHeight: 1.65, marginBottom: 20,
           }}>
-            <strong style={{ color: C.gold }}>Claimed &amp; Verified</strong> means the owner has signed in and keeps their own page current.{" "}
-            <strong style={{ color: C.dim }}>License-verified</strong> means we confirmed their license and registration, but they haven't claimed the listing yet. Both are real, licensed businesses. Neither one paid to be here.
+            <strong style={{ color: C.green }}>License Verified</strong> means we checked the number against Florida DBPR before listing — tap it to check for yourself.{" "}
+            <strong style={{ color: C.muted }}>Business Verified</strong> means the trade doesn't require a state license, so we confirmed the business on Sunbiz instead. Nobody paid to be here.
           </div>
         )}
 

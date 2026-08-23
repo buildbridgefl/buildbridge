@@ -1403,12 +1403,12 @@ useEffect(() => {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                         <div>
-                          <button onClick={() => openProfile(c)} style={{ background: "none", border: "none", fontWeight: 800, fontSize: 15, color: C.white, cursor: "pointer", padding: 0, marginBottom: 2, textAlign: "left" }}>{c.name}</button>
+                          <button onClick={() => openProfile(c)} style={{ background: "none", border: "none", fontWeight: 800, fontSize: 15, color: C.white, cursor: "pointer", padding: 0, marginBottom: 2, textAlign: "left" }}>{c.name}</button>{c.license && c.license !== "N/A" ? (<div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, margin: "3px 0" }}>🛡 License Verified · <a href={`https://www.myfloridalicense.com/wl11.asp?mode=2&search=LicNbr&SID=&brd=&typ=&lic=${c.license}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ color: C.green, textDecoration: "underline" }}>{c.license}</a></div>) : c.verified ? (<div style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, margin: "3px 0" }}>✓ Business Verified · Sunbiz</div>) : null}
                           <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
-                          {c.verified && <Badge text={c.license ? "Licensed" : "Verified"} color={c.license ? C.green : C.blue} icon="badge" />}
-                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}                           {c.claimed !== false && <Badge text="Claimed" color={C.gold} icon="badge" />}
+                          
+                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}                           {c.claimed !== false && <span style={{ fontSize: 10, color: C.muted, alignSelf: "center" }}>Claimed</span>}
                         </div>
                       </div>
                       <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>

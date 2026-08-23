@@ -1396,7 +1396,7 @@ useEffect(() => {
                   </div>
                 )}
                 {filteredNetwork.map(c => (
-                  <div key={c.id} className="hover-card" style={{ background: C.card, border: `1px solid ${c.claimed !== false ? C.gold + "55" : C.border}`, borderLeft: c.claimed !== false ? `3px solid ${C.gold}` : `1px solid ${C.border}`, borderRadius: 16, padding: 18, marginBottom: 14, display: "flex", gap: 14, alignItems: "flex-start" }}>
+                  <div key={c.id} className="hover-card" style={{ background: c.claimed !== false ? `linear-gradient(100deg, ${C.gold}0D, ${C.card} 40%)` : C.card, border: `1px solid ${c.claimed !== false ? C.gold + "55" : C.border}`, borderLeft: c.claimed !== false ? `3px solid ${C.gold}` : `1px solid ${C.border}`, borderRadius: 16, padding: 18, marginBottom: 14, display: "flex", gap: 14, alignItems: "flex-start" }}>
                     <button onClick={() => openProfile(c)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }} aria-label={`View ${c.name}'s profile`}>
                       <Avatar initials={c.avatar} size={52} premium={c.premium} claimed={c.claimed !== false} />
                     </button>
@@ -1408,7 +1408,7 @@ useEffect(() => {
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
                           
-                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}                           {c.claimed !== false && <span style={{ fontSize: 10, color: C.muted, alignSelf: "center" }}>Claimed</span>}
+                          {c.premium && <Badge text="Pro" color={C.orange} icon="star" />}                           {c.claimed !== false && <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.09em", textTransform: "uppercase", color: C.gold, background: C.gold + "1A", border: `1px solid ${C.gold}66`, borderRadius: 20, padding: "3px 9px", alignSelf: "center", whiteSpace: "nowrap" }}>Owner Managed</span>}
                         </div>
                       </div>
                       <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>

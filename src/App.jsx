@@ -615,7 +615,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
           {canNav && <button onClick={() => go(1)} aria-label="Next contractor" className="btn-ghost" style={{ padding: "6px 12px", fontSize: 15, background: `${C.bg}CC` }}>›</button>}
           {canNav && <span style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>{idx + 1} of {roster.length}</span>}
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end", marginTop: 10 }}>
+        <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end", maxWidth: "55%" }}>
           {contractor.premium && <Badge text="Premium Pro" color={C.orange} icon="star" />}
           {contractor.verified && <Badge text={contractor.license && contractor.license !== "N/A" ? "License Verified" : "Business Verified"} color={contractor.license && contractor.license !== "N/A" ? C.green : C.muted} icon="badge" />}{((contractor.photos || []).length >= 3 || (contractor.videos || []).length > 0 || contractor.videoUrl) && <Badge text="See Their Work" color={C.gold} icon="star" />}
         </div>

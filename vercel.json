@@ -3,6 +3,14 @@
     { "path": "/api/digest", "schedule": "0 10 * * *" }
   ],
   "rewrites": [
-    { "source": "/pros", "destination": "/index.html" }
+    { "source": "/pros", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/:trade/:county", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/buildbridge-verified-pros.vcf",
+      "headers": [{ "key": "Content-Type", "value": "text/vcard; charset=utf-8" }]
+    }
   ]
 }

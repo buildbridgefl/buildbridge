@@ -617,7 +617,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
         </div>
         <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 8 }}>
           {contractor.premium && <Badge text="Premium Pro" color={C.orange} icon="star" />}
-          {contractor.verified && <Badge text={contractor.license ? "Licensed" : "Verified"} color={contractor.license ? C.green : C.blue} icon="badge" />}{contractor.claimed !== false && <Badge text="Claimed" color={C.gold} icon="badge" />}
+          {contractor.verified && <Badge text={contractor.license && contractor.license !== "N/A" ? "License Verified" : "Business Verified"} color={contractor.license && contractor.license !== "N/A" ? C.green : C.muted} icon="badge" />}{((contractor.photos || []).length >= 3 || contractor.videoUrl) && <Badge text="★ Showcase" color={C.gold} icon="star" />}
         </div>
       </div>
 

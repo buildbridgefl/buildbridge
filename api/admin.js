@@ -16,6 +16,9 @@
 //   lead_send      → records a lead and emails the contractor right away
 //   leads          → recent leads, for follow-up
 //   lead_status    → sent / contacted / won / lost
+//   apps           → pending contractor/supplier applications (approved false or null)
+//   app_approve    → flips approved=true on a vendor_applications row
+//   app_reject     → deletes the application row
 
 const SB_URL = "https://jbpwxfaazetfcbwxrmtc.supabase.co";
 const FROM = "BuildBridge FL <jobs@buildbridgefl.com>";
@@ -478,6 +481,100 @@ export default async function handler(req, res) {
         reason: emailed ? null : "send_failed",
         detail: sendErr,
       });
+    }
+
+    // ---------- apps (pending applications) ----------
+    // Anything that came in through the sign-up form and hasn't been approved yet.
+    // approved can be false or null depending on how the row was created, so match both.
+    if (action === "apps") {
+      const aRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_applications?select=*&or=(approved.is.false,approved.is.null)&order=created_at.desc`,
+        { headers: sbHeaders }
+      );
+      if (!aRes.ok) {
+        const detail = await aRes.text();
+        throw new Error(`applications query failed (${aRes.status}): ${detail}`);
+      }
+      const rows = await aRes.json();
+
+      const apps = rows.map((v) => ({
+        vendor_id: v.id,
+        name: v.name || "",
+        company: v.company || v.name || `Vendor ${v.id}`,
+        trade: v.trade || "",
+        city: v.city || "",
+        phone: v.phone || "",
+        email: v.email || "",
+        website: v.website || "",
+        license: v.license || "",
+        bio: v.bio || "",
+        type: v.type || "contractor",
+        submitted: v.created_at || null,
+      }));
+
+      return res.status(200).json({ apps: apps, count: apps.length });
+    }
+
+    // ---------- app_approve ----------
+    // Approving publishes the listing. If they left a usable email we also set
+    // claimed, since a self-submitted application means it's already their page.
+    if (action === "app_approve") {
+      const vendorId = body.vendor_id;
+      if (!vendorId) {
+        return res.status(400).json({ error: "vendor_id is required" });
+      }
+
+      const curRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_applications?select=id,company,email&id=eq.${vendorId}`,
+        { headers: sbHeaders }
+      );
+      if (!curRes.ok) throw new Error(`application lookup failed: ${curRes.status}`);
+      const curRows = await curRes.json();
+      if (!curRows.length) {
+        return res.status(404).json({ error: `No application with id ${vendorId}` });
+      }
+      const cur = curRows[0];
+
+      const patch = { approved: true };
+      const hasEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(cur.email || "").trim());
+      if (hasEmail) patch.claimed = true;
+
+      const upRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_applications?id=eq.${vendorId}`,
+        {
+          method: "PATCH",
+          headers: { ...sbHeaders, Prefer: "return=representation" },
+          body: JSON.stringify(patch),
+        }
+      );
+      if (!upRes.ok) {
+        const detail = await upRes.text();
+        throw new Error(`application approve failed (${upRes.status}): ${detail}`);
+      }
+      const upRows = await upRes.json();
+
+      return res.status(200).json({
+        ok: true,
+        vendor: upRows[0] || null,
+        claimed: !!hasEmail,
+      });
+    }
+
+    // ---------- app_reject ----------
+    if (action === "app_reject") {
+      const vendorId = body.vendor_id;
+      if (!vendorId) {
+        return res.status(400).json({ error: "vendor_id is required" });
+      }
+      const delRes = await fetch(
+        `${SB_URL}/rest/v1/vendor_applications?id=eq.${vendorId}`,
+        { method: "DELETE", headers: { ...sbHeaders, Prefer: "return=minimal" } }
+      );
+      if (!delRes.ok) {
+        const detail = await delRes.text();
+        throw new Error(`application delete failed (${delRes.status}): ${detail}`);
+      }
+      return res.status(200).json({ ok: true, deleted: vendorId });
     }
 
     // ---------- leads (follow-up list) ----------

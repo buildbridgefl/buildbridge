@@ -1090,7 +1090,7 @@ export default function AdminMobile() {
                           {working ? "Working…" : "Approve & Publish"}
                         </button>
                         <div style={{ fontSize: 11.5, color: C.muted, textAlign: "center", margin: "8px 0 4px", lineHeight: 1.45 }}>
-                          {a.email
+                          {/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(a.email || "").trim())
                             ? "Goes live now, and their email becomes their login."
                             : "Goes live now. No email on file — they can't sign in yet."}
                         </div>

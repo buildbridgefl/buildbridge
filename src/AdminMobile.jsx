@@ -1,5 +1,5 @@
 // src/AdminMobile.jsx — BuildBridge mobile admin
-// Step 9: adds a tools footer — one tap to every dashboard this thing runs on.
+// Step 10: adds an Apps tab — approve new contractor applications from the phone.
 // Talks only to /api/admin, never to Supabase directly.
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -93,6 +93,11 @@ export default function AdminMobile() {
   const [sending, setSending] = useState(false);
   const [sentLead, setSentLead] = useState(null);
   const [statusBusy, setStatusBusy] = useState(null);
+  const [apps, setApps] = useState([]);
+  const [appsLoaded, setAppsLoaded] = useState(false);
+  const [appOpenId, setAppOpenId] = useState(null);
+  const [appBusy, setAppBusy] = useState(null);
+  const [appRejectId, setAppRejectId] = useState(null);
 
   // Pulls both queues. A photo failure shouldn't blank the claims list.
   const load = useCallback(async (key) => {
@@ -108,6 +113,13 @@ export default function AdminMobile() {
         setPhotos(pdata.photos || []);
       } catch (pe) {
         setPhotos([]);
+      }
+      try {
+        const adata = await callAdmin(key, "apps");
+        setApps(adata.apps || []);
+        setAppsLoaded(true);
+      } catch (ae) {
+        setApps([]);
       }
     } catch (e) {
       setErr(String(e.message || e));
@@ -259,6 +271,65 @@ export default function AdminMobile() {
       setErr(String(e.message || e));
     }
   }, []);
+
+  const loadApps = useCallback(async (key) => {
+    try {
+      const data = await callAdmin(key, "apps");
+      setApps(data.apps || []);
+      setAppsLoaded(true);
+    } catch (e) {
+      setErr(String(e.message || e));
+    }
+  }, []);
+
+  const openApps = () => {
+    setTab("apps");
+    setErr("");
+    setAppRejectId(null);
+    if (!appsLoaded && secret) loadApps(secret);
+  };
+
+  // Verification helpers. Neither DBPR nor Sunbiz can be deep-linked — both
+  // search by form POST — so copy the value and open the empty search form.
+  const checkLicense = (lic) => {
+    const first = String(lic || "").split(/[,&]/)[0].trim();
+    try { navigator.clipboard && navigator.clipboard.writeText(first); } catch (e) {}
+    window.open("https://www.myfloridalicense.com/wl11.asp?mode=0&SID=", "_blank");
+  };
+
+  const checkSunbiz = (company) => {
+    try { navigator.clipboard && navigator.clipboard.writeText(String(company || "").trim()); } catch (e) {}
+    window.open("https://search.sunbiz.org/Inquiry/CorporationSearch/ByName", "_blank");
+  };
+
+  const approveApp = async (a) => {
+    setAppBusy(a.vendor_id);
+    setErr("");
+    try {
+      await callAdmin(secret, "app_approve", { vendor_id: a.vendor_id });
+      setApps((prev) => prev.filter((x) => x.vendor_id !== a.vendor_id));
+      setAppOpenId(null);
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setAppBusy(null);
+    }
+  };
+
+  const rejectApp = async (a) => {
+    setAppBusy(a.vendor_id);
+    setErr("");
+    try {
+      await callAdmin(secret, "app_reject", { vendor_id: a.vendor_id });
+      setApps((prev) => prev.filter((x) => x.vendor_id !== a.vendor_id));
+      setAppOpenId(null);
+      setAppRejectId(null);
+    } catch (e) {
+      setErr(String(e.message || e));
+    } finally {
+      setAppBusy(null);
+    }
+  };
 
   const openLeads = () => {
     setTab("leads");
@@ -430,7 +501,7 @@ export default function AdminMobile() {
   }
 
   const tabBtn = (active) => ({
-    flex: 1, padding: "11px 8px", fontSize: 14, fontWeight: 700,
+    flex: "1 1 28%", padding: "11px 6px", fontSize: 13.5, fontWeight: 700,
     background: active ? C.card : "transparent",
     color: active ? C.text : C.muted,
     border: `1px solid ${active ? C.border : "transparent"}`,
@@ -452,7 +523,10 @@ export default function AdminMobile() {
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 6, background: C.panel, padding: 4, borderRadius: 11, marginBottom: 14 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, background: C.panel, padding: 4, borderRadius: 11, marginBottom: 14 }}>
+        <button onClick={openApps} style={tabBtn(tab === "apps")}>
+          Apps{apps.length ? ` (${apps.length})` : ""}
+        </button>
         <button onClick={() => { setTab("claims"); setErr(""); }} style={tabBtn(tab === "claims")}>
           Claims{pending.length ? ` (${pending.length})` : ""}
         </button>
@@ -891,6 +965,146 @@ export default function AdminMobile() {
                     </div>
                   )}
                 </div>
+              </div>
+            );
+          })}
+        </>
+      ) : null}
+
+      {tab === "apps" ? (
+        <>
+          <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5, marginBottom: 12 }}>
+            Straight from the sign-up form. Verify the license on DBPR and the
+            business on Sunbiz before you publish — that check is the whole product.
+          </div>
+
+          {apps.length === 0 && !busy ? (
+            <div style={{ ...cardBox, textAlign: "center", color: C.muted, fontSize: 14, padding: 30 }}>
+              No applications waiting.
+            </div>
+          ) : null}
+
+          {apps.map((a) => {
+            const open = appOpenId === a.vendor_id;
+            const rejecting = appRejectId === a.vendor_id;
+            const working = appBusy === a.vendor_id;
+            return (
+              <div key={a.vendor_id} style={cardBox}>
+                <div
+                  onClick={() => { setAppOpenId(open ? null : a.vendor_id); setAppRejectId(null); }}
+                  style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {a.company || "(no company)"}
+                    </div>
+                    <div style={{ fontSize: 13, color: C.dim, marginTop: 2 }}>
+                      {a.trade || "no trade given"}
+                      {a.name ? ` · ${a.name}` : ""}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ fontSize: 11, color: C.muted }}>{fmtWhen(a.submitted)}</div>
+                    <div style={{ fontSize: 18, color: C.dim, lineHeight: 1 }}>{open ? "−" : "+"}</div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
+                  {a.type === "supplier" ? (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: C.gold }}>Supplier</span>
+                  ) : null}
+                  {a.license ? (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Has license #</span>
+                  ) : (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>No license — Sunbiz only</span>
+                  )}
+                </div>
+
+                {open ? (
+                  <div style={{ marginTop: 14, borderTop: `1px solid ${C.border}`, paddingTop: 14 }}>
+                    <Row label="Phone" value={a.phone} />
+                    <Row label="Email" value={a.email} />
+                    <Row label="City" value={a.city} />
+                    <Row label="Vendor ID" value={String(a.vendor_id)} />
+                    {a.bio ? <Row label="Bio" value={a.bio} /> : null}
+
+                    {a.website ? (
+                      <a
+                        href={a.website.startsWith("http") ? a.website : `https://${a.website}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: "block", fontSize: 13, color: C.orange, wordBreak: "break-all", marginBottom: 12, textDecoration: "none" }}
+                      >
+                        {a.website} ↗
+                      </a>
+                    ) : null}
+
+                    <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 7 }}>
+                      Verify first
+                    </div>
+                    <div style={{ display: "flex", gap: 7, marginBottom: 14, flexWrap: "wrap" }}>
+                      {a.license ? (
+                        <button
+                          onClick={() => checkLicense(a.license)}
+                          style={{ flex: "1 1 45%", padding: "11px 8px", fontSize: 13, fontWeight: 700, background: C.panel, border: `1px solid ${C.green}66`, color: C.green, borderRadius: 9, cursor: "pointer" }}
+                        >
+                          Copy {a.license} → DBPR
+                        </button>
+                      ) : null}
+                      <button
+                        onClick={() => checkSunbiz(a.company)}
+                        style={{ flex: "1 1 45%", padding: "11px 8px", fontSize: 13, fontWeight: 700, background: C.panel, border: `1px solid ${C.border}`, color: C.dim, borderRadius: 9, cursor: "pointer" }}
+                      >
+                        Copy name → Sunbiz
+                      </button>
+                    </div>
+
+                    {rejecting ? (
+                      <div style={{ padding: 14, background: C.panel, border: `1px solid ${C.red}66`, borderRadius: 10 }}>
+                        <div style={{ fontSize: 12.5, color: C.dim, lineHeight: 1.5, marginBottom: 10 }}>
+                          This deletes the application for good — there's no undo and
+                          no record kept. Sure?
+                        </div>
+                        <button
+                          onClick={() => rejectApp(a)}
+                          disabled={working}
+                          style={{ width: "100%", padding: 14, fontSize: 15, fontWeight: 800, background: C.red, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: working ? 0.6 : 1, marginBottom: 8 }}
+                        >
+                          {working ? "Working…" : "Yes, delete it"}
+                        </button>
+                        <button
+                          onClick={() => setAppRejectId(null)}
+                          disabled={working}
+                          style={{ width: "100%", padding: 11, fontSize: 13, background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => approveApp(a)}
+                          disabled={working}
+                          style={{ width: "100%", padding: 15, fontSize: 16, fontWeight: 800, background: C.green, color: "#0B1220", border: "none", borderRadius: 10, cursor: "pointer", opacity: working ? 0.6 : 1 }}
+                        >
+                          {working ? "Working…" : "Approve & Publish"}
+                        </button>
+                        <div style={{ fontSize: 11.5, color: C.muted, textAlign: "center", margin: "8px 0 4px", lineHeight: 1.45 }}>
+                          {a.email
+                            ? "Goes live now, and their email becomes their login."
+                            : "Goes live now. No email on file — they can't sign in yet."}
+                        </div>
+                        <button
+                          onClick={() => setAppRejectId(a.vendor_id)}
+                          disabled={working}
+                          style={{ width: "100%", padding: 11, fontSize: 13, background: "transparent", border: "none", color: C.red, cursor: "pointer" }}
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ) : null}
               </div>
             );
           })}

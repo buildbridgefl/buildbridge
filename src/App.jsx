@@ -1237,6 +1237,9 @@ useEffect(() => {
                     <button onClick={() => goView("network")} className="btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>Browse the network</button>               <div style={{ fontSize: 11.5, color: C.dim, marginTop: 12 }}>No paid ads. No pay-to-play. Nobody buys their way onto this site. Every contractor here passed a license and registration check first — that's the only way in.</div>
                   </div>
                 </div>
+                {/* Homeowner trust card */}
+                <div style={{ background: C.card, border: `1px solid ${C.green}44`, borderLeft: `4px solid ${C.green}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}><div className="eyebrow" style={{ color: C.green, marginBottom: 6 }}>Why verification matters</div><div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 6 }}>Hiring unlicensed can cost you more than the job</div><div style={{ fontSize: 12, color: C.dim, lineHeight: 1.55, marginBottom: 10 }}>Florida's Homeowners' Construction Recovery Fund only helps if your contractor was licensed. Unpermitted work can surface at resale and complicate an insurance claim. Every contractor here was checked against DBPR and Sunbiz before we listed them.</div><button className="btn-ghost" onClick={() => (track("homeowner_trust_click", "feed"), goView("trust"))} style={{ padding: "9px 16px", fontSize: 12.5 }}>How we verify</button></div>
+
                  {/* Permit Prep banner */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: C.card, border: `1px solid ${C.orange}55`, borderLeft: `4px solid ${C.orange}`, borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
           <div style={{ flex: 1, minWidth: 220 }}>
@@ -1601,9 +1604,6 @@ useEffect(() => {
                 </div>
               ))}
             </div>
-
-            {/* Homeowner trust CTA */}
-            <div style={{ background: C.card, border: `1px solid ${C.green}44`, borderRadius: 14, padding: 16, marginBottom: 16 }}><div className="eyebrow" style={{ color: C.green, marginBottom: 8 }}>Homeowners</div><div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Hiring unlicensed can cost you more than the job</div><div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Florida's Homeowners' Construction Recovery Fund only helps if your contractor was licensed. Unpermitted work can also surface at resale and complicate insurance claims. Every contractor here was checked against DBPR and Sunbiz first \u2014 free, no pay-to-play.</div><button className="btn-ghost" onClick={() => (track("homeowner_trust_click", "sidebar"), goView("trust"))} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>How we verify</button></div>
 
             {/* Vendor CTA */}
             <div style={{ background: C.card, border: `1px solid ${C.orange}44`, borderRadius: 14, padding: 16, marginBottom: 16, position: "relative", overflow: "hidden" }}>

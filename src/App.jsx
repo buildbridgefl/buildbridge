@@ -1602,6 +1602,9 @@ useEffect(() => {
               ))}
             </div>
 
+            {/* Homeowner trust CTA */}
+            <div style={{ background: C.card, border: `1px solid ${C.green}44`, borderRadius: 14, padding: 16, marginBottom: 16 }}><div className="eyebrow" style={{ color: C.green, marginBottom: 8 }}>Homeowners</div><div style={{ fontSize: 13.5, fontWeight: 800, color: C.white, marginBottom: 8 }}>Hiring unlicensed can cost you more than the job</div><div style={{ fontSize: 12, color: C.dim, marginBottom: 12, lineHeight: 1.55 }}>Florida's Homeowners' Construction Recovery Fund only helps if your contractor was licensed. Unpermitted work can also surface at resale and complicate insurance claims. Every contractor here was checked against DBPR and Sunbiz first \u2014 free, no pay-to-play.</div><button className="btn-ghost" onClick={() => (track("homeowner_trust_click", "sidebar"), goView("trust"))} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>How we verify</button></div>
+
             {/* Vendor CTA */}
             <div style={{ background: C.card, border: `1px solid ${C.orange}44`, borderRadius: 14, padding: 16, marginBottom: 16, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />

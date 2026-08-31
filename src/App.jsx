@@ -800,14 +800,14 @@ function CoverageMap({ results, townObj }) {
   const ready = useLeaflet();
   const elRef = useRef(null);
   const mapRef = useRef(null);
-  const layerRef = useRef(null);   const tileRef = useRef(null); const satRef = useRef(null); const [sat, setSat] = useState(false);   const SAT_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";   const LBL_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}";   const isLight = C.bg === LIGHT.bg;   useEffect(() => { if (!tileRef.current || !mapRef.current) return; if (sat) { tileRef.current.setUrl(SAT_URL); if (!satRef.current) satRef.current = window.L.tileLayer(LBL_URL, { maxZoom: 19 }).addTo(mapRef.current); return; } if (satRef.current) { mapRef.current.removeLayer(satRef.current); satRef.current = null; } tileRef.current.setUrl(`https://{s}.basemaps.cartocdn.com/${isLight ? "light_all" : "dark_all"}/{z}/{x}/{y}{r}.png`); }, [isLight, sat]);
+  const layerRef = useRef(null);   const tileRef = useRef(null); const satRef = useRef(null); const [sat, setSat] = useState(false);   const SAT_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";   const LBL_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}";   const isLight = C.bg === LIGHT.bg;   useEffect(() => { if (!tileRef.current || !mapRef.current) return; if (sat) { tileRef.current.setUrl(SAT_URL); if (!satRef.current) satRef.current = window.L.tileLayer(LBL_URL, { maxZoom: 19 }).addTo(mapRef.current); return; } if (satRef.current) { mapRef.current.removeLayer(satRef.current); satRef.current = null; } tileRef.current.setUrl(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png`); }, [isLight, sat]);
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     if (!ready || !elRef.current || mapRef.current) return;
     const L = window.L;
     const map = L.map(elRef.current, { scrollWheelZoom: false, zoomControl: true }).setView([28.87, -82.45], 9);
-    tileRef.current = L.tileLayer(`https://{s}.basemaps.cartocdn.com/${isLight ? "light_all" : "dark_all"}/{z}/{x}/{y}{r}.png`, {
+    tileRef.current = L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png`, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.esri.com/">Esri</a>, Maxar',
       maxZoom: 19, subdomains: "abcd"
     }).addTo(map);

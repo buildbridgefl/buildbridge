@@ -1498,7 +1498,7 @@ useEffect(() => {
                       <div className="eyebrow" style={{ fontSize: 10, marginBottom: 6, color: C.muted }}>Budget</div>
                       <select value={matchBudget} onChange={e => setMatchBudget(e.target.value)} aria-label="Budget" style={{ width: "100%", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "10px 12px", color: C.text, fontSize: 13, outline: "none" }}>
                         <option value="">Select…</option>
-                        {["Under $5K", "$5K–$15K", "$15K–$50K", "$50K+"].map(o => <option key={o}>{o}</option>)}
+                        {["Small repair", "Medium job", "Full project", "Not sure yet"].map(o => <option key={o}>{o}</option>)}
                       </select>
                     </div>
                     <div>

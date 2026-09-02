@@ -807,11 +807,11 @@ function CoverageMap({ results, townObj }) {
     if (!ready || !elRef.current || mapRef.current) return;
     const L = window.L;
     const map = L.map(elRef.current, { scrollWheelZoom: false, zoomControl: true }).setView([28.87, -82.45], 9);
-    tileRef.current = L.tileLayer(`https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_${isLight ? "Light" : "Dark"}_Gray_Base/MapServer/tile/{z}/{y}/{x}`, {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.esri.com/">Esri</a>, Maxar',
+    tileRef.current = L.tileLayer(sat ? SAT_URL : `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_${isLight ? "Light" : "Dark"}_Gray_Base/MapServer/tile/{z}/{y}/{x}`, {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://www.esri.com/">Esri</a>, Maxar',
       maxZoom: 19, subdomains: "abcd"
     }).addTo(map);
-    mapRef.current = map;
+    mapRef.current = map; if (sat && !satRef.current) satRef.current = L.tileLayer(LBL_URL, { maxZoom: 19 }).addTo(map);
     layerRef.current = L.layerGroup().addTo(map);
     setTimeout(() => map.invalidateSize(), 60);
   }, [ready]);

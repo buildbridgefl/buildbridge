@@ -807,7 +807,7 @@ function CoverageMap({ results, townObj }) {
     if (!ready || !elRef.current || mapRef.current) return;
     const L = window.L;
     const map = L.map(elRef.current, { scrollWheelZoom: false, zoomControl: true }).setView([28.87, -82.45], 9);
-    tileRef.current = L.tileLayer(`https://{s}.basemaps.cartocdn.com/${isLight ? "light_all" : "dark_all"}/{z}/{x}/{y}{r}.png`, {
+    tileRef.current = L.tileLayer(`https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_${isLight ? "Light" : "Dark"}_Gray_Base/MapServer/tile/{z}/{y}/{x}`, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.esri.com/">Esri</a>, Maxar',
       maxZoom: 19, subdomains: "abcd"
     }).addTo(map);

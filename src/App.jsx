@@ -131,8 +131,8 @@ async function fetchApprovedSuppliers() {
     return rows.map(v => ({
       id: 2000 + v.id,
       name: v.company,
-      category: v.trade || "General",
-      location: "Citrus County, FL",
+      category: v.trade || "General",       publicAccess: v.public_access === true,
+      location:  v.city || "Citrus County, FL",
       website: v.website || "",
       phone: v.phone || "",
       bio: v.bio || ""

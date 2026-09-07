@@ -118,6 +118,7 @@ async function fetchApprovedVendors() {
       verified: true, premium: false, claimed: v.claimed === true,
       license: v.license || null,         lat: v.lat || null,         lng: v.lng || null,         serviceRadiusMiles: v.service_radius_miles || 33,
       reviews: 0, videoTitle: v.video_title || null, videoUrl: v.video_url || null,
+      googlePlaceId: v.google_place_id || null,
       specialties: v.specialties ? v.specialties.split(",").map(s => s.trim()) : [],
       photos: (v.vendor_photos || []).map(p => ({ url: `${SB_URL}/storage/v1/object/public/vendor-photos/${p.path}`, caption: p.caption })),
       bio: v.bio || ""
@@ -687,6 +688,12 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
              {contractor.license === "N/A" ? "License: N/A" : <>License <span onClick={() => { navigator.clipboard?.writeText(String(contractor.license).split(/[,&]/)[0].trim()); onToast("License copied — pick 'Search by License Number' and paste"); window.open("https://www.myfloridalicense.com/wl11.asp?mode=0&SID=", "_blank"); }} style={{ color: C.blue, fontWeight: 700, textDecoration: "underline", cursor: "pointer" }}>{contractor.license}</span> · <span onClick={onTrust} style={{ color: C.blue, cursor: "pointer", textDecoration: "underline" }}>verify at FL DBPR</span></>}
               {" · "}<a href={`https://search.sunbiz.org/Inquiry/CorporationSearch/SearchResults?inquiryType=EntityName&searchTerm=${encodeURIComponent(contractor.company || "")}`} target="_blank" rel="noreferrer" onClick={() => track("sunbiz_verify_click", contractor.company)} style={{ color: C.blue, textDecoration: "underline" }}>Sunbiz record</a>
             </span>
+            {contractor.googlePlaceId && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <Icon name="star" size={14} color={C.muted} />
+                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contractor.company || "")}&query_place_id=${encodeURIComponent(contractor.googlePlaceId)}`} target="_blank" rel="noreferrer" onClick={() => track("google_reviews_click", contractor.company)} style={{ color: C.blue, textDecoration: "underline" }}>Read their Google reviews →</a>
+              </span>
+            )}
           </div>
         </div>
 
@@ -1436,8 +1443,8 @@ useEffect(() => {
                           <span style={{ fontSize: 11.5, color: C.muted, fontStyle: "italic" }}>Listed from public record — not yet claimed</span>
                         ) : (
                           <>
-                            <Stars rating={c.rating} />
-                            <span style={{ fontSize: 12, color: C.muted }}>{c.jobs} jobs · {c.followers} followers</span>
+                            <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{c.license && c.license !== "N/A" ? "Licensed · DBPR + Sunbiz" : "Registered · Sunbiz"}</span>
+                            <span style={{ fontSize: 12, color: C.muted }}>{c.serviceRadiusMiles || 33} mi service area</span>
                           </>
                         )}
                       </div>
@@ -1558,7 +1565,7 @@ useEffect(() => {
                                 <div style={{ fontWeight: 800, fontSize: 15, color: C.white }}>{c.name}</div>
                                 <div style={{ fontSize: 12, color: C.muted }}>{c.company} · {c.trade}</div>
                               </div>
-                              <Stars rating={c.rating} />
+                              <span style={{ fontSize: 11.5, color: C.green, fontWeight: 700, whiteSpace: "nowrap" }}>{c.license && c.license !== "N/A" ? "Licensed" : "Verified"}</span>
                             </div>
                             <p style={{ fontSize: 13, color: C.dim, margin: "8px 0", lineHeight: 1.5 }}>{c.bio}</p>
                            {c.distanceMiles != null && ( <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11.5, color: C.blue, marginBottom: 8, fontWeight: 700 }}><Icon name="pin" size={13} color={C.blue} />{Math.round(c.distanceMiles)} mi away · {c.location}</div> )}

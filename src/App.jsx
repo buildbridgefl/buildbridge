@@ -1656,6 +1656,9 @@ useEffect(() => {
               ))}
             </div>
 
+            {/* Pros card — homeowner-facing, so it sits above the contractor CTAs */}
+            <ProsCard />
+
             {/* Vendor CTA */}
             <div style={{ background: C.card, border: `1px solid ${C.orange}44`, borderRadius: 14, padding: 16, marginBottom: 16, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />
@@ -1673,8 +1676,6 @@ useEffect(() => {
           <button className="btn-primary" onClick={() => (track("permit_prep_sidebar_click", "sidebar"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSefxtPbcIOzoAEZYCuQa8f-HTVmxd1pIQ5WYPtAdxhBcZ1jjg/viewform"))} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>Ask About My Project</button>
         </div>
 
-            {/* Pros card — replaces "People to follow" */}
-            <ProsCard />
           </div>
           </aside>
         </div>

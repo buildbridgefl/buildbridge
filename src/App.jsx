@@ -617,7 +617,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
         </div>
         <div style={{ position: "absolute", top: 14, right: 14, display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end", maxWidth: "55%" }}>
           {contractor.premium && <Badge text="Premium Pro" color={C.orange} icon="star" />}
-          {contractor.verified && <Badge text={contractor.license && contractor.license !== "N/A" ? "License Verified" : "Business Verified"} color={contractor.license && contractor.license !== "N/A" ? C.green : C.muted} icon="badge" />}{((contractor.photos || []).length >= 3 || (contractor.videos || []).length > 0 || contractor.videoUrl) && <Badge text="See Their Work" color={C.gold} icon="star" />}
+          {contractor.verified && <Badge text={contractor.license && contractor.license !== "N/A" ? `Lic ${String(contractor.license).split(/[,&]/)[0].trim()} · Verified` : "Business Verified · Sunbiz"} color={contractor.license && contractor.license !== "N/A" ? C.green : C.muted} icon="badge" />}{((contractor.photos || []).length >= 3 || (contractor.videos || []).length > 0 || contractor.videoUrl) && <Badge text="See Their Work" color={C.gold} icon="star" />}
         </div>
       </div>
 
@@ -648,16 +648,27 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
           </div>  
         )}
 
-        {contractor.claimed !== false && (
+        {contractor.claimed !== false && (() => {
+          const lic = contractor.license && contractor.license !== "N/A";
+          const tiles = [
+            ["Status", lic ? "Licensed" : "Registered"],
+            ["Checked", lic ? "DBPR + Sunbiz" : "Sunbiz"],
+            ["Service area", `${contractor.serviceRadiusMiles || 33} mi`],
+            ["Followers", <LiveFollowers id={contractor.id} fallback={contractor.followers} />],
+          ];
+          if (contractor.reviews > 0) { tiles[0] = ["Rating", contractor.rating.toFixed(1)]; tiles[1] = ["Reviews", contractor.reviews]; }
+          if (contractor.jobs > 0) tiles[2] = ["Jobs done", contractor.jobs];
+          return (
         <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
-          {[["Rating", contractor.rating.toFixed(1)], ["Jobs done", contractor.jobs], ["Followers", <LiveFollowers id={contractor.id} fallback={contractor.followers} />], ["Reviews", contractor.reviews]].map(([label, val]) => (
+          {tiles.map(([label, val]) => (
             <div key={label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
-              <div className="display" style={{ fontWeight: 800, fontSize: 20, color: C.orange }}>{val}</div>
+              <div className="display" style={{ fontWeight: 800, fontSize: typeof val === "string" && val.length > 6 ? 13 : 20, color: C.orange, lineHeight: 1.25 }}>{val}</div>
               <div style={{ fontSize: 10.5, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>{label}</div>
             </div>
          ))}
         </div>
-        )}
+          );
+        })()}
 
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
           <div className="eyebrow" style={{ marginBottom: 8 }}>About</div>

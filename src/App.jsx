@@ -992,6 +992,34 @@ function tradeBucket(trade) {
   return a ? a[1] : (trade || "General").split(/[,&\/]/)[0].trim();
 }
 
+// ── Pros card — QR + saveable contact, both pointing at /pros ────────────────
+const PROS_URL = "https://buildbridgefl.com/pros";
+const PROS_VCF = "/buildbridge-verified-pros.vcf";
+const PROS_QR = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAFoAQAAAABSnlx4AAACUUlEQVR42u1bQQ7aMBCcSZBA6iH8AH7i9mVOfgY/SX8QDpWCFDI9rOME0UrtoZUw60sATzjMZtezY4fCX4wKjna0o/89GlKfP8cBCCOibPS1pDnP7iVnsKzI0wI9IWoGavs22HQzI9gPF498geiO5BkAqMuDZIXuuGLuJCtnsGj0jYwjoh5sAfVW/53BT0BT3Rd1rBAH8FyLR+fkI9b5gbqkRN8Lp8nX+Y/R9tSlFpoZcYD6Wm3j2r5Q9A44rYbLDQhTEvUiagCUM1h2tcdpepmr1WJ5Dn5b7RcR+Hq/8/0ekf/FWCOfqv2qCvpaMt8Hjex+933Kfk402XWy7n/Vg0vk964H30zhnZJxVwvgNtnDCDSzZ3GZWbzXVttjU/9Ty2fNnTNYaOSBFPkX8+5p5Q7jiwYwVbBd553v4tC1vh0APCjNwINRUmteb8cKQUoCwBksrEJI7arnkgaIpu3bpPnkqqBobZ/2dJep0+SqoPhOYC/rBFKc15HEgXcC5VZ728GlNK77O1ILIEjq6f18mZFP10XJW/f/XO0950us9mF8cnnw4vs37uGVmfN5Vc+GTxzMz20k2QlOj3yRCs9GHLA5r2mRn5cq4JEvD51P8KCZEX6QR7FtlE9wAlEPxtEZLC3ns56LA8yxQz67Be/qPgLdzMCdUZJG4Psul/nBpJ8zWCza7Plbhe6Qz2iHEWSF68EZLBp9Pdg7GXfyDHRH4Eo+o6O2snAjDdtN6XC+3wAtkiR3wI38CgBi+2f/HfTs8mdrwNeGstD0t6gd7ej/gP4J7fIV5LPBA8YAAAAASUVORK5CYII=";
+
+function ProsCard() {
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.orange}55`, borderLeft: `4px solid ${C.orange}`, borderRadius: 14, padding: 16, marginBottom: 16 }}>
+      <div className="eyebrow" style={{ color: C.orange, marginBottom: 6 }}>Keep it in your phone</div>
+      <div className="display" style={{ fontWeight: 800, fontSize: 15.5, color: C.white, lineHeight: 1.2, marginBottom: 6 }}>AC out? Pipe burst?</div>
+      <div style={{ fontSize: 12, color: C.dim, lineHeight: 1.55, marginBottom: 12 }}>
+        Verified pros who cover your town, with their direct number. No app, no login — and nothing to dig for at 9pm.
+      </div>
+
+      <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+        <img className="hide-mobile" src={PROS_QR} width={92} height={92} alt="Scan to open buildbridgefl.com/pros" style={{ display: "block", borderRadius: 8, background: "#fff", padding: 6, flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="hide-mobile" style={{ fontSize: 11.5, color: C.muted, marginBottom: 10, lineHeight: 1.5 }}>Scan it with your phone camera.</div>
+          <a href={PROS_VCF} download onClick={() => track("pros_vcf_download", "sidebar")} className="btn-primary" style={{ display: "block", textAlign: "center", padding: "10px 14px", fontSize: 12.5, textDecoration: "none", marginBottom: 8 }}>Save to my contacts</a>
+          <a href={PROS_URL} onClick={() => track("pros_page_click", "sidebar")} className="btn-ghost" style={{ display: "block", textAlign: "center", padding: "9px 14px", fontSize: 12.5, textDecoration: "none" }}>Open the pros page</a>
+        </div>
+      </div>
+
+      <div style={{ fontSize: 11, color: C.muted, marginTop: 10, lineHeight: 1.5 }}>Saves one contact — BuildBridge FL. Send it to a neighbor next time they ask who you use.</div>
+    </div>
+  );
+}
+
 function CoverageFinder({ roster, onProfile }) {   const [town, setTown] = useState(null); const [trade, setTrade] = useState(null); const t = TOWNS.find(x => x.name === town);   const inTown = !t ? [] : roster     .map(c => ({ ...c, d: milesBetween(t.lat, t.lng, c.lat, c.lng) }))     .filter(c => c.d == null || c.d <= (c.serviceRadiusMiles || 50))     .sort((a, b) => (a.d == null ? 9999 : a.d) - (b.d == null ? 9999 : b.d));   const tradeList = [...new Set(inTown.map(c => tradeBucket(c.trade)))].sort();   const results = trade ? inTown.filter(c => tradeBucket(c.trade) === trade) : inTown;    return (     <div style={{ background: `linear-gradient(120deg, ${C.card}, ${C.panel})`, border: `1px solid ${C.orange}55`, borderRadius: 16, padding: "18px 18px 16px", marginBottom: 18, position: "relative", overflow: "hidden" }}>       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `repeating-linear-gradient(45deg, ${C.orange}, ${C.orange} 10px, #14100A 10px, #14100A 20px)` }} aria-hidden="true" />       <div className="eyebrow" style={{ marginBottom: 6, marginTop: 4 }}>Start here</div>       <div className="display" style={{ fontWeight: 800, fontSize: 22, color: C.white, lineHeight: 1.15, marginBottom: 6 }}>Where's the job?</div>       <div style={{ fontSize: 12.5, color: C.dim, marginBottom: 14, lineHeight: 1.5 }}>Tap your town. You'll see every verified contractor who actually covers it — not just the ones with an address nearby.</div>        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: town ? 16 : 0 }}>         {TOWNS.map(x => (           <button key={x.name} onClick={() => { track("coverage_town_click", x.name); setTrade(null); setTown(town === x.name ? null : x.name); }}             style={{ background: town === x.name ? C.orange : "transparent", color: town === x.name ? "#14100A" : C.dim, border: `1px solid ${town === x.name ? C.orange : C.border}`, borderRadius: 20, padding: "7px 13px", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{x.name}</button>         ))}       </div>        {town && (         <div className="fade-in">           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>             <div className="eyebrow" style={{ color: C.green }}>{results.length} verified contractor{results.length !== 1 ? "s" : ""} {trade ? `for ${trade} in ${town}` : `cover ${town}`}</div>             <button onClick={() => { setTrade(null); setTown(null); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Clear</button>           </div>
 
           <CoverageMap results={results} townObj={t} />
@@ -1645,20 +1673,8 @@ useEffect(() => {
           <button className="btn-primary" onClick={() => (track("permit_prep_sidebar_click", "sidebar"), window.open("https://docs.google.com/forms/d/e/1FAIpQLSefxtPbcIOzoAEZYCuQa8f-HTVmxd1pIQ5WYPtAdxhBcZ1jjg/viewform"))} style={{ width: "100%", padding: 10, fontSize: 12.5 }}>Ask About My Project</button>
         </div>
 
-            {/* Suggested */}
-            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>
-              <div className="eyebrow" style={{ marginBottom: 12 }}>People to follow</div>
-              {ALL.filter(c => !c.hidden).slice(0, 3).map((c, i) => (
-                <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: i < 2 ? `1px dashed ${C.line}` : "none" }}>
-                  <Avatar initials={c.avatar} size={36} premium={c.premium} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: C.white }}>{c.name}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{c.trade}</div>
-                  </div>
-                  <FollowButton contractor={c} onToast={showToast} />
-                </div>
-              ))}
-            </div>
+            {/* Pros card — replaces "People to follow" */}
+            <ProsCard />
           </div>
           </aside>
         </div>

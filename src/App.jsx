@@ -190,7 +190,7 @@ async function sendMagicLink(email) {   try {     const r = await fetch(`${SB_UR
   if (diffMonths === 1) return "1 month ago";
   return `${diffMonths} months ago`;
 }
-function LiveFollowers({ id, fallback = 0 }) {
+function useFollowerCount(id, fallback = 0) {
   const [n, setN] = useState(fallback);
   useEffect(() => {
     let live = true;
@@ -200,6 +200,9 @@ function LiveFollowers({ id, fallback = 0 }) {
     return () => { live = false; window.removeEventListener("follows-updated", load); };
   }, [id]);
   return n;
+}
+function LiveFollowers({ id, fallback = 0 }) {
+  return useFollowerCount(id, fallback);
 }
 function FollowButton({ contractor, onToast }) {
   const [done, setDone] = useState(false);
@@ -354,7 +357,7 @@ const makeCss = () => `
       justify-content: space-around; gap: 2px;
     }
     .scroll-col { height: calc(100vh - 64px); padding: 14px 12px 110px; }
-    .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .stat-grid { grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)) !important; }
     .portfolio-grid { grid-template-columns: 1fr !important; }
     .hide-mobile { display: none !important; }
   }
@@ -597,6 +600,7 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
   const tel = contractor.phone?.replace(/\D/g, "");
   const idx = roster.findIndex(c => c.id === contractor.id);
   const canNav = idx >= 0 && roster.length > 1 && !!onSelect;
+  const followerCount = useFollowerCount(contractor.id, contractor.followers);
   const touchX = useRef(0);
   const go = step => {
     if (!canNav) return;
@@ -654,12 +658,12 @@ function ContractorProfile({ contractor, reviews, roster = [], onSelect, onBack,
             ["Status", lic ? "Licensed" : "Registered"],
             ["Checked", lic ? "DBPR + Sunbiz" : "Sunbiz"],
             ["Service area", `${contractor.serviceRadiusMiles || 33} mi`],
-            ["Followers", <LiveFollowers id={contractor.id} fallback={contractor.followers} />],
           ];
           if (contractor.reviews > 0) { tiles[0] = ["Rating", contractor.rating.toFixed(1)]; tiles[1] = ["Reviews", contractor.reviews]; }
           if (contractor.jobs > 0) tiles[2] = ["Jobs done", contractor.jobs];
+          if (followerCount > 0) tiles.push(["Followers", followerCount]);
           return (
-        <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 16 }}>
+        <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: `repeat(${tiles.length}, 1fr)`, gap: 10, marginBottom: 16 }}>
           {tiles.map(([label, val]) => (
             <div key={label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
               <div className="display" style={{ fontWeight: 800, fontSize: typeof val === "string" && val.length > 6 ? 13 : 20, color: C.orange, lineHeight: 1.25 }}>{val}</div>
